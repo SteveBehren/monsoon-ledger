@@ -1,0 +1,54 @@
+id: 2026-06-17-id-report-all-incidents
+date: 2026-06-17
+country: ID
+instrument: draft-perpres-ai-ethics
+status: draft
+evidence: official-statement
+
+title_en: Report everything, not just high risk
+title_id: Laporkan semuanya, bukan hanya yang berisiko tinggi
+
+summary_en: >
+  In a consultation on the draft, the US-ASEAN Business Council, the US Chamber of Commerce and US
+  tech providers asked Indonesia to require incident reports only for high-risk AI. Komdigi refused
+  and kept reporting for all incidents.
+
+ringkasan_id: >
+  Dalam konsultasi atas rancangan, US-ASEAN Business Council, US Chamber of Commerce, dan penyedia
+  teknologi AS meminta Indonesia mewajibkan laporan insiden hanya untuk AI berisiko tinggi.
+  Komdigi menolak dan tetap mewajibkan pelaporan semua insiden.
+
+quote:
+  original: "Semua dilaporkan, karena (insiden) yang kecil-kecil pun kalau dibiarkan dia akan jadi besar."
+  en: "Everything gets reported, because even small incidents grow big if left alone."
+  source_url: https://www.antaranews.com/berita/5612117/kemkomdigi-jelaskan-isi-konsultasi-dengan-as-soal-rancangan-perpres-ai
+  # TODO: add the director's name and full title as given in the ANTARA article.
+  attribution_en: The ministry's director, as quoted by ANTARA
+  attribution_id: Direktur di kementerian, seperti dikutip ANTARA
+
+safety_lens:
+  incident_reporting: "yes"
+  unacceptable_uses: unclear
+  general_purpose_models: unclear
+  enforcement: unclear
+
+last_checked: 2026-10-22
+
+eu_comparison: >
+  The EU AI Act's serious incident reporting duty sits mainly on providers of high-risk systems
+  and of general-purpose models with systemic risk. Indonesia's draft, as described, asks for
+  reports of all incidents.
+
+my_take: >
+  This is the most interesting decision in the whole draft, and almost nobody outside Indonesia
+  has noticed it. Incident reporting is one of the few tools governments have to learn about AI
+  failures before they become disasters, and broad reporting gives regulators far more signal than
+  a high-risk-only regime. The open question is capacity: who reads these reports, and what happens
+  after one is filed? That is what I will watch once the rule is signed.
+
+# TODO: replace the title with the exact headline of the article.
+sources:
+  - title: Komdigi explains its consultation with the US on the draft AI regulation
+    url: https://www.antaranews.com/berita/5612117/kemkomdigi-jelaskan-isi-konsultasi-dengan-as-soal-rancangan-perpres-ai
+    outlet: ANTARA
+    language: id

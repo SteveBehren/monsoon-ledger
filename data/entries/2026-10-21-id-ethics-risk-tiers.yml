@@ -1,0 +1,54 @@
+id: 2026-10-21-id-ethics-risk-tiers
+date: 2026-10-21
+country: ID
+instrument: draft-perpres-ai-ethics
+status: draft
+evidence: official-statement
+
+title_en: Three risk tiers, not four
+title_id: Tiga tingkat risiko, bukan empat
+
+summary_en: >
+  The draft ethics regulation sorts AI into low, high and unacceptable risk, one fewer tier than
+  the EU AI Act. High risk means a system uses specific personal data, unacceptable means it could
+  threaten security and safety, and a public-service chatbot is the example of low risk. Each
+  ministry sets its own risk standards for its sector. The rule carries no criminal sanctions,
+  relies on self-assessment, and requires incident reporting channels.
+
+ringkasan_id: >
+  Rancangan aturan etika AI membagi AI ke tiga tingkat risiko, yaitu rendah, tinggi, dan tidak
+  dapat diterima, satu tingkat lebih sedikit dari EU AI Act. Risiko tinggi berarti sistem memakai
+  data pribadi tertentu, tidak dapat diterima berarti dapat mengancam keamanan dan keselamatan, dan
+  chatbot layanan publik jadi contoh risiko rendah. Tiap kementerian menetapkan standar risiko
+  untuk sektornya. Aturan ini tanpa sanksi pidana, mengandalkan penilaian mandiri, dan mewajibkan
+  kanal pelaporan insiden.
+
+safety_lens:
+  incident_reporting: "yes"
+  unacceptable_uses: "yes"
+  general_purpose_models: unclear
+  enforcement: soft
+
+last_checked: 2026-10-22
+
+eu_comparison: >
+  The EU AI Act uses four tiers (minimal, limited, high and unacceptable risk) with binding
+  obligations attached, plus separate duties for general-purpose models. Indonesia's draft, as
+  described so far, has three tiers, no criminal sanctions, and nothing found in public statements
+  about general-purpose models.
+
+my_take: >
+  The tiers look borrowed from Brussels, but the engine underneath is different. The EU attaches
+  binding obligations to each tier and has separate duties for general-purpose models. Indonesia,
+  as described so far, has neither: no penalties, and nothing I have found in public statements
+  about frontier or general-purpose models. Defining high risk mainly by personal data also misses
+  the risks that worry safety researchers most, like a capable model used for cyberattacks, which
+  may involve no personal data at all. I want to see the draft text before judging it fully, and
+  so far it has not been published.
+
+# TODO: replace the title with the exact headline of the article.
+sources:
+  - title: Komdigi on the risk-based approach in the AI ethics regulation
+    url: https://www.antaranews.com/berita/5802433/kemkomdigi-terapkan-pendekatan-berbasis-risiko-dalam-aturan-etika-ai
+    outlet: ANTARA
+    language: id

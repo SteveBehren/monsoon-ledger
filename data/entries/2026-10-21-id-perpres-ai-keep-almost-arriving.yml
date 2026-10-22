@@ -1,0 +1,69 @@
+id: 2026-10-21-id-perpres-ai-keep-almost-arriving
+date: 2026-10-21
+country: ID
+instrument: draft-perpres-ai-roadmap
+status: draft
+evidence: official-statement
+
+title_en: The AI rules that keep almost arriving
+title_id: Aturan AI yang tak kunjung terbit
+
+summary_en: >
+  Indonesia has two draft presidential regulations on AI, a national roadmap and an ethics rule.
+  Officials have announced a finish line at least five times since January 2025, and both are
+  still drafts.
+
+ringkasan_id: >
+  Indonesia punya dua rancangan Peraturan Presiden tentang AI, yaitu peta jalan nasional dan
+  aturan etika. Sejak Januari 2025, pejabat sudah setidaknya lima kali mengumumkan target selesai,
+  tetapi keduanya masih berstatus rancangan.
+
+safety_lens:
+  incident_reporting: unclear
+  unacceptable_uses: unclear
+  general_purpose_models: unclear
+  enforcement: none
+
+last_checked: 2026-10-22
+
+eu_comparison: >
+  The EU AI Act is binding law with phased application dates. Indonesia's only AI-specific
+  instrument in force is a 2023 circular letter that is not legally binding.
+
+my_take: >
+  I am not writing this to mock the ministry. Drafting AI rules for 280 million people across
+  dozens of ministries is slow everywhere. But the gap matters: officials keep describing a task
+  force, risk tiers and incident reporting as if they exist, while the only AI-specific instrument
+  in force is a 2023 circular letter that is not legally binding. Anyone reading Indonesian AI
+  governance from abroad should know which parts are real today and which are still promises.
+
+# TODO: replace each title with the exact headline of the article.
+sources:
+  - title: Komdigi on the task force for the AI regulations
+    url: https://www.antaranews.com/berita/5802305/pemerintah-siapkan-gugus-tugas-kawal-implementasi-regulasi-ai
+    outlet: ANTARA
+    language: id
+  - title: Komdigi says the two AI regulations await the President's signature
+    url: https://selular.id/2026/09/dua-perpres-ai-tunggu-tanda-tangan-presiden-prabowo/
+    outlet: Selular
+    language: id
+  - title: Minister calls the AI regulation a priority to sign in 2026
+    url: https://www.cnnindonesia.com/teknologi/20260126203143-185-1321329/menkomdigi-sebut-perpres-ai-segera-disahkan-presiden-awal-tahun-ini
+    outlet: CNN Indonesia
+    language: id
+  - title: Komdigi expects the AI regulation on the President's desk early 2026
+    url: https://teknologi.bisnis.com/read/20251217/84/1937372/regulasi-ai-tunggu-tanda-tangan-prabowo-ditarget-terbit-awal-2026
+    outlet: Bisnis.com
+    language: id
+  - title: Komdigi says the AI roadmap and ethics guidelines launch this month
+    url: https://teknologi.bisnis.com/read/20250916/84/1911831/komdigi-pastikan-roadmap-dan-pedoman-etika-ai-meluncur-bulan-ini
+    outlet: Bisnis.com
+    language: id
+  - title: Komdigi plans to release the AI roadmap in June 2025
+    url: https://teknologi.bisnis.com/read/20250617/101/1885548/komdigi-rilis-peta-jalan-ai-bulan-ini-jaga-keseimbangan-inovasi-dan-perlindungan
+    outlet: Bisnis.com
+    language: id
+  - title: Minister targets a binding AI rule within three months
+    url: https://teknologi.bisnis.com/read/20250113/101/1831117/menkomdigi-targetkan-aturan-penggunaan-ai-rampung-april-2025
+    outlet: Bisnis.com
+    language: id

@@ -1,0 +1,65 @@
+id: 2026-07-16-id-gr-33-2026-breach-clock
+date: 2026-07-16
+country: ID
+instrument: gr-33-2026
+status: signed
+# TODO: read the GR 33/2026 text itself and upgrade this to legal-text.
+evidence: press-report
+
+title_en: A 72-hour breach clock, and nobody to call
+title_id: Wajib lapor 72 jam, tetapi lembaganya belum ada
+
+summary_en: >
+  Government Regulation 33/2026, signed on 16 July 2026, sets out how Indonesia's 2022 personal
+  data law works in practice. From 16 January 2027, organisations must notify affected people and
+  the supervisory authority within 72 hours of confirming a breach, and the authority can fine up
+  to 2% of annual gross revenue. But that authority has not been created. The presidential
+  regulation needed to set it up has not been issued, and on 27 July 2026 the ministry opposed a
+  court petition asking for a deadline.
+
+ringkasan_id: >
+  Peraturan Pemerintah 33/2026, yang ditandatangani pada 16 Juli 2026, mengatur pelaksanaan UU
+  Pelindungan Data Pribadi tahun 2022. Mulai 16 Januari 2027, organisasi wajib memberi tahu pemilik
+  data dan lembaga pengawas dalam 72 jam setelah memastikan terjadi kebocoran, dan lembaga itu
+  dapat menjatuhkan denda hingga 2% dari pendapatan kotor tahunan. Namun lembaga pengawas itu
+  belum dibentuk. Peraturan Presiden yang diperlukan belum terbit, dan pada 27 Juli 2026
+  kementerian menolak permohonan ke pengadilan yang meminta tenggat waktu.
+
+safety_lens:
+  incident_reporting: "yes"
+  unacceptable_uses: unclear
+  general_purpose_models: unclear
+  enforcement: unclear
+
+safety_note_en: >
+  Incident reporting here means personal data breaches, not AI incidents.
+safety_note_id: >
+  Pelaporan insiden di sini berarti kebocoran data pribadi, bukan insiden AI.
+
+last_checked: 2026-10-22
+
+eu_comparison: >
+  The GDPR also gives 72 hours to notify the supervisory authority, and allows fines of up to 4%
+  of worldwide annual turnover or 20 million euros for the most serious infringements. Indonesia's
+  cap is 2% of annual gross revenue, and its supervisory authority does not exist yet.
+
+my_take: >
+  This one is not about AI directly, and I am including it on purpose. AI rules lean on the same
+  machinery as data protection: someone has to receive the incident report, and someone has to be
+  able to say no. The 72-hour clock matches the GDPR deadline for notifying the supervisory
+  authority, so on paper Indonesia is at the European standard. But a deadline only matters if
+  there is an authority at the other end, and in the August and September 2026 reports I found
+  there is none. That makes 16 January 2027 the date to watch. I have only read legal summaries so
+  far, not the regulation text, so I will read the primary text before treating the details as
+  final.
+
+# TODO: replace each title with the exact headline of the article.
+sources:
+  - title: Summary of Government Regulation 33/2026 under the personal data protection law
+    url: https://www.nusantaradfdl.com/insights/indonesia-personal-data-protection-law-gr-33-2026/
+    outlet: Nusantara DFDL
+    language: en
+  - title: On the missing data protection authority and the court petition for a deadline
+    url: https://www.hlc.com/en/publications/awaiting-indonesias-personal-data-protection-authority-a-constitutional-push-for-a-hard-deadline
+    outlet: HLC
+    language: en

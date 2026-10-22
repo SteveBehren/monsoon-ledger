@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import Evidence from '../../components/Evidence.astro';
 import { ui, href, SITE, LANGS, type Lang } from '../../lib/i18n';
 
 export function getStaticPaths() {
@@ -8,41 +9,72 @@ export function getStaticPaths() {
 
 const lang = Astro.params.lang as Lang;
 const t = ui[lang];
+const toc = {
+  en: [
+    ['levels', 'Evidence levels'],
+    ['sourcing', 'How entries are sourced'],
+    ['corrections', 'Corrections'],
+    ['ai', 'Use of AI'],
+  ],
+  id: [
+    ['levels', 'Tingkat bukti'],
+    ['sourcing', 'Cara sumber dikumpulkan'],
+    ['corrections', 'Koreksi'],
+    ['ai', 'Penggunaan AI'],
+  ],
+}[lang];
+const lede = {
+  en: 'Every entry says how strong its evidence is and when its sources were last checked. This page explains what those labels mean and how mistakes get fixed.',
+  id: 'Setiap catatan menunjukkan seberapa kuat buktinya dan kapan sumbernya terakhir dicek. Halaman ini menjelaskan arti label tersebut dan bagaimana kesalahan diperbaiki.',
+}[lang];
 ---
 <Base lang={lang} path="method/" title={t.nav.method} nav="method">
-  <article class="prose">
+  <header class="page-head">
+    <p class="kicker">{t.nav.method}</p>
     <h1>{t.nav.method}</h1>
+    <p class="lede">{lede}</p>
+  </header>
+  <div class="doc">
+    <nav class="toc" aria-label={t.onThisPage}>
+      <p class="label">{t.onThisPage}</p>
+      <ol>
+        {toc.map(([id, label]) => <li><a href={`#${id}`}>{label}</a></li>)}
+      </ol>
+    </nav>
+  <article class="doc-body">
     {
       lang === 'en' ? (
         <>
-          <p class="lede">
-            Every entry says how strong its evidence is and when its sources were last checked. This page explains what those labels mean
-            and how mistakes get fixed.
-          </p>
 
-          <h2>Evidence levels</h2>
+          <h2 id="levels">Evidence levels</h2>
           <dl class="levels">
-            <dt>{t.evidence['legal-text']}</dt>
-            <dd>I have read the signed or published text of the instrument itself. This is the strongest level.</dd>
-            <dt>{t.evidence['official-statement']}</dt>
-            <dd>
+            <div class="level panel">
+              <dt><Evidence level="legal-text" lang={lang} text={false} />{t.evidence['legal-text']}</dt>
+              <dd>I have read the signed or published text of the instrument itself. This is the strongest level.</dd>
+            </div>
+            <div class="level panel">
+              <dt><Evidence level="official-statement" lang={lang} text={false} />{t.evidence['official-statement']}</dt>
+              <dd>
               A minister, ministry official or government body said it on the record, as reported by a named outlet or an official
               channel. It tells you what the government says it intends, not what the law says.
             </dd>
-            <dt>{t.evidence['press-report']}</dt>
-            <dd>
+            </div>
+            <div class="level panel">
+              <dt><Evidence level="press-report" lang={lang} text={false} />{t.evidence['press-report']}</dt>
+              <dd>
               The claim rests on journalism or secondary analysis, such as a law firm summary, without the primary text. Treat it as
               provisional until the primary text is read.
             </dd>
+            </div>
           </dl>
 
-          <h2>How entries are sourced</h2>
+          <h2 id="sourcing">How entries are sourced</h2>
           <ul>
             <li>Every claim links to a source. Indonesian-language sources come first, because that is where the policy is announced.</li>
             <li>Primary text beats reporting. When the legal text becomes available, I read it and upgrade the evidence level.</li>
             <li>Quotes stay in the original language, are kept under 15 words, and each source is quoted at most once. An English line sits under each quote.</li>
             <li>The last checked date is the last day I re-opened the sources for that entry.</li>
-            <li>
+            <li id="lens">
               The Safety lens asks the same four questions of every entry: incident reporting, unacceptable uses, general-purpose models
               and enforcement. Unclear means public sources do not answer the question yet. It does not mean no.
             </li>
@@ -53,13 +85,13 @@ const t = ui[lang];
             <li>For now the scope is Indonesia only. Data protection is covered where it shapes AI governance, for example breach reporting and regulators.</li>
           </ul>
 
-          <h2>Corrections</h2>
+          <h2 id="corrections">Corrections</h2>
           <p>
-            Anyone can <a href={SITE.issues}>open an issue on GitHub</a> with a source. Errors are fixed in the open, as public commits,
+            Anyone can <a href={SITE.issues}>report an error on GitHub</a> with a source. Errors are fixed in the open, as public commits,
             and every correction is logged with its date in the <a href={SITE.changelog}>changelog</a>.
           </p>
 
-          <h2>Use of AI</h2>
+          <h2 id="ai">Use of AI</h2>
           <p>
             I research the sources, write and edit every entry and every My take myself, and use Claude to help draft, translate and build
             the site. Translated text is reviewed by me, and the original source is always linked so you can check it.
@@ -70,34 +102,36 @@ const t = ui[lang];
         </>
       ) : (
         <>
-          <p class="lede">
-            Setiap catatan menunjukkan seberapa kuat buktinya dan kapan sumbernya terakhir dicek. Halaman ini menjelaskan arti label
-            tersebut dan bagaimana kesalahan diperbaiki.
-          </p>
 
-          <h2>Tingkat bukti</h2>
+          <h2 id="levels">Tingkat bukti</h2>
           <dl class="levels">
-            <dt>{t.evidence['legal-text']}</dt>
-            <dd>Saya sudah membaca naskah resmi instrumen itu sendiri, yang sudah ditandatangani atau diterbitkan. Ini tingkat bukti paling kuat.</dd>
-            <dt>{t.evidence['official-statement']}</dt>
-            <dd>
+            <div class="level panel">
+              <dt><Evidence level="legal-text" lang={lang} text={false} />{t.evidence['legal-text']}</dt>
+              <dd>Saya sudah membaca naskah resmi instrumen itu sendiri, yang sudah ditandatangani atau diterbitkan. Ini tingkat bukti paling kuat.</dd>
+            </div>
+            <div class="level panel">
+              <dt><Evidence level="official-statement" lang={lang} text={false} />{t.evidence['official-statement']}</dt>
+              <dd>
               Menteri, pejabat kementerian, atau lembaga pemerintah menyampaikannya secara terbuka, seperti dilaporkan media yang
               disebutkan namanya atau kanal resmi. Ini menunjukkan apa yang diniatkan pemerintah, bukan isi hukumnya.
             </dd>
-            <dt>{t.evidence['press-report']}</dt>
-            <dd>
+            </div>
+            <div class="level panel">
+              <dt><Evidence level="press-report" lang={lang} text={false} />{t.evidence['press-report']}</dt>
+              <dd>
               Klaimnya bersandar pada liputan media atau analisis sekunder, misalnya ringkasan dari firma hukum, tanpa naskah aslinya.
               Anggap sementara sampai naskah aslinya dibaca.
             </dd>
+            </div>
           </dl>
 
-          <h2>Cara sumber dikumpulkan</h2>
+          <h2 id="sourcing">Cara sumber dikumpulkan</h2>
           <ul>
             <li>Setiap klaim menautkan ke sumbernya. Sumber berbahasa Indonesia didahulukan, karena di sanalah kebijakan diumumkan.</li>
             <li>Naskah asli lebih kuat daripada liputan. Begitu naskah hukumnya tersedia, saya membacanya dan menaikkan tingkat buktinya.</li>
             <li>Kutipan tetap dalam bahasa aslinya, kurang dari 15 kata, dan satu sumber paling banyak dikutip sekali. Di bawah setiap kutipan ada terjemahan bahasa Inggris.</li>
             <li>Tanggal terakhir dicek adalah hari terakhir saya membuka ulang sumber untuk catatan itu.</li>
-            <li>
+            <li id="lens">
               Lensa keselamatan mengajukan empat pertanyaan yang sama untuk setiap catatan: pelaporan insiden, penggunaan yang tidak dapat
               diterima, model serba guna, dan penegakan. Belum jelas berarti sumber publik belum menjawab pertanyaan itu. Bukan berarti
               tidak.
@@ -109,13 +143,13 @@ const t = ui[lang];
             <li>Untuk saat ini cakupannya hanya Indonesia. Pelindungan data pribadi dibahas sejauh berpengaruh pada tata kelola AI, misalnya kewajiban lapor kebocoran dan lembaga pengawas.</li>
           </ul>
 
-          <h2>Koreksi</h2>
+          <h2 id="corrections">Koreksi</h2>
           <p>
-            Siapa pun bisa <a href={SITE.issues}>membuka issue di GitHub</a> dengan menyertakan sumber. Kesalahan diperbaiki secara
-            terbuka lewat commit publik, dan setiap koreksi dicatat beserta tanggalnya di <a href={SITE.changelog}>catatan perubahan</a>.
+            Siapa pun bisa <a href={SITE.issues}>melaporkan kesalahan lewat GitHub</a> dengan menyertakan sumber. Kesalahan diperbaiki secara
+            terbuka dan tercatat di riwayat publik, dan setiap koreksi dicatat beserta tanggalnya di <a href={SITE.changelog}>catatan perubahan</a>.
           </p>
 
-          <h2>Penggunaan AI</h2>
+          <h2 id="ai">Penggunaan AI</h2>
           <p>
             Saya sendiri yang meriset sumber, menulis, dan menyunting setiap catatan dan setiap Pendapat saya. Saya memakai Claude untuk
             membantu membuat draf, menerjemahkan, dan membangun situs ini. Teks terjemahan saya periksa sendiri, dan sumber aslinya selalu
@@ -128,4 +162,5 @@ const t = ui[lang];
       )
     }
   </article>
+  </div>
 </Base>

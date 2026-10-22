@@ -1,0 +1,240 @@
+---
+// Interactive safety lens matrix: one row per entry, one column per topic.
+// Every detail is rendered at build time; the script only shows, hides and highlights.
+import { TOPICS, EVIDENCE_STRENGTH, lensTone, coveredTopics, type Entry, type Evidence as EvidenceLevel } from '../lib/data';
+import { ui, href, pick, type Lang } from '../lib/i18n';
+import Evidence from './Evidence.astro';
+import Stamp from './Stamp.astro';
+
+interface Props {
+  entries: Entry[];
+  lang: Lang;
+}
+const { entries, lang } = Astro.props;
+const t = ui[lang];
+
+const answer = (entry: Entry, topic: (typeof TOPICS)[number]) => {
+  const v = entry.safety_lens[topic];
+  return topic === 'enforcement' ? t.enforcement[v as keyof typeof t.enforcement] : t.yesNo[v as keyof typeof t.yesNo];
+};
+const levels = (Object.keys(EVIDENCE_STRENGTH) as EvidenceLevel[]).filter((l) => entries.some((e) => e.evidence === l));
+const covered = (topic: (typeof TOPICS)[number]) => entries.filter((e) => coveredTopics(e).includes(topic)).length;
+const note = (e: Entry) =>
+  lang === 'en' ? { text: e.safety_note_en, lang: 'en' } : { text: e.safety_note_id ?? e.safety_note_en, lang: e.safety_note_id ? 'id' : 'en' };
+---
+<div class="lens-matrix panel" data-lens>
+  <div class="matrix-main">
+    <div class="matrix-toolbar">
+      <ul class="legend" aria-label={t.lens.legend}>
+        <li><span class="mark mark--full"></span>{t.lens.legendFull}</li>
+        <li><span class="mark mark--soft"></span>{t.lens.legendSoft}</li>
+        <li><span class="mark mark--unclear"></span>{t.lens.legendUnclear}</li>
+        <li><span class="mark mark--empty"></span>{t.lens.legendEmpty}</li>
+      </ul>
+      <fieldset class="chips" data-filter hidden>
+        <legend>{t.evidenceLabel}</legend>
+        <label class="chip"><input type="radio" name="lens-evidence" value="" checked /><span>{t.all}</span></label>
+        {
+          levels.map((l) => (
+            <label class="chip">
+              <input type="radio" name="lens-evidence" value={l} />
+              <span>
+                <span class="meter" data-strength={EVIDENCE_STRENGTH[l]} aria-hidden="true"><i></i><i></i><i></i></span>
+                {t.evidence[l]}
+              </span>
+            </label>
+          ))
+        }
+      </fieldset>
+    </div>
+
+    <div class="matrix-scroll">
+      <table class="matrix">
+        <caption class="visually-hidden">{t.lens.caption}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{t.lens.entryCol}</th>
+            {TOPICS.map((topic, c) => <th scope="col" class="topic" data-col={c} title={t.topicQuestion[topic]}>{t.topic[topic]}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {
+            entries.map((e, r) => (
+              <tr data-evidence={e.evidence}>
+                <th scope="row" data-row={r}>
+                  <a class="row-title" href={href(lang, `entries/${e.id}/`)}>{pick(lang, e.title_en, e.title_id)}</a>
+                  <span class="row-meta">
+                    <time datetime={e.date}>{e.date}</time>
+                    <Evidence level={e.evidence} lang={lang} />
+                  </span>
+                </th>
+                {TOPICS.map((topic, c) => (
+                  <td data-col={c}>
+                    <button
+                      type="button"
+                      class="cell"
+                      aria-pressed="false"
+                      data-key={`${e.id}:${topic}`}
+                      data-row={r}
+                      data-col={c}
+                      data-topic-label={t.topic[topic]}
+                      aria-label={`${t.topic[topic]}: ${answer(e, topic)}. ${pick(lang, e.title_en, e.title_id)}`}
+                      tabindex={r === 0 && c === 0 ? 0 : -1}
+                    >
+                      <span class={`mark mark--${lensTone(e.safety_lens[topic])}`} aria-hidden="true"></span>
+                      <span aria-hidden="true">{answer(e, topic)}</span>
+                    </button>
+                  </td>
+                ))}
+              </tr>
+            ))
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row">{t.lens.covered}</th>
+            {
+              TOPICS.map((topic) => (
+                <td>
+                  <span class="coverage">
+                    <span>
+                      {covered(topic)} {t.lens.of} {entries.length}
+                    </span>
+                    <span class="bar" aria-hidden="true">
+                      <i style={`width:${(covered(topic) / entries.length) * 100}%`} />
+                    </span>
+                  </span>
+                </td>
+              ))
+            }
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="detail" aria-live="polite">
+    <div class="detail-empty" data-empty>
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <rect x="4" y="4" width="14" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.5" />
+        <rect x="22" y="4" width="14" height="14" rx="2" fill="currentColor" />
+        <rect x="4" y="22" width="14" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2" />
+        <rect x="22" y="22" width="14" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.5" />
+      </svg>
+      <p>{t.lens.empty}</p>
+    </div>
+    {
+      entries.map((e) =>
+        TOPICS.map((topic) => {
+          const n = note(e);
+          return (
+            <div data-detail={`${e.id}:${topic}`} hidden>
+              <p class="label">{t.topic[topic]}</p>
+              <h3>{t.topicQuestion[topic]}</h3>
+              <p class="answer">
+                <span class={`mark mark--${lensTone(e.safety_lens[topic])}`} aria-hidden="true"></span>
+                {answer(e, topic)}
+              </p>
+              <dl>
+                <div>
+                  <dt>{t.lens.entryCol}</dt>
+                  <dd>
+                    <a href={href(lang, `entries/${e.id}/`)}>{pick(lang, e.title_en, e.title_id)}</a>
+                  </dd>
+                </div>
+                <div>
+                  <dt>{t.statusLabel}</dt>
+                  <dd>
+                    <Stamp tone={e.status} label={t.status[e.status]} />
+                  </dd>
+                </div>
+                <div>
+                  <dt>{t.evidenceLabel}</dt>
+                  <dd>
+                    <Evidence level={e.evidence} lang={lang} />
+                    <span class="hint">{t.evidenceHint[e.evidence]}</span>
+                  </dd>
+                </div>
+                {n.text && (
+                  <div>
+                    <dt>{t.note}</dt>
+                    <dd lang={n.lang}>
+                      {n.text}
+                      {lang === 'id' && n.lang === 'en' && <span class="hint">{t.inEnglish}</span>}
+                    </dd>
+                  </div>
+                )}
+              </dl>
+              <a class="btn" href={href(lang, `entries/${e.id}/`)}>
+                {t.readEntry} <span class="arrow" aria-hidden="true">&rarr;</span>
+              </a>
+            </div>
+          );
+        }),
+      )
+    }
+  </div>
+</div>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>('[data-lens]')) {
+    const cells = [...root.querySelectorAll<HTMLButtonElement>('.cell')];
+    const details = root.querySelectorAll<HTMLElement>('[data-detail]');
+    const empty = root.querySelector<HTMLElement>('[data-empty]')!;
+    const filter = root.querySelector<HTMLFieldSetElement>('[data-filter]')!;
+    const cols = Math.max(...cells.map((c) => Number(c.dataset.col))) + 1;
+
+    const select = (cell: HTMLButtonElement) => {
+      for (const c of cells) {
+        c.setAttribute('aria-pressed', String(c === cell));
+        c.tabIndex = c === cell ? 0 : -1;
+      }
+      empty.hidden = true;
+      for (const d of details) {
+        const on = d.dataset.detail === cell.dataset.key;
+        d.hidden = !on;
+        if (on) {
+          d.classList.remove('detail-in');
+          void d.offsetWidth;
+          d.classList.add('detail-in');
+        }
+      }
+    };
+
+    const hot = (row?: string, col?: string) => {
+      for (const el of root.querySelectorAll('[data-hot]')) el.removeAttribute('data-hot');
+      if (row === undefined) return;
+      root.querySelector(`tbody th[data-row="${row}"]`)?.setAttribute('data-hot', '');
+      for (const el of root.querySelectorAll(`thead th[data-col="${col}"], tbody td[data-col="${col}"]`)) el.setAttribute('data-hot', '');
+    };
+
+    for (const cell of cells) {
+      cell.addEventListener('click', () => select(cell));
+      cell.addEventListener('pointerenter', () => hot(cell.dataset.row, cell.dataset.col));
+      cell.addEventListener('focus', () => hot(cell.dataset.row, cell.dataset.col));
+      cell.addEventListener('keydown', (ev) => {
+        const i = cells.indexOf(cell);
+        const move: Record<string, number> = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: cols, ArrowUp: -cols };
+        if (!(ev.key in move)) return;
+        const next = cells[i + move[ev.key]];
+        if (!next) return;
+        ev.preventDefault();
+        cell.tabIndex = -1;
+        next.tabIndex = 0;
+        next.focus();
+      });
+    }
+    root.querySelector('.matrix')!.addEventListener('pointerleave', () => hot());
+    root.addEventListener('focusout', (ev) => {
+      if (!root.contains(ev.relatedTarget as Node)) hot();
+    });
+
+    filter.hidden = false;
+    filter.addEventListener('change', () => {
+      const level = (filter.querySelector('input:checked') as HTMLInputElement).value;
+      for (const tr of root.querySelectorAll<HTMLElement>('tbody tr')) {
+        tr.toggleAttribute('data-dim', level !== '' && tr.dataset.evidence !== level);
+      }
+    });
+  }
+</script>

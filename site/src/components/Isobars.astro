@@ -1,0 +1,47 @@
+---
+// Decorative weather-map contours for the home page: a low-pressure system
+// drawn as nested isobars, with light rain marks. No data is encoded here.
+const W = 440;
+const H = 340;
+const cx = 236;
+const cy = 172;
+
+function contour(k: number): string {
+  const n = 48;
+  const pts: [number, number][] = [];
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    const r = (14 + k * 17) * (1 + 0.13 * Math.sin(2 * a + k * 0.45) + 0.06 * Math.sin(3 * a - k * 0.3));
+    pts.push([cx + r * Math.cos(a) * 1.25, cy + r * Math.sin(a) * 0.85]);
+  }
+  // Closed Catmull-Rom spline as cubic Beziers.
+  const p = (i: number) => pts[(i + n) % n];
+  let d = `M${p(0)[0].toFixed(1)} ${p(0)[1].toFixed(1)}`;
+  for (let i = 0; i < n; i++) {
+    const [p0, p1, p2, p3] = [p(i - 1), p(i), p(i + 1), p(i + 2)];
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ` C${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+  }
+  return d + 'Z';
+}
+
+const rings = Array.from({ length: 8 }, (_, i) => ({ d: contour(i + 1), key: i === 3 }));
+
+// Rain marks on a loose grid, kept out of the inner rings.
+const rain: string[] = [];
+for (let row = 0; row < 9; row++) {
+  for (let col = 0; col < 14; col++) {
+    const x = 14 + col * 31 + (row % 2) * 15;
+    const y = 18 + row * 37;
+    const dist = Math.hypot((x - cx) / 1.25, (y - cy) / 0.85);
+    if (dist < 70 || (row * 7 + col * 3) % 4 === 0) continue;
+    rain.push(`M${x} ${y}l-3 8`);
+  }
+}
+---
+<svg class="isobars" viewBox={`0 0 ${W} ${H}`} aria-hidden="true" focusable="false">
+  <path class="rain" d={rain.join('')} />
+  {rings.map((r) => <path class={r.key ? 'iso iso--key' : 'iso'} d={r.d} />)}
+  <circle class="pin" cx={cx} cy={cy} r="4" />
+</svg>

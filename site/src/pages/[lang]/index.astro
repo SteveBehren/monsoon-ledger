@@ -1,10 +1,11 @@
 ---
 import Base from '../../layouts/Base.astro';
-import Wave from '../../components/Wave.astro';
 import Stamp from '../../components/Stamp.astro';
 import EntryItem from '../../components/EntryItem.astro';
-import { getEntries, getDeadlines, outcomeCounts, OUTCOMES } from '../../lib/data';
-import { ui, href, LANGS, type Lang } from '../../lib/i18n';
+import Isobars from '../../components/Isobars.astro';
+import LensMatrix from '../../components/LensMatrix.astro';
+import { getEntries, getDeadlines, getInstruments, outcomeCounts, latestCheck, OUTCOMES } from '../../lib/data';
+import { ui, href, pick, LANGS, type Lang } from '../../lib/i18n';
 
 export function getStaticPaths() {
   return LANGS.map((lang) => ({ params: { lang } }));
@@ -12,17 +13,25 @@ export function getStaticPaths() {
 
 const lang = Astro.params.lang as Lang;
 const t = ui[lang];
-const latest = getEntries().slice(0, 3);
+const entries = getEntries();
+const latest = entries.slice(0, 3);
 const deadlines = getDeadlines();
+const instruments = getInstruments();
 const counts = outcomeCounts(deadlines);
+const checked = latestCheck(entries);
 
 const copy = {
   en: {
+    kicker: 'Indonesia, AI governance tracker',
     intro:
       'Monsoon Ledger is a public, bilingual tracker of how Indonesia governs artificial intelligence. Every entry is tied to primary or official sources, labelled with how strong the evidence is, and compared with the EU AI Act and frontier AI safety practice. Key quotes stay in the original Bahasa Indonesia, with an English line under them.',
-    name: 'The monsoon is forecast and announced long before it arrives. Indonesia\'s AI rules have worked the same way. This ledger records what was promised and what actually showed up.',
+    name: "The monsoon is forecast and announced long before it arrives. Indonesia's AI rules have worked the same way. This ledger records what was promised and what actually showed up.",
+    explore: 'Explore the entries',
+    method: 'How evidence is graded',
+    ledgerTitle: 'Promise vs Reality',
     ledgerIntro: "The public deadlines officials have given for Indonesia's AI rules, and what happened to each one.",
     ledgerLink: 'Open the full ledger',
+    recent: 'Most recent promises',
     promises: 'promises',
     briefKicker: 'Legal brief, working draft',
     briefTitle: 'Silencing by automation',
@@ -31,11 +40,16 @@ const copy = {
     briefLink: 'Read the legal test',
   },
   id: {
+    kicker: 'Pelacak tata kelola AI Indonesia',
     intro:
       'Monsoon Ledger adalah pelacak publik dalam dua bahasa tentang cara Indonesia mengatur kecerdasan artifisial. Setiap catatan bersandar pada sumber primer atau resmi, diberi label seberapa kuat buktinya, lalu dibandingkan dengan EU AI Act dan praktik keselamatan AI terdepan. Kutipan penting tetap ditulis dalam bahasa aslinya, dengan terjemahan bahasa Inggris di bawahnya.',
     name: 'Musim hujan sudah diramalkan dan diumumkan jauh sebelum datang. Aturan AI di Indonesia juga begitu. Catatan ini merekam apa yang dijanjikan dan apa yang benar-benar terjadi.',
+    explore: 'Jelajahi catatan',
+    method: 'Cara bukti dinilai',
+    ledgerTitle: 'Janji vs Kenyataan',
     ledgerIntro: 'Tenggat yang pernah diumumkan pejabat untuk aturan AI Indonesia, dan apa yang terjadi pada masing-masing.',
     ledgerLink: 'Buka buku catatan lengkap',
+    recent: 'Janji terbaru',
     promises: 'janji',
     briefKicker: 'Catatan hukum, draf kerja',
     briefTitle: 'Pembungkaman lewat otomatisasi',
@@ -46,49 +60,116 @@ const copy = {
 }[lang];
 ---
 <Base lang={lang} path="" nav="home">
-  <section class="home-intro prose">
-    <p class="kicker">English &middot; Bahasa Indonesia</p>
-    <h1>Monsoon Ledger</h1>
-    <p class="tagline">{t.tagline}</p>
-    <p>{copy.intro}</p>
-    <p>{copy.name}</p>
+  <section class="hero">
+    <div>
+      <p class="kicker">{copy.kicker}</p>
+      <h1>Monsoon Ledger</h1>
+      <p class="tagline">{t.tagline}</p>
+      <p class="intro">{copy.intro}</p>
+      <p class="intro">{copy.name}</p>
+      <div class="hero-actions">
+        <a class="btn btn--primary" href={href(lang, 'entries/')}>{copy.explore} <span class="arrow" aria-hidden="true">&rarr;</span></a>
+        <a class="btn" href={href(lang, 'method/')}>{copy.method}</a>
+      </div>
+    </div>
+    <div class="hero-art"><Isobars /></div>
   </section>
 
-  <aside class="lens" aria-labelledby="brief-h">
-    <p class="kicker">{copy.briefKicker}</p>
-    <h2 id="brief-h">{copy.briefTitle}</h2>
-    <p>{copy.briefText}</p>
-    <p><a href={href(lang, 'silencing/')}>{copy.briefLink}</a></p>
+  <div class="metrics" data-reveal>
+    <a class="metric" href={href(lang, 'entries/')}>
+      <p class="label">{t.metrics.entries}</p>
+      <span class="figure">{entries.length}</span>
+    </a>
+    <a class="metric" href={href(lang, 'instruments/')}>
+      <p class="label">{t.metrics.instruments}</p>
+      <span class="figure">{instruments.length}</span>
+    </a>
+    <a class="metric metric--alert" href={href(lang, 'ledger/')}>
+      <p class="label">{t.metrics.missed}</p>
+      <span class="figure">{counts.missed}<small>/ {deadlines.length}</small></span>
+    </a>
+    <a class="metric" href={href(lang, 'method/')}>
+      <p class="label">{t.metrics.checked}</p>
+      <time class="figure figure--date" datetime={checked}>{checked}</time>
+    </a>
+  </div>
+
+  <aside class="callout" aria-labelledby="brief-h" data-reveal>
+    <div>
+      <p class="kicker">{copy.briefKicker}</p>
+      <h2 id="brief-h">{copy.briefTitle}</h2>
+      <p>{copy.briefText}</p>
+    </div>
+    <a class="btn btn--primary" href={href(lang, 'silencing/')}>{copy.briefLink} <span class="arrow" aria-hidden="true">&rarr;</span></a>
   </aside>
 
-  <Wave />
-
-  <section aria-labelledby="latest-h">
+  <section class="section" aria-labelledby="lens-h" data-reveal>
     <div class="section-head">
-      <h2 id="latest-h">{t.latest}</h2>
-      <a href={href(lang, 'entries/')}>{t.allEntries}</a>
+      <div>
+        <p class="kicker">01</p>
+        <h2 id="lens-h">{t.lens.title}</h2>
+        <p>{t.lens.intro}</p>
+      </div>
+      <a class="section-link" href={href(lang, 'method/#lens')}>{t.nav.method} <span class="arrow" aria-hidden="true">&rarr;</span></a>
+    </div>
+    <LensMatrix entries={entries} lang={lang} />
+  </section>
+
+  <section class="section" aria-labelledby="ledger-h" data-reveal>
+    <div class="section-head">
+      <div>
+        <p class="kicker">02</p>
+        <h2 id="ledger-h">{copy.ledgerTitle}</h2>
+        {lang === 'en' && <span class="original-term"><b lang="id">{t.ledgerOriginal}</b></span>}
+        <p>{copy.ledgerIntro}</p>
+      </div>
+      <a class="section-link" href={href(lang, 'ledger/')}>{copy.ledgerLink} <span class="arrow" aria-hidden="true">&rarr;</span></a>
+    </div>
+    <div class="panel">
+      <div class="balance">
+        <p class="label">{deadlines.length} {copy.promises}</p>
+        <div class="balance-bar" aria-hidden="true">
+          {OUTCOMES.filter((o) => counts[o] > 0).map((o) => <i class={`b-${o}`} style={`flex:${counts[o]}`} />)}
+        </div>
+        <ul class="balance-legend">
+          {
+            OUTCOMES.map((o) => (
+              <li>
+                <span class="figure">{counts[o]}</span>
+                <Stamp tone={o} label={t.outcome[o]} />
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <p class="label inset">{copy.recent}</p>
+      <ul class="promise-mini">
+        {
+          deadlines.slice(0, 3).map((d) => (
+            <li>
+              <time datetime={d.date_said}>{d.date_said}</time>
+              <span>
+                {pick(lang, d.promised_en, d.promised_id)}
+                <span class="who">{d.who}</span>
+              </span>
+              <Stamp tone={d.outcome_status} label={t.outcome[d.outcome_status]} />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="latest-h" data-reveal>
+    <div class="section-head">
+      <div>
+        <p class="kicker">03</p>
+        <h2 id="latest-h">{t.latest}</h2>
+      </div>
+      <a class="section-link" href={href(lang, 'entries/')}>{t.allEntries} <span class="arrow" aria-hidden="true">&rarr;</span></a>
     </div>
     <ol class="entry-list">
       {latest.map((entry) => <EntryItem entry={entry} lang={lang} />)}
     </ol>
-  </section>
-
-  <section aria-labelledby="ledger-h">
-    <div class="section-head">
-      <h2 id="ledger-h">Janji vs Kenyataan</h2>
-      <a href={href(lang, 'ledger/')}>{copy.ledgerLink}</a>
-    </div>
-    <p class="prose">{copy.ledgerIntro}</p>
-    <div class="summary-strip">
-      {
-        OUTCOMES.map((o) => (
-          <div>
-            <span class="figure">{counts[o]}</span>
-            <Stamp tone={o} label={t.outcome[o]} />
-          </div>
-        ))
-      }
-    </div>
-    <p class="filter-count">{deadlines.length} {copy.promises}</p>
   </section>
 </Base>

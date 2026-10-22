@@ -1,8 +1,8 @@
 ---
 import Base from '../../../layouts/Base.astro';
 import Stamp from '../../../components/Stamp.astro';
-import Wave from '../../../components/Wave.astro';
-import { getEntries, getInstruments, TOPICS, type Entry } from '../../../lib/data';
+import Evidence from '../../../components/Evidence.astro';
+import { getEntries, getInstruments, lensTone, TOPICS, type Entry } from '../../../lib/data';
 import { ui, href, pick, SITE, LANGS, type Lang } from '../../../lib/i18n';
 
 export function getStaticPaths() {
@@ -37,108 +37,167 @@ const lensValue = (topic: (typeof TOPICS)[number]) => {
 const attribution = entry.quote ? pick(lang, entry.quote.attribution_en ?? '', entry.quote.attribution_id ?? entry.quote.attribution_en ?? '') : '';
 const quoteSource = entry.quote ? entry.sources.find((s) => s.url === entry.quote!.source_url) : undefined;
 const issueUrl = `${SITE.issues}/new?title=${encodeURIComponent(`Correction: ${entry.id}`)}`;
+const n = (i: number) => String(i).padStart(2, '0');
 ---
 <Base lang={lang} path={`entries/${entry.id}/`} title={title} description={summary} ogType="article" nav="entries">
-  <article class="prose">
-    <a class="back" href={href(lang, 'entries/')}>{t.allEntries}</a>
-    <header class="entry-head">
-      <p class="kicker"><time datetime={entry.date}>{entry.date}</time></p>
-      <h1>{title}</h1>
-      <div class="meta-row">
-        <span><span class="visually-hidden">{t.statusLabel}: </span><Stamp tone={entry.status} label={t.status[entry.status]} /></span>
-        <span class="tag">{t.evidenceLabel}: {t.evidence[entry.evidence]}</span>
-        <span>{t.lastChecked} <time class="mono" datetime={entry.last_checked}>{entry.last_checked}</time></span>
-      </div>
-    </header>
+  <a class="back" href={href(lang, 'entries/')}><span aria-hidden="true">&larr;</span> {t.allEntries}</a>
+  <div class="entry-layout">
+    <article class="entry-body">
+      <header class="entry-head">
+        <p class="kicker"><time datetime={entry.date}>{entry.date}</time></p>
+        <h1>{title}</h1>
+      </header>
 
-    <p class="lede">{summary}</p>
+      <p class="lede">{summary}</p>
 
-    {
-      entry.quote && (
-        <figure class="quote">
-          <blockquote cite={entry.quote.source_url}>
-            <p class="original" lang="id">
-              <span class="visually-hidden">{t.quoteOriginal}: </span>&ldquo;{entry.quote.original}&rdquo;
-            </p>
-            <p class="translation" lang="en">{entry.quote.en}</p>
-          </blockquote>
-          {(attribution || quoteSource) && (
-            <figcaption>
-              {attribution}
-              {quoteSource && (
-                <>
-                  {attribution ? `, ${t.quotedBy} ` : ''}
-                  <a href={quoteSource.url}>{quoteSource.outlet}</a>
-                </>
-              )}
-            </figcaption>
-          )}
-        </figure>
-      )
-    }
+      {
+        entry.quote && (
+          <figure class="quote">
+            <blockquote cite={entry.quote.source_url}>
+              <p class="label">{t.quoteOriginalShort}</p>
+              <p class="original" lang="id">
+                <span class="visually-hidden">{t.quoteOriginal}: </span>&ldquo;{entry.quote.original}&rdquo;
+              </p>
+              <p class="label">{t.quoteTranslation}</p>
+              <p class="translation" lang="en">{entry.quote.en}</p>
+            </blockquote>
+            {(attribution || quoteSource) && (
+              <figcaption>
+                {attribution}
+                {quoteSource && (
+                  <>
+                    {attribution ? `, ${t.quotedBy} ` : ''}
+                    <a href={quoteSource.url}>{quoteSource.outlet}</a>
+                  </>
+                )}
+              </figcaption>
+            )}
+          </figure>
+        )
+      }
 
-    <section class="lens" aria-labelledby="lens-h">
-      <h2 id="lens-h">{t.safetyLens}</h2>
-      <table class="ruled">
-        <tbody>
+      <section aria-labelledby="lens-h">
+        <h2 id="lens-h"><span class="num">{n(1)}</span>{t.safetyLens}</h2>
+        <div class="panel lens-table">
+          <table class="ruled">
+            <tbody>
+              {
+                TOPICS.map((topic) => (
+                  <tr>
+                    <th scope="row">
+                      {t.topic[topic]}
+                      <span class="q">{t.topicQuestion[topic]}</span>
+                    </th>
+                    <td>
+                      <span class="lens-value">
+                        <span class={`mark mark--${lensTone(entry.safety_lens[topic])}`} aria-hidden="true" />
+                        {lensValue(topic)}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+        {safetyNote && <p class="lens-note" lang={safetyNoteLang}>{safetyNote}</p>}
+      </section>
+
+      <section aria-labelledby="eu-h">
+        <h2 id="eu-h"><span class="num">{n(2)}</span>{t.euComparison}</h2>
+        {euInEnglish && <p class="label-note">{t.inEnglish}</p>}
+        <p lang={euInEnglish ? 'en' : undefined}>{euText}</p>
+      </section>
+
+      <section aria-labelledby="take-h">
+        <h2 id="take-h"><span class="num">{n(3)}</span>{t.myTake}</h2>
+        {takeInEnglish && <p class="label-note">{t.inEnglish}</p>}
+        <div class="take">
+          <p lang={takeInEnglish ? 'en' : undefined}>{takeText}</p>
+        </div>
+      </section>
+
+      <section aria-labelledby="src-h">
+        <h2 id="src-h"><span class="num">{n(4)}</span>{t.sources}</h2>
+        <ol class="sources-list">
           {
-            TOPICS.map((topic) => (
-              <tr>
-                <th scope="row">
-                  {t.topic[topic]}
-                  <span class="q">{t.topicQuestion[topic]}</span>
-                </th>
-                <td>
-                  <span class={`mark mark--${entry.safety_lens[topic]}`}>{lensValue(topic)}</span>
-                </td>
-              </tr>
+            entry.sources.map((s) => (
+              <li>
+                <span>
+                  <a href={s.url} hreflang={s.language}>{s.title}</a>
+                  <span class="outlet">
+                    {s.outlet}, {t.sourceLang[s.language]}
+                  </span>
+                </span>
+              </li>
             ))
           }
-        </tbody>
-      </table>
-      {safetyNote && <p class="lens-note" lang={safetyNoteLang}>{safetyNote}</p>}
-    </section>
+        </ol>
+      </section>
 
-    <section aria-labelledby="eu-h">
-      <h2 id="eu-h">{t.euComparison}</h2>
-      {euInEnglish && <p class="label-note">{t.inEnglish}</p>}
-      <p lang={euInEnglish ? 'en' : undefined}>{euText}</p>
-    </section>
+      <div class="correction">
+        <p>{t.corrections}</p>
+        <a class="btn" href={issueUrl}>{t.openIssue}</a>
+      </div>
+    </article>
 
-    <section aria-labelledby="take-h">
-      <h2 id="take-h">{t.myTake}</h2>
-      {takeInEnglish && <p class="label-note">{t.inEnglish}</p>}
-      <p lang={takeInEnglish ? 'en' : undefined}>{takeText}</p>
-    </section>
-
-    {
-      instrument && (
-        <p class="instrument-box">
-          {t.instrument}: <a href={href(lang, 'instruments/')}>{pick(lang, instrument.name_en, instrument.name_id)}</a>{' '}
-          <Stamp tone={instrument.binding ? 'binding' : 'not-binding'} label={instrument.binding ? t.binding : t.notBinding} />
-        </p>
-      )
-    }
-
-    <section aria-labelledby="src-h">
-      <h2 id="src-h">{t.sources}</h2>
-      <ol class="sources-list">
+    <aside class="record panel" aria-label={t.recordLabel}>
+      <div class="record-head"><p class="label">{t.recordLabel}</p></div>
+      <dl>
+        <div>
+          <dt>{t.statusLabel}</dt>
+          <dd><Stamp tone={entry.status} label={t.status[entry.status]} /></dd>
+        </div>
+        <div>
+          <dt>{t.lastChecked}</dt>
+          <dd><time datetime={entry.last_checked}>{entry.last_checked}</time></dd>
+        </div>
+        <div class="span">
+          <dt>{t.evidenceLabel}</dt>
+          <dd>
+            <Evidence level={entry.evidence} lang={lang} />
+            <span class="hint">{t.evidenceHint[entry.evidence]}</span>
+          </dd>
+        </div>
         {
-          entry.sources.map((s) => (
-            <li>
-              <a href={s.url} hreflang={s.language}>{s.title}</a>
-              <span class="outlet">
-                {s.outlet}, {t.sourceLang[s.language]}
-              </span>
-            </li>
-          ))
+          instrument && (
+            <div class="span">
+              <dt>{t.instrument}</dt>
+              <dd>
+                <a href={href(lang, `instruments/#${instrument.id}`)}>{pick(lang, instrument.name_en, instrument.name_id)}</a>
+                {lang === 'en' && <span class="hint" lang="id">{instrument.name_id}</span>}
+                <span class="hint">
+                  <Stamp tone={instrument.binding ? 'binding' : 'not-binding'} label={instrument.binding ? t.binding : t.notBinding} />
+                </span>
+              </dd>
+            </div>
+          )
         }
-      </ol>
-    </section>
-
-    <Wave />
-    <p class="correction">
-      {t.corrections} <a href={issueUrl}>{t.openIssue}</a>
-    </p>
-  </article>
+        <div class="span">
+          <dt>{t.safetyLens}</dt>
+          <dd>
+            <ul class="record-lens">
+              {
+                TOPICS.map((topic) => (
+                  <li>
+                    <span class={`mark mark--${lensTone(entry.safety_lens[topic])}`} aria-hidden="true" />
+                    <span>{t.topic[topic]}</span>
+                    <span>{lensValue(topic)}</span>
+                  </li>
+                ))
+              }
+            </ul>
+          </dd>
+        </div>
+        <div>
+          <dt>{t.sources}</dt>
+          <dd class="mono">{entry.sources.length}</dd>
+        </div>
+        <div>
+          <dt>{t.date}</dt>
+          <dd><time datetime={entry.date}>{entry.date}</time></dd>
+        </div>
+      </dl>
+    </aside>
+  </div>
 </Base>

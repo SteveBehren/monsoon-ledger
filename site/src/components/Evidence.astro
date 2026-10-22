@@ -1,0 +1,18 @@
+---
+import { EVIDENCE_STRENGTH, type Evidence } from '../lib/data';
+import { ui, type Lang } from '../lib/i18n';
+
+interface Props {
+  level: Evidence;
+  lang: Lang;
+  // Show the label text next to the meter. Off in tight spaces, where the title carries it.
+  text?: boolean;
+}
+const { level, lang, text = true } = Astro.props;
+const t = ui[lang];
+const label = t.evidence[level];
+---
+<span class="evidence" title={`${t.evidenceLabel}: ${label}`}>
+  <span class="meter" data-strength={EVIDENCE_STRENGTH[level]} aria-hidden="true"><i></i><i></i><i></i></span>
+  {text ? label : <span class="visually-hidden">{t.evidenceLabel}: {label}</span>}
+</span>

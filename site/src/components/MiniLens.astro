@@ -1,0 +1,19 @@
+---
+import { TOPICS, lensTone, type Entry } from '../lib/data';
+import { ui, type Lang } from '../lib/i18n';
+
+interface Props {
+  entry: Entry;
+  lang: Lang;
+}
+const { entry, lang } = Astro.props;
+const t = ui[lang];
+const answer = (topic: (typeof TOPICS)[number]) => {
+  const v = entry.safety_lens[topic];
+  return topic === 'enforcement' ? t.enforcement[v as keyof typeof t.enforcement] : t.yesNo[v as keyof typeof t.yesNo];
+};
+const summary = TOPICS.map((topic) => `${t.topic[topic]}: ${answer(topic)}`).join('. ');
+---
+<span class="mini-lens" role="img" aria-label={`${t.safetyLens}. ${summary}`} title={summary}>
+  {TOPICS.map((topic) => <span class={`mark mark--${lensTone(entry.safety_lens[topic])}`}></span>)}
+</span>

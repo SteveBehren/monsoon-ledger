@@ -1,0 +1,12 @@
+---
+// The monsoon ledger mark: two ledger rules with an isobar running between them.
+interface Props {
+  class?: string;
+}
+const { class: cls = 'brand-mark' } = Astro.props;
+---
+<svg class={cls} viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+  <rect x="1" y="1" width="30" height="30" rx="5" fill="none" stroke="currentColor" stroke-width="1.5" />
+  <path d="M6 10h20M6 24h20" stroke="currentColor" stroke-width="1.25" opacity="0.5" />
+  <path d="M6 17.5q2.5-4 5 0t5 0 5 0 5 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+</svg>

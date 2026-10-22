@@ -1,6 +1,5 @@
 ---
 import Base from '../../layouts/Base.astro';
-import Wave from '../../components/Wave.astro';
 import { ui, href, SITE, LANGS, type Lang } from '../../lib/i18n';
 
 export function getStaticPaths() {
@@ -9,6 +8,7 @@ export function getStaticPaths() {
 
 const lang = Astro.params.lang as Lang;
 const t = ui[lang];
+const kicker = lang === 'en' ? 'Legal brief, working draft' : 'Catatan hukum, draf kerja';
 const perpresEntry = href(lang, 'entries/2026-10-21-id-perpres-ai-keep-almost-arriving/');
 
 const title = lang === 'en' ? 'Silencing by automation: the legal test' : 'Pembungkaman lewat otomatisasi: ujian hukumnya';
@@ -22,18 +22,20 @@ const description =
 // texts (peraturan.go.id, OHCHR), then remove the status box.
 ---
 <Base lang={lang} path="silencing/" title={title} description={description}>
-  <article class="prose">
+  <header class="page-head">
+    <p class="kicker">{kicker}</p>
+    <h1>{title}</h1>
+  </header>
+  <article class="doc-body prose">
     {
       lang === 'en' ? (
         <>
-          <p class="kicker">Legal brief, working draft</p>
-          <h1>{title}</h1>
           <p class="lede">
             Running fake citizen voices with AI against critics is not a clever way to govern. If a state body did it, it would breach
             Indonesia's own constitution and a treaty Indonesia has ratified.
           </p>
 
-          <aside class="lens" aria-labelledby="status-h">
+          <aside class="status-box" aria-labelledby="status-h">
             <h2 id="status-h">Status of this page</h2>
             <p>
               Working draft, not legal advice. The factual reports below are press reports, which are provisional. The legal citations
@@ -82,7 +84,9 @@ const description =
               only for named purposes in a democratic society.
               <figure class="quote">
                 <blockquote>
+                  <p class="label">{t.quoteOriginalShort}</p>
                   <p class="original" lang="id">&ldquo;Setiap orang berhak atas kebebasan berserikat, berkumpul, dan mengeluarkan pendapat.&rdquo;</p>
+                  <p class="label">{t.quoteTranslation}</p>
                   <p class="translation" lang="en">Everyone has the right to freedom of association, assembly and expression.</p>
                 </blockquote>
                 <figcaption>UUD 1945, Pasal 28E ayat (3)</figcaption>
@@ -124,22 +128,19 @@ const description =
             <a href={perpresEntry}> why the rules keep almost arriving</a>.
           </p>
 
-          <Wave />
-          <p class="correction">
+          <div class="correction"><p>
             Spotted an error or have a source that belongs here? <a href={SITE.issues}>Open an issue</a> with the link and I will check
             it in the open.
-          </p>
+          </p></div>
         </>
       ) : (
         <>
-          <p class="kicker">Catatan hukum, draf kerja</p>
-          <h1>{title}</h1>
           <p class="lede">
             Menjalankan suara warga palsu dengan AI untuk melawan pengkritik bukan cara memerintah yang cerdas. Kalau lembaga negara
             melakukannya, itu melanggar konstitusi Indonesia sendiri dan perjanjian yang sudah Indonesia ratifikasi.
           </p>
 
-          <aside class="lens" aria-labelledby="status-h">
+          <aside class="status-box" aria-labelledby="status-h">
             <h2 id="status-h">Status halaman ini</h2>
             <p>
               Draf kerja, bukan nasihat hukum. Laporan fakta di bawah ini berasal dari pemberitaan, jadi sifatnya sementara. Kutipan
@@ -189,7 +190,9 @@ const description =
               dan hanya untuk tujuan tertentu dalam masyarakat demokratis.
               <figure class="quote">
                 <blockquote>
+                  <p class="label">{t.quoteOriginalShort}</p>
                   <p class="original" lang="id">&ldquo;Setiap orang berhak atas kebebasan berserikat, berkumpul, dan mengeluarkan pendapat.&rdquo;</p>
+                  <p class="label">{t.quoteTranslation}</p>
                   <p class="translation" lang="en">
                     <span class="visually-hidden">(dalam bahasa Inggris) </span>Everyone has the right to freedom of association, assembly and expression.
                   </p>
@@ -235,11 +238,10 @@ const description =
             <a href={perpresEntry}> kenapa aturan itu terus nyaris terbit</a>.
           </p>
 
-          <Wave />
-          <p class="correction">
+          <div class="correction"><p>
             Menemukan kesalahan atau punya sumber yang layak ada di sini? <a href={SITE.issues}>Buka isu</a> dengan tautannya dan saya
             akan memeriksanya secara terbuka.
-          </p>
+          </p></div>
         </>
       )
     }

@@ -1,7 +1,7 @@
 ---
 import Base from '../../../layouts/Base.astro';
 import EntryItem from '../../../components/EntryItem.astro';
-import { getEntries, STATUSES, TOPICS } from '../../../lib/data';
+import { getEntries, STATUSES, TOPICS, EVIDENCE_STRENGTH, type Evidence } from '../../../lib/data';
 import { ui, LANGS, type Lang } from '../../../lib/i18n';
 
 export function getStaticPaths() {
@@ -11,83 +11,111 @@ export function getStaticPaths() {
 const lang = Astro.params.lang as Lang;
 const t = ui[lang];
 const entries = getEntries();
+// Only offer filter values that match at least one entry.
+const statuses = STATUSES.filter((s) => entries.some((e) => e.status === s));
+const levels = (Object.keys(EVIDENCE_STRENGTH) as Evidence[]).filter((l) => entries.some((e) => e.evidence === l));
 
 const copy = {
   en: {
     intro: 'Newest first. Each entry records one instrument, statement or decision, with its status, the strength of the evidence and the date its sources were last checked.',
-    all: 'All',
     topicLabel: 'Safety topic',
     topicHint: 'The topic filter shows entries where the answer is yes, or where enforcement is binding or soft.',
     shown: 'entries shown',
     none: 'No entries match these filters.',
+    reset: 'Clear filters',
   },
   id: {
     intro: 'Terbaru di atas. Setiap catatan merekam satu instrumen, pernyataan, atau keputusan, lengkap dengan statusnya, kekuatan buktinya, dan tanggal terakhir sumbernya dicek.',
-    all: 'Semua',
     topicLabel: 'Topik keselamatan',
     topicHint: 'Filter topik menampilkan catatan yang jawabannya ya, atau yang penegakannya mengikat atau lunak.',
     shown: 'catatan ditampilkan',
     none: 'Tidak ada catatan yang cocok dengan filter ini.',
+    reset: 'Hapus filter',
   },
 }[lang];
 ---
 <Base lang={lang} path="entries/" title={t.nav.entries} nav="entries">
-  <div class="prose">
+  <header class="page-head">
+    <p class="kicker">{entries.length} {t.entriesWord}</p>
     <h1>{t.nav.entries}</h1>
-    <p>{copy.intro}</p>
-  </div>
+    <p class="lede">{copy.intro}</p>
+  </header>
 
-  <form class="filters" id="filters" hidden aria-describedby="topic-hint">
-    <div>
-      <label for="f-status">{t.statusLabel}</label>
-      <select id="f-status" name="status">
-        <option value="">{copy.all}</option>
-        {STATUSES.map((s) => <option value={s}>{t.status[s]}</option>)}
-      </select>
-    </div>
-    <div>
-      <label for="f-topic">{copy.topicLabel}</label>
-      <select id="f-topic" name="topic">
-        <option value="">{copy.all}</option>
-        {TOPICS.map((s) => <option value={s}>{t.topic[s]}</option>)}
-      </select>
-    </div>
-    <p id="topic-hint" class="label-note">{copy.topicHint}</p>
+  <form class="filters panel" id="filters" hidden aria-describedby="topic-hint">
+    <fieldset class="chips">
+      <legend>{t.statusLabel}</legend>
+      <label class="chip"><input type="radio" name="status" value="" checked /><span>{t.all}</span></label>
+      {statuses.map((s) => <label class="chip"><input type="radio" name="status" value={s} /><span>{t.status[s]}</span></label>)}
+    </fieldset>
+    <fieldset class="chips">
+      <legend>{t.evidenceLabel}</legend>
+      <label class="chip"><input type="radio" name="evidence" value="" checked /><span>{t.all}</span></label>
+      {
+        levels.map((l) => (
+          <label class="chip">
+            <input type="radio" name="evidence" value={l} />
+            <span>
+              <span class="meter" data-strength={EVIDENCE_STRENGTH[l]} aria-hidden="true"><i></i><i></i><i></i></span>
+              {t.evidence[l]}
+            </span>
+          </label>
+        ))
+      }
+    </fieldset>
+    <fieldset class="chips">
+      <legend>{copy.topicLabel}</legend>
+      <label class="chip"><input type="radio" name="topic" value="" checked /><span>{t.all}</span></label>
+      {TOPICS.map((s) => <label class="chip"><input type="radio" name="topic" value={s} /><span>{t.topic[s]}</span></label>)}
+    </fieldset>
   </form>
+  <p id="topic-hint" class="filter-hint">{copy.topicHint}</p>
   <p class="filter-count" id="filter-count" aria-live="polite">{entries.length} {copy.shown}</p>
 
   <ol class="entry-list" id="entry-list">
     {entries.map((entry) => <EntryItem entry={entry} lang={lang} level={2} />)}
   </ol>
-  <p id="no-match" hidden>{copy.none}</p>
+  <div id="no-match" class="correction" hidden>
+    <p>{copy.none}</p>
+    <button type="button" class="btn" id="reset">{copy.reset}</button>
+  </div>
 
-  <script is:inline define:vars={{ shownLabel: copy.shown }}>
+  <script define:vars={{ shownLabel: copy.shown }} is:inline>
     (function () {
       var form = document.getElementById('filters');
-      var status = document.getElementById('f-status');
-      var topic = document.getElementById('f-topic');
       var items = document.querySelectorAll('#entry-list > li');
       var count = document.getElementById('filter-count');
       var none = document.getElementById('no-match');
+      var keys = ['status', 'evidence', 'topic'];
       var params = new URLSearchParams(location.search);
-      if (params.get('status')) status.value = params.get('status');
-      if (params.get('topic')) topic.value = params.get('topic');
+      keys.forEach(function (k) {
+        var input = form.querySelector('input[name="' + k + '"][value="' + (params.get(k) || '') + '"]');
+        if (input) input.checked = true;
+      });
       form.hidden = false;
 
+      function value(k) {
+        return form.querySelector('input[name="' + k + '"]:checked').value;
+      }
+
       function apply() {
+        var status = value('status');
+        var evidence = value('evidence');
+        var topic = value('topic');
         var shown = 0;
         items.forEach(function (li) {
           var ok =
-            (!status.value || li.dataset.status === status.value) &&
-            (!topic.value || (' ' + li.dataset.topics + ' ').indexOf(' ' + topic.value + ' ') !== -1);
+            (!status || li.dataset.status === status) &&
+            (!evidence || li.dataset.evidence === evidence) &&
+            (!topic || (' ' + li.dataset.topics + ' ').indexOf(' ' + topic + ' ') !== -1);
           li.hidden = !ok;
           if (ok) shown++;
         });
         count.textContent = shown + ' ' + shownLabel;
         none.hidden = shown !== 0;
         var q = new URLSearchParams();
-        if (status.value) q.set('status', status.value);
-        if (topic.value) q.set('topic', topic.value);
+        keys.forEach(function (k) {
+          if (value(k)) q.set(k, value(k));
+        });
         var qs = q.toString();
         history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
       }
@@ -95,6 +123,10 @@ const copy = {
       form.addEventListener('change', apply);
       form.addEventListener('submit', function (e) {
         e.preventDefault();
+      });
+      document.getElementById('reset').addEventListener('click', function () {
+        form.reset();
+        apply();
       });
       apply();
     })();

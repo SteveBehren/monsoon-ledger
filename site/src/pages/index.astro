@@ -1,0 +1,30 @@
+---
+import { SITE } from '../lib/i18n';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{SITE.name}</title>
+    <meta name="description" content="AI governance from the archipelago, read in the original Bahasa." />
+    <meta http-equiv="refresh" content="0; url=/en/" />
+    <link rel="canonical" href={`${SITE.url}/en/`} />
+    <link rel="alternate" hreflang="en" href={`${SITE.url}/en/`} />
+    <link rel="alternate" hreflang="id" href={`${SITE.url}/id/`} />
+    <link rel="alternate" hreflang="x-default" href={`${SITE.url}/en/`} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <style>
+      body { margin: 0; padding: 2rem 1rem; background: #f6f1e7; color: #1b2a2f; font-family: Georgia, serif; }
+      a { color: #0f5c63; }
+      @media (prefers-color-scheme: dark) { body { background: #0e1a1d; color: #ede6d6; } a { color: #74c3c9; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>{SITE.name}</h1>
+      <p><a href="/en/">Read in English</a></p>
+      <p lang="id"><a href="/id/" hreflang="id">Baca dalam Bahasa Indonesia</a></p>
+    </main>
+  </body>
+</html>

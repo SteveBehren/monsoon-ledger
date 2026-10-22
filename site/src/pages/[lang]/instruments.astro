@@ -1,0 +1,75 @@
+---
+import Base from '../../layouts/Base.astro';
+import Stamp from '../../components/Stamp.astro';
+import { getInstruments } from '../../lib/data';
+import { ui, pick, LANGS, type Lang } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const t = ui[lang];
+const instruments = getInstruments();
+
+const copy = {
+  en: {
+    intro:
+      'The laws, regulations, drafts and guidance this ledger refers to. Binding means the instrument is, or would be once signed, legally binding. Not binding means guidance or an initiative without legal force.',
+    caption: 'Instruments referenced by Monsoon Ledger',
+    type: 'Type',
+    issued: 'Issued',
+    bindingCol: 'Legal force',
+  },
+  id: {
+    intro:
+      'Undang-undang, peraturan, rancangan, dan panduan yang dirujuk di sini. Mengikat berarti instrumen itu punya kekuatan hukum, atau akan punya setelah ditandatangani. Tidak mengikat berarti panduan atau inisiatif tanpa kekuatan hukum.',
+    caption: 'Instrumen yang dirujuk Monsoon Ledger',
+    type: 'Jenis',
+    issued: 'Terbit',
+    bindingCol: 'Kekuatan hukum',
+  },
+}[lang];
+---
+<Base lang={lang} path="instruments/" title={t.nav.instruments} nav="instruments">
+  <div class="prose">
+    <h1>{t.nav.instruments}</h1>
+    <p>{copy.intro}</p>
+  </div>
+
+  <table class="ruled stack" role="table">
+    <caption class="visually-hidden">{copy.caption}</caption>
+    <thead role="rowgroup">
+      <tr role="row">
+        <th scope="col" role="columnheader">{t.instrument}</th>
+        <th scope="col" role="columnheader">{copy.type}</th>
+        <th scope="col" role="columnheader">{copy.issued}</th>
+        <th scope="col" role="columnheader">{t.statusLabel}</th>
+        <th scope="col" role="columnheader">{copy.bindingCol}</th>
+      </tr>
+    </thead>
+    <tbody role="rowgroup">
+      {
+        instruments.map((i) => (
+          <tr role="row" id={i.id}>
+            <td role="cell" data-label={t.instrument}>
+              <span class="instr-name">{pick(lang, i.name_en, i.name_id)}</span>
+              <span class="instr-note">{pick(lang, i.note_en, i.note_id)}</span>
+              <a class="instr-note" href={i.source_url}>{t.source}</a>
+            </td>
+            <td role="cell" data-label={copy.type}>{t.instrumentType[i.type] ?? i.type}</td>
+            <td role="cell" class="num" data-label={copy.issued}>
+              {i.issued ? <span class="mono">{i.issued}</span> : t.notIssued}
+            </td>
+            <td role="cell" data-label={t.statusLabel}>
+              <Stamp tone={i.status} label={t.status[i.status]} />
+            </td>
+            <td role="cell" data-label={copy.bindingCol}>
+              <Stamp tone={i.binding ? 'binding' : 'not-binding'} label={i.binding ? t.binding : t.notBinding} />
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</Base>

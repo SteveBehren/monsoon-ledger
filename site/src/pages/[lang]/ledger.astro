@@ -1,0 +1,113 @@
+---
+import Base from '../../layouts/Base.astro';
+import Stamp from '../../components/Stamp.astro';
+import Wave from '../../components/Wave.astro';
+import { getDeadlines, getEntries, outcomeCounts, OUTCOMES } from '../../lib/data';
+import { ui, pick, href, SITE, LANGS, type Lang } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const t = ui[lang];
+const deadlines = getDeadlines();
+const counts = outcomeCounts(deadlines);
+const related = getEntries().find((e) => e.id === '2026-10-21-id-perpres-ai-keep-almost-arriving');
+
+const copy = {
+  en: {
+    sub: 'Promise vs reality',
+    intro:
+      "The public deadlines officials have given for Indonesia's AI rules, set against what happened next. Janji is the promise. Kenyataan is the reality. Each row links to the report of the statement.",
+    howTo:
+      'A row stays open until the deadline passes or the rule arrives. When an outcome changes, the row is updated and the change is logged in the changelog.',
+    caption: 'Deadlines for Indonesia\'s AI regulations, newest first',
+    promise: 'Promise',
+    reality: 'Reality',
+    said: 'Said on',
+    stamp: 'Outcome',
+    total: 'Balance',
+    entries: 'Read the entry on why the rules keep almost arriving',
+  },
+  id: {
+    sub: 'Apa yang dijanjikan, apa yang terjadi',
+    intro:
+      'Tenggat yang pernah diumumkan pejabat untuk aturan AI Indonesia, disandingkan dengan apa yang terjadi sesudahnya. Janji adalah apa yang diucapkan. Kenyataan adalah apa yang terjadi. Setiap baris menautkan ke laporan tentang pernyataan itu.',
+    howTo:
+      'Sebuah baris tetap terbuka sampai tenggatnya lewat atau aturannya terbit. Kalau hasilnya berubah, baris diperbarui dan perubahannya dicatat di catatan perubahan.',
+    caption: 'Tenggat aturan AI Indonesia, terbaru di atas',
+    promise: 'Yang dijanjikan',
+    reality: 'Yang terjadi',
+    said: 'Diucapkan',
+    stamp: 'Hasil',
+    total: 'Saldo',
+    entries: 'Baca catatan tentang aturan yang tak kunjung terbit',
+  },
+}[lang];
+---
+<Base lang={lang} path="ledger/" title="Janji vs Kenyataan" description={copy.intro} nav="ledger">
+  <div class="prose">
+    <p class="kicker">{copy.sub}</p>
+    <h1>Janji vs Kenyataan</h1>
+    <p>{copy.intro}</p>
+    <p>{copy.howTo}</p>
+  </div>
+
+  <div class="balance" role="group" aria-label={copy.total}>
+    {
+      OUTCOMES.map((o) => (
+        <div>
+          <span class="figure">{counts[o]}</span>
+          <Stamp tone={o} label={t.outcome[o]} />
+        </div>
+      ))
+    }
+  </div>
+
+  <table class="ruled ledger stack" role="table">
+    <caption class="visually-hidden">{copy.caption}</caption>
+    <thead role="rowgroup">
+      <tr role="row">
+        <th scope="col" role="columnheader" class="col-date">{copy.said}</th>
+        <th scope="col" role="columnheader" class="col-janji">Janji<span class="sub">{copy.promise}</span></th>
+        <th scope="col" role="columnheader" class="col-kenyataan">Kenyataan<span class="sub">{copy.reality}</span></th>
+        <th scope="col" role="columnheader" class="col-stamp">{copy.stamp}</th>
+      </tr>
+    </thead>
+    <tbody role="rowgroup">
+      {
+        deadlines.map((d) => (
+          <tr role="row">
+            <td role="cell" class="col-date" data-label={copy.said}>
+              <time datetime={d.date_said}>{d.date_said}</time>
+            </td>
+            <td role="cell" class="col-janji" data-label="Janji">
+              <span class="promise">{pick(lang, d.promised_en, d.promised_id)}</span>
+              <span class="who">{d.who}</span>
+              <a class="src" href={d.source_url}>{t.source}</a>
+            </td>
+            <td role="cell" class="col-kenyataan" data-label="Kenyataan">
+              <span class="outcome">{pick(lang, d.outcome_en, d.outcome_id)}</span>
+            </td>
+            <td role="cell" class="col-stamp">
+              <Stamp tone={d.outcome_status} label={t.outcome[d.outcome_status]} />
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+
+  <Wave />
+  {
+    related && (
+      <p class="prose">
+        <a href={href(lang, `entries/${related.id}/`)}>{copy.entries}</a>
+      </p>
+    )
+  }
+  <p class="correction prose">
+    {t.corrections} <a href={SITE.issues}>{t.openIssue}</a>
+  </p>
+</Base>

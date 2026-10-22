@@ -1,0 +1,89 @@
+---
+import Base from '../../layouts/Base.astro';
+import Wave from '../../components/Wave.astro';
+import { ui, SITE, LANGS, type Lang } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const t = ui[lang];
+---
+<Base lang={lang} path="about/" title={t.nav.about} nav="about">
+  <article class="prose">
+    <h1>{t.nav.about}</h1>
+    {
+      lang === 'en' ? (
+        <>
+          <p class="lede">
+            I'm Stephen Behren Tanjung, an Indonesian living in Deventer, the Netherlands. I read Bahasa Indonesia natively and I live
+            under EU rules, so I read Indonesian AI policy in the language it is announced in and set it beside the rules I live with.
+          </p>
+          <p>
+            I studied Creative Business at Hogeschool Utrecht. In 2025 I worked as a multimedia content creator at ACAPS, and in 2026 I
+            work as a marketing content specialist at Rush Send. Monsoon Ledger is an independent project. It is not legal advice.
+          </p>
+
+          <h2>Why Indonesia</h2>
+          <p>
+            Indonesia is writing its AI rules right now. The announcements, deadlines and consultations happen in Bahasa Indonesia, and
+            little of that detail reaches readers outside the country. I can read it in the original, so I start here. Other ASEAN
+            countries come later, once the Indonesian ledger has twelve entries.
+          </p>
+
+          <h2>Why Bahasa first</h2>
+          <p>
+            Policy is announced in Bahasa Indonesia, and the exact words matter. A draft, a signature and a rule in force are different
+            things, and the difference often sits in a single word. So key quotes stay in the original, with an English line under them,
+            and every source is linked so you can check my reading.
+          </p>
+
+          <h2>Why the name</h2>
+          <p>
+            The monsoon is forecast and announced long before it arrives. Indonesia's AI rules have worked the same way: announced, given
+            a date, and announced again. The ledger records what was promised and what actually showed up.
+          </p>
+        </>
+      ) : (
+        <>
+          <p class="lede">
+            Saya Stephen Behren Tanjung, orang Indonesia yang tinggal di Deventer, Belanda. Bahasa Indonesia adalah bahasa ibu saya, dan
+            sehari-hari saya hidup di bawah aturan Uni Eropa. Jadi saya membaca kebijakan AI Indonesia dalam bahasa aslinya, lalu
+            menyandingkannya dengan aturan yang saya jalani.
+          </p>
+          <p>
+            Saya lulusan Creative Business di Hogeschool Utrecht. Pada 2025 saya bekerja sebagai multimedia content creator di ACAPS, dan
+            pada 2026 sebagai marketing content specialist di Rush Send. Monsoon Ledger adalah proyek independen dan bukan nasihat hukum.
+          </p>
+
+          <h2>Kenapa Indonesia</h2>
+          <p>
+            Indonesia sedang menyusun aturan AI-nya sekarang. Pengumuman, tenggat, dan konsultasinya berlangsung dalam bahasa Indonesia,
+            dan rinciannya jarang sampai ke pembaca di luar negeri. Saya bisa membacanya langsung, jadi saya mulai dari sini. Negara ASEAN
+            lain menyusul setelah catatan Indonesia mencapai dua belas.
+          </p>
+
+          <h2>Kenapa bahasa Indonesia lebih dulu</h2>
+          <p>
+            Kebijakan diumumkan dalam bahasa Indonesia, dan pilihan katanya penting. Rancangan, tanda tangan, dan aturan yang berlaku
+            adalah tiga hal berbeda, dan bedanya sering cuma ada di satu kata. Karena itu kutipan penting tetap dalam bahasa aslinya,
+            dengan terjemahan bahasa Inggris di bawahnya, dan setiap sumber ditautkan supaya Anda bisa memeriksa cara saya membacanya.
+          </p>
+
+          <h2>Kenapa namanya Monsoon Ledger</h2>
+          <p>
+            Musim hujan sudah diramalkan dan diumumkan jauh sebelum datang. Aturan AI di Indonesia juga begitu: diumumkan, diberi tanggal,
+            lalu diumumkan lagi. Buku catatan ini merekam apa yang dijanjikan dan apa yang benar-benar terjadi.
+          </p>
+        </>
+      )
+    }
+
+    <Wave />
+    <ul>
+      <li><a href={SITE.repo}>{lang === 'en' ? 'Monsoon Ledger on GitHub' : 'Monsoon Ledger di GitHub'}</a></li>
+      <li><a href={SITE.github}>{lang === 'en' ? 'My GitHub profile' : 'Profil GitHub saya'}</a></li>
+    </ul>
+  </article>
+</Base>

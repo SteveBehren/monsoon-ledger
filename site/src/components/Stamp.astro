@@ -1,0 +1,9 @@
+---
+interface Props {
+  tone: string;
+  label: string;
+  title?: string;
+}
+const { tone, label, title } = Astro.props;
+---
+<span class={`stamp stamp--${tone}`} title={title}>{label}</span>

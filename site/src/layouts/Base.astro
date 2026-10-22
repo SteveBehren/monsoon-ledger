@@ -1,0 +1,111 @@
+---
+import '../styles/global.css';
+import { ui, other, href, SITE, type Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+  // Path after the language prefix, for example "ledger/" or "" for home.
+  path: string;
+  title?: string;
+  description?: string;
+  ogType?: 'website' | 'article';
+  nav?: 'home' | 'entries' | 'ledger' | 'instruments' | 'method' | 'about';
+}
+
+const { lang, path, title, description, ogType = 'website', nav } = Astro.props;
+const t = ui[lang];
+const alt = other(lang);
+const fullTitle = title ? `${title} | ${SITE.name}` : `${SITE.name} | ${t.tagline}`;
+const desc = description ?? t.tagline;
+const canonical = new URL(href(lang, path), SITE.url).href;
+const altUrl = new URL(href(alt, path), SITE.url).href;
+const enUrl = new URL(href('en', path), SITE.url).href;
+const idUrl = new URL(href('id', path), SITE.url).href;
+
+const links = [
+  { key: 'home', path: '' },
+  { key: 'entries', path: 'entries/' },
+  { key: 'ledger', path: 'ledger/' },
+  { key: 'instruments', path: 'instruments/' },
+  { key: 'method', path: 'method/' },
+  { key: 'about', path: 'about/' },
+] as const;
+---
+<!doctype html>
+<html lang={t.htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={desc} />
+    <meta name="author" content={SITE.author} />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f6f1e7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1a1d" media="(prefers-color-scheme: dark)" />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="en" href={enUrl} />
+    <link rel="alternate" hreflang="id" href={idUrl} />
+    <link rel="alternate" hreflang="x-default" href={enUrl} />
+    <link rel="alternate" type="application/rss+xml" title={`${SITE.name} (${t.langName})`} href={href(lang, 'feed.xml')} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap.xml" />
+
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={title ?? SITE.name} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={t.ogLocale} />
+    <meta property="og:locale:alternate" content={ui[alt].ogLocale} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title ?? SITE.name} />
+    <meta name="twitter:description" content={desc} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{t.skip}</a>
+    <header class="masthead">
+      <div class="wrap">
+        <div class="masthead-top">
+          <a class="brand" href={href(lang)}>{SITE.name}</a>
+          <nav class="lang-switch" aria-label={t.langSwitchLabel}>
+            <span aria-current="true" lang={t.htmlLang}>{t.langName}</span>
+            <span aria-hidden="true">/</span>
+            <a href={altUrl.replace(SITE.url, '')} hreflang={alt} lang={alt}>{ui[alt].langName}</a>
+          </nav>
+        </div>
+        <nav class="site-nav" aria-label={t.navLabel}>
+          <ul>
+            {
+              links.map((l) => (
+                <li>
+                  <a href={href(lang, l.path)} aria-current={nav === l.key ? 'page' : undefined}>
+                    {t.nav[l.key]}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <div class="wrap">
+        <slot />
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <p lang={t.htmlLang}>{SITE.name}. {t.tagline}</p>
+        <p>{t.footerLicence}</p>
+        <ul>
+          <li><a href={SITE.repo}>{t.footerRepo}</a></li>
+          <li><a href={SITE.changelog}>{t.footerChangelog}</a></li>
+          <li><a href={SITE.issues}>{t.openIssue}</a></li>
+          <li><a href={href(lang, 'feed.xml')}>{t.feed}</a></li>
+        </ul>
+      </div>
+    </footer>
+  </body>
+</html>

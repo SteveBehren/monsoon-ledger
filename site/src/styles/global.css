@@ -1,0 +1,859 @@
+/* Monsoon Ledger: an old trading ledger meets a rain forecast. */
+
+:root {
+  color-scheme: light dark;
+  --paper: #f6f1e7;
+  --paper-2: #efe7d6;
+  --ink: #1b2a2f;
+  --ink-soft: #4b5a5d;
+  --rule: #d5cab4;
+  --rule-strong: #1b2a2f;
+  --teal: #0f5c63;
+  --rust: #b2432f;
+  --gold: #9a7b2f;
+  --gold-ink: #7a5e1e;
+
+  --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --mono: ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+
+  --measure: 42rem;
+  --wide: 64rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0e1a1d;
+    --paper-2: #142529;
+    --ink: #ede6d6;
+    --ink-soft: #b7b2a5;
+    --rule: #2c3e42;
+    --rule-strong: #ede6d6;
+    --teal: #74c3c9;
+    --rust: #ec9581;
+    --gold: #d7b76c;
+    --gold-ink: #d7b76c;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--serif);
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0 0 0.5em;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(1.9rem, 1.4rem + 2.4vw, 2.75rem);
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  font-size: 1.45rem;
+  margin-top: 2.25rem;
+}
+
+h3 {
+  font-size: 1.15rem;
+}
+
+p {
+  margin: 0 0 1em;
+}
+
+a {
+  color: var(--teal);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--teal);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.mono,
+time,
+.figure {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -3rem;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.5rem 0.75rem;
+  z-index: 10;
+}
+
+.skip-link:focus {
+  top: 0.75rem;
+}
+
+/* Layout */
+
+.wrap {
+  width: 100%;
+  max-width: var(--wide);
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.prose {
+  max-width: var(--measure);
+}
+
+main {
+  padding: 2rem 0 3rem;
+}
+
+/* Masthead: a ledger header with a double rule. */
+
+.masthead {
+  border-bottom: 3px double var(--rule-strong);
+  padding: 1rem 0 0.75rem;
+}
+
+.masthead-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.brand {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: 0.01em;
+}
+
+.lang-switch {
+  font-size: 0.9rem;
+}
+
+.lang-switch a,
+.lang-switch span {
+  padding: 0.15rem 0.1rem;
+}
+
+.lang-switch [aria-current='true'] {
+  font-weight: 600;
+}
+
+.site-nav ul {
+  list-style: none;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.1rem;
+  font-size: 0.92rem;
+}
+
+.site-nav a {
+  color: var(--ink);
+  text-decoration: none;
+  display: inline-block;
+  padding: 0.3rem 0;
+  border-bottom: 2px solid transparent;
+}
+
+.site-nav a:hover {
+  border-bottom-color: var(--rule);
+}
+
+.site-nav a[aria-current='page'] {
+  border-bottom-color: var(--teal);
+  color: var(--teal);
+}
+
+/* Wave divider: one thin line, like a forecast chart. */
+
+.wave {
+  display: block;
+  width: 100%;
+  height: 12px;
+  color: var(--teal);
+  margin: 2rem 0;
+}
+
+/* Footer */
+
+.site-footer {
+  border-top: 1px solid var(--rule);
+  padding: 1.5rem 0 2.5rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.site-footer p {
+  margin: 0 0 0.4rem;
+}
+
+.site-footer ul {
+  list-style: none;
+  padding: 0;
+  margin: 0.6rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+}
+
+/* Kicker and lede */
+
+.kicker {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 0.75rem;
+}
+
+.lede {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  line-height: 1.5;
+}
+
+.tagline {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.2rem, 1rem + 1vw, 1.5rem);
+  line-height: 1.4;
+  color: var(--ink-soft);
+  margin: 0 0 1.5rem;
+  max-width: 36rem;
+}
+
+/* Stamps: small rubber-stamp labels. */
+
+.stamp {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 0.2rem 0.45rem;
+  border: 3px double currentColor;
+  border-radius: 3px;
+  transform: rotate(-2deg);
+  color: var(--ink);
+}
+
+.stamp--missed,
+.stamp--withdrawn {
+  color: var(--rust);
+}
+
+.stamp--open,
+.stamp--draft,
+.stamp--announced {
+  color: var(--gold-ink);
+}
+
+.stamp--met,
+.stamp--signed,
+.stamp--in-force,
+.stamp--binding {
+  color: var(--teal);
+}
+
+.stamp--not-binding {
+  color: var(--ink-soft);
+}
+
+.tag {
+  display: inline-block;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  border-bottom: 1px dotted var(--ink-soft);
+}
+
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+/* Entry list */
+
+.entry-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.entry-list > li {
+  padding: 1.1rem 0 1.2rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.entry-list .entry-title {
+  margin: 0.35rem 0 0.4rem;
+  font-size: 1.25rem;
+}
+
+.entry-list .entry-title a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.entry-list .entry-title a:hover {
+  color: var(--teal);
+  text-decoration: underline;
+}
+
+.entry-list p {
+  margin: 0.5rem 0 0;
+  max-width: var(--measure);
+  color: var(--ink-soft);
+}
+
+/* Filters */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  align-items: end;
+  margin: 1.5rem 0 1rem;
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.filters[hidden] {
+  display: none;
+}
+
+.filters label {
+  display: block;
+  font-size: 0.8rem;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  margin-bottom: 0.25rem;
+}
+
+.filters select {
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--ink-soft);
+  border-radius: 3px;
+  padding: 0.4rem 0.5rem;
+  min-height: 2.5rem;
+  max-width: 100%;
+}
+
+.filter-count {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  margin: 0 0 0.75rem;
+}
+
+/* Ruled tables (ledger, instruments, safety lens) */
+
+.ruled {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.97rem;
+}
+
+.ruled caption {
+  text-align: left;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  padding-bottom: 0.5rem;
+}
+
+.ruled th,
+.ruled td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.75rem 0.75rem 0.75rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.ruled thead th {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  border-bottom: 3px double var(--rule-strong);
+}
+
+.ruled tfoot td,
+.ruled tfoot th {
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 3px double var(--rule-strong);
+}
+
+.ruled .num {
+  white-space: nowrap;
+}
+
+/* The ledger page */
+
+.ledger {
+  margin-top: 1.5rem;
+}
+
+.ledger .col-date {
+  width: 8.5rem;
+  white-space: nowrap;
+  border-right: 3px double var(--rule);
+  padding-right: 0.9rem;
+}
+
+.ledger td.col-janji,
+.ledger th.col-janji {
+  padding-left: 0.9rem;
+}
+
+.ledger .col-janji,
+.ledger .col-kenyataan {
+  width: 40%;
+}
+
+.ledger .col-stamp {
+  width: 9rem;
+  text-align: right;
+  padding-right: 0;
+}
+
+.ledger thead .sub {
+  display: block;
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 0.78rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.ledger .promise,
+.ledger .outcome {
+  font-family: var(--serif);
+  font-size: 1.08rem;
+  line-height: 1.4;
+  display: block;
+}
+
+.ledger .who {
+  display: block;
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+  margin-top: 0.3rem;
+}
+
+.ledger .src {
+  font-size: 0.86rem;
+}
+
+.ledger tbody tr:nth-child(even) {
+  background: var(--paper-2);
+}
+
+.balance {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2.5rem;
+  margin: 1.25rem 0 0;
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 3px double var(--rule-strong);
+}
+
+.balance div {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.balance .figure {
+  font-size: 1.9rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* Instruments */
+
+.instr-name {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  display: block;
+}
+
+.instr-note {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  margin-top: 0.25rem;
+}
+
+/* Entry page */
+
+.entry-head {
+  border-bottom: 1px solid var(--rule-strong);
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.entry-head .meta-row {
+  margin-top: 0.75rem;
+}
+
+.back {
+  font-size: 0.9rem;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.quote {
+  margin: 2rem 0;
+  padding: 0.25rem 0 0.25rem 1.25rem;
+  border-left: 3px solid var(--teal);
+}
+
+.quote blockquote {
+  margin: 0;
+}
+
+.quote .original {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  line-height: 1.45;
+  margin: 0 0 0.6rem;
+}
+
+.quote .translation {
+  font-size: 1rem;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+.quote figcaption {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-top: 0.6rem;
+}
+
+.lens {
+  border: 1px solid var(--rule-strong);
+  padding: 0.25rem 1rem 0.75rem;
+  margin: 2rem 0;
+  max-width: var(--measure);
+}
+
+.lens h2 {
+  margin-top: 0.9rem;
+  font-size: 1.2rem;
+}
+
+.lens .ruled td:last-child {
+  text-align: right;
+  padding-right: 0;
+  white-space: nowrap;
+}
+
+.lens .ruled tr:last-child td,
+.lens .ruled tr:last-child th {
+  border-bottom: 0;
+}
+
+.lens .q {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+
+.lens th {
+  font-weight: 600;
+}
+
+.mark {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.mark::before {
+  content: '';
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  margin-right: 0.4rem;
+  border: 1.5px solid currentColor;
+  vertical-align: 0.02em;
+}
+
+.mark--yes,
+.mark--binding {
+  color: var(--teal);
+}
+
+.mark--yes::before,
+.mark--binding::before {
+  background: currentColor;
+}
+
+.mark--soft {
+  color: var(--teal);
+}
+
+.mark--soft::before {
+  box-shadow: inset 0.3rem 0 0 currentColor;
+}
+
+.mark--no,
+.mark--none {
+  color: var(--rust);
+}
+
+.mark--unclear {
+  color: var(--gold-ink);
+}
+
+.mark--unclear::before {
+  border-style: dotted;
+}
+
+.lens-note {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  margin: 0.75rem 0 0;
+}
+
+.label-note {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.sources-list {
+  padding-left: 1.25rem;
+}
+
+.sources-list li {
+  margin-bottom: 0.6rem;
+}
+
+.sources-list .outlet {
+  display: block;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+.instrument-box {
+  margin: 2rem 0;
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.95rem;
+}
+
+.correction {
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  margin-top: 2.5rem;
+}
+
+/* Home */
+
+.home-intro {
+  padding-bottom: 0.5rem;
+}
+
+.summary-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 3px double var(--rule-strong);
+  margin: 1rem 0 0.75rem;
+}
+
+.summary-strip div {
+  padding: 0.9rem 0.75rem 0.9rem 0;
+}
+
+.summary-strip div + div {
+  border-left: 1px solid var(--rule);
+  padding-left: 0.9rem;
+}
+
+.summary-strip .figure {
+  display: block;
+  font-size: 2.2rem;
+  font-weight: 600;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  margin-top: 2.5rem;
+}
+
+.section-head h2 {
+  margin: 0 0 0.5rem;
+}
+
+dl.levels dt {
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+dl.levels dd {
+  margin: 0.25rem 0 0;
+}
+
+/* Small screens: ruled tables become stacked rows. */
+
+@media (max-width: 40rem) {
+  body {
+    font-size: 1rem;
+  }
+
+  .stack thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .stack,
+  .stack tbody,
+  .stack tfoot,
+  .stack tr,
+  .stack td,
+  .stack th {
+    display: block;
+    width: auto !important;
+  }
+
+  .stack tr {
+    border-bottom: 1px solid var(--rule);
+    padding: 0.75rem 0;
+  }
+
+  .stack td,
+  .stack th {
+    border: 0 !important;
+    padding: 0.2rem 0 !important;
+    text-align: left !important;
+  }
+
+  .stack td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .ledger tbody tr:nth-child(even) {
+    background: transparent;
+  }
+
+  .ledger .col-stamp {
+    padding-top: 0.5rem !important;
+  }
+
+  .summary-strip .figure {
+    font-size: 1.7rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  .site-nav,
+  .lang-switch,
+  .filters,
+  .skip-link {
+    display: none;
+  }
+}
+
+main:focus {
+  outline: none;
+}
+
+.filters .label-note {
+  margin: 0;
+  flex-basis: 100%;
+}

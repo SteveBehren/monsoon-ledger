@@ -23,8 +23,8 @@ quote:
   en: "Everything gets reported, because even small incidents grow big if left alone."
   source_url: https://www.antaranews.com/berita/5612117/kemkomdigi-jelaskan-isi-konsultasi-dengan-as-soal-rancangan-perpres-ai
   # TODO: add the director's name and full title as given in the ANTARA article.
-  attribution_en: The ministry's director, as quoted by ANTARA
-  attribution_id: Direktur di kementerian, seperti dikutip ANTARA
+  attribution_en: The ministry's director
+  attribution_id: Direktur di kementerian
 
 safety_lens:
   incident_reporting: "yes"

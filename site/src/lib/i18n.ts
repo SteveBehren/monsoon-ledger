@@ -1,0 +1,182 @@
+import type { Enforcement, Evidence, Outcome, Status, Topic, YesNo } from './data';
+
+export const LANGS = ['en', 'id'] as const;
+export type Lang = (typeof LANGS)[number];
+
+export const SITE = {
+  name: 'Monsoon Ledger',
+  url: 'https://monsoon-ledger.vercel.app',
+  repo: 'https://github.com/SteveBehren/monsoon-ledger',
+  issues: 'https://github.com/SteveBehren/monsoon-ledger/issues',
+  changelog: 'https://github.com/SteveBehren/monsoon-ledger/blob/main/CHANGELOG.md',
+  github: 'https://github.com/SteveBehren',
+  author: 'Stephen Behren Tanjung',
+};
+
+export const other = (lang: Lang): Lang => (lang === 'en' ? 'id' : 'en');
+export const href = (lang: Lang, p = '') => `/${lang}/${p}`;
+
+const en = {
+  htmlLang: 'en',
+  ogLocale: 'en_GB',
+  langName: 'English',
+  tagline: 'AI governance from the archipelago, read in the original Bahasa.',
+  skip: 'Skip to content',
+  navLabel: 'Main',
+  langSwitchLabel: 'Language',
+  nav: {
+    home: 'Home',
+    entries: 'Entries',
+    ledger: 'Janji vs Kenyataan',
+    instruments: 'Instruments',
+    method: 'Method',
+    about: 'About',
+  },
+  status: {
+    announced: 'Announced',
+    draft: 'Draft',
+    signed: 'Signed',
+    'in-force': 'In force',
+    withdrawn: 'Withdrawn',
+  } satisfies Record<Status, string>,
+  evidence: {
+    'legal-text': 'Legal text',
+    'official-statement': 'Official statement',
+    'press-report': 'Press report',
+  } satisfies Record<Evidence, string>,
+  yesNo: { yes: 'Yes', no: 'No', unclear: 'Unclear' } satisfies Record<YesNo, string>,
+  enforcement: { binding: 'Binding', soft: 'Soft', none: 'None', unclear: 'Unclear' } satisfies Record<Enforcement, string>,
+  topic: {
+    incident_reporting: 'Incident reporting',
+    unacceptable_uses: 'Unacceptable uses',
+    general_purpose_models: 'General-purpose models',
+    enforcement: 'Enforcement',
+  } satisfies Record<Topic, string>,
+  topicQuestion: {
+    incident_reporting: 'Does it require incidents to be reported?',
+    unacceptable_uses: 'Does it name uses that are not acceptable?',
+    general_purpose_models: 'Does it address general-purpose models?',
+    enforcement: 'How strongly is it enforced?',
+  } satisfies Record<Topic, string>,
+  outcome: { missed: 'Missed', open: 'Open', met: 'Met' } satisfies Record<Outcome, string>,
+  instrumentType: {
+    'circular-letter': 'Circular letter',
+    'presidential-regulation': 'Presidential regulation',
+    'regional-guidance': 'Regional guidance',
+    'bilateral-initiative': 'Bilateral initiative',
+    law: 'Law',
+    'government-regulation': 'Government regulation',
+  } as Record<string, string>,
+  binding: 'Binding',
+  notBinding: 'Not binding',
+  notIssued: 'Not yet',
+  evidenceLabel: 'Evidence',
+  statusLabel: 'Status',
+  lastChecked: 'Last checked',
+  date: 'Date',
+  source: 'Source',
+  sources: 'Sources',
+  instrument: 'Instrument',
+  readEntry: 'Read entry',
+  allEntries: 'All entries',
+  latest: 'Latest entries',
+  safetyLens: 'Safety lens',
+  euComparison: 'Compared with the EU',
+  myTake: 'My take',
+  inEnglish: '(in English)',
+  quoteOriginal: 'Original quote in Bahasa Indonesia',
+  quotedBy: 'as quoted by',
+  sourceLang: { id: 'Bahasa Indonesia', en: 'English' } as Record<string, string>,
+  corrections: 'Spotted an error? Open an issue with a source and I will fix it in the open.',
+  openIssue: 'Open an issue',
+  feed: 'RSS feed',
+  footerLicence: 'Code under MIT. Data and writing under CC BY 4.0.',
+  footerRepo: 'Source on GitHub',
+  footerChangelog: 'Changelog',
+};
+
+type Strings = typeof en;
+
+const id: Strings = {
+  htmlLang: 'id',
+  ogLocale: 'id_ID',
+  langName: 'Bahasa Indonesia',
+  tagline: 'Catatan janji dan kenyataan tata kelola AI di Nusantara.',
+  skip: 'Langsung ke isi',
+  navLabel: 'Utama',
+  langSwitchLabel: 'Bahasa',
+  nav: {
+    home: 'Beranda',
+    entries: 'Catatan',
+    ledger: 'Janji vs Kenyataan',
+    instruments: 'Instrumen',
+    method: 'Metode',
+    about: 'Tentang',
+  },
+  status: {
+    announced: 'Diumumkan',
+    draft: 'Rancangan',
+    signed: 'Ditandatangani',
+    'in-force': 'Berlaku',
+    withdrawn: 'Ditarik',
+  },
+  evidence: {
+    'legal-text': 'Teks hukum',
+    'official-statement': 'Pernyataan resmi',
+    'press-report': 'Laporan media',
+  },
+  yesNo: { yes: 'Ya', no: 'Tidak', unclear: 'Belum jelas' },
+  enforcement: { binding: 'Mengikat', soft: 'Lunak', none: 'Tidak ada', unclear: 'Belum jelas' },
+  topic: {
+    incident_reporting: 'Pelaporan insiden',
+    unacceptable_uses: 'Penggunaan yang tidak dapat diterima',
+    general_purpose_models: 'Model serba guna',
+    enforcement: 'Penegakan',
+  },
+  topicQuestion: {
+    incident_reporting: 'Apakah insiden wajib dilaporkan?',
+    unacceptable_uses: 'Apakah ada penggunaan yang dinyatakan tidak dapat diterima?',
+    general_purpose_models: 'Apakah model serba guna ikut diatur?',
+    enforcement: 'Seberapa kuat penegakannya?',
+  },
+  outcome: { missed: 'Terlewat', open: 'Masih terbuka', met: 'Terpenuhi' },
+  instrumentType: {
+    'circular-letter': 'Surat edaran',
+    'presidential-regulation': 'Peraturan Presiden',
+    'regional-guidance': 'Panduan regional',
+    'bilateral-initiative': 'Inisiatif bilateral',
+    law: 'Undang-undang',
+    'government-regulation': 'Peraturan Pemerintah',
+  },
+  binding: 'Mengikat',
+  notBinding: 'Tidak mengikat',
+  notIssued: 'Belum',
+  evidenceLabel: 'Bukti',
+  statusLabel: 'Status',
+  lastChecked: 'Terakhir dicek',
+  date: 'Tanggal',
+  source: 'Sumber',
+  sources: 'Sumber',
+  instrument: 'Instrumen',
+  readEntry: 'Baca catatan',
+  allEntries: 'Semua catatan',
+  latest: 'Catatan terbaru',
+  safetyLens: 'Lensa keselamatan',
+  euComparison: 'Dibandingkan dengan Uni Eropa',
+  myTake: 'Pendapat saya',
+  inEnglish: '(dalam bahasa Inggris)',
+  quoteOriginal: 'Kutipan asli dalam bahasa Indonesia',
+  quotedBy: 'dikutip',
+  sourceLang: { id: 'Bahasa Indonesia', en: 'Bahasa Inggris' },
+  corrections: 'Menemukan kesalahan? Buka issue di GitHub dengan sumbernya, dan saya akan memperbaikinya secara terbuka.',
+  openIssue: 'Buka issue',
+  feed: 'Umpan RSS',
+  footerLicence: 'Kode berlisensi MIT. Data dan tulisan berlisensi CC BY 4.0.',
+  footerRepo: 'Kode sumber di GitHub',
+  footerChangelog: 'Catatan perubahan',
+};
+
+export const ui: Record<Lang, Strings> = { en, id };
+
+// Pick the language version of a bilingual field.
+export const pick = (lang: Lang, enText: string, idText: string) => (lang === 'en' ? enText : idText);

@@ -1,0 +1,77 @@
+---
+import Base from '../../layouts/Base.astro';
+import Wave from '../../components/Wave.astro';
+import Stamp from '../../components/Stamp.astro';
+import EntryItem from '../../components/EntryItem.astro';
+import { getEntries, getDeadlines, outcomeCounts, OUTCOMES } from '../../lib/data';
+import { ui, href, LANGS, type Lang } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const t = ui[lang];
+const latest = getEntries().slice(0, 3);
+const deadlines = getDeadlines();
+const counts = outcomeCounts(deadlines);
+
+const copy = {
+  en: {
+    intro:
+      'Monsoon Ledger is a public, bilingual tracker of how Indonesia governs artificial intelligence. Every entry is tied to primary or official sources, labelled with how strong the evidence is, and compared with the EU AI Act and frontier AI safety practice. Key quotes stay in the original Bahasa Indonesia, with an English line under them.',
+    name: 'The monsoon is forecast and announced long before it arrives. Indonesia\'s AI rules have worked the same way. This ledger records what was promised and what actually showed up.',
+    ledgerIntro: "The public deadlines officials have given for Indonesia's AI rules, and what happened to each one.",
+    ledgerLink: 'Open the full ledger',
+    promises: 'promises',
+  },
+  id: {
+    intro:
+      'Monsoon Ledger adalah pelacak publik dalam dua bahasa tentang cara Indonesia mengatur kecerdasan artifisial. Setiap catatan bersandar pada sumber primer atau resmi, diberi label seberapa kuat buktinya, lalu dibandingkan dengan EU AI Act dan praktik keselamatan AI terdepan. Kutipan penting tetap ditulis dalam bahasa aslinya, dengan terjemahan bahasa Inggris di bawahnya.',
+    name: 'Musim hujan sudah diramalkan dan diumumkan jauh sebelum datang. Aturan AI di Indonesia juga begitu. Catatan ini merekam apa yang dijanjikan dan apa yang benar-benar terjadi.',
+    ledgerIntro: 'Tenggat yang pernah diumumkan pejabat untuk aturan AI Indonesia, dan apa yang terjadi pada masing-masing.',
+    ledgerLink: 'Buka buku catatan lengkap',
+    promises: 'janji',
+  },
+}[lang];
+---
+<Base lang={lang} path="" nav="home">
+  <section class="home-intro prose">
+    <p class="kicker">English &middot; Bahasa Indonesia</p>
+    <h1>Monsoon Ledger</h1>
+    <p class="tagline">{t.tagline}</p>
+    <p>{copy.intro}</p>
+    <p>{copy.name}</p>
+  </section>
+
+  <Wave />
+
+  <section aria-labelledby="latest-h">
+    <div class="section-head">
+      <h2 id="latest-h">{t.latest}</h2>
+      <a href={href(lang, 'entries/')}>{t.allEntries}</a>
+    </div>
+    <ol class="entry-list">
+      {latest.map((entry) => <EntryItem entry={entry} lang={lang} />)}
+    </ol>
+  </section>
+
+  <section aria-labelledby="ledger-h">
+    <div class="section-head">
+      <h2 id="ledger-h">Janji vs Kenyataan</h2>
+      <a href={href(lang, 'ledger/')}>{copy.ledgerLink}</a>
+    </div>
+    <p class="prose">{copy.ledgerIntro}</p>
+    <div class="summary-strip">
+      {
+        OUTCOMES.map((o) => (
+          <div>
+            <span class="figure">{counts[o]}</span>
+            <Stamp tone={o} label={t.outcome[o]} />
+          </div>
+        ))
+      }
+    </div>
+    <p class="filter-count">{deadlines.length} {copy.promises}</p>
+  </section>
+</Base>

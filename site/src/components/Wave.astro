@@ -1,0 +1,13 @@
+---
+// A single thin wave line, used as a section divider.
+const waves = 24;
+const w = 40;
+let d = 'M0 6';
+for (let i = 0; i < waves; i++) {
+  const x = i * w;
+  d += ` Q ${x + w / 4} ${i % 2 ? 10 : 2} ${x + w / 2} 6 T ${x + w} 6`;
+}
+---
+<svg class="wave" viewBox={`0 0 ${waves * w} 12`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
+  <path d={d} fill="none" stroke="currentColor" stroke-width="1.25" vector-effect="non-scaling-stroke" />
+</svg>

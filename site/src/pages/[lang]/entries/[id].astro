@@ -1,0 +1,144 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Stamp from '../../../components/Stamp.astro';
+import Wave from '../../../components/Wave.astro';
+import { getEntries, getInstruments, TOPICS, type Entry } from '../../../lib/data';
+import { ui, href, pick, SITE, LANGS, type Lang } from '../../../lib/i18n';
+
+export function getStaticPaths() {
+  const entries = getEntries();
+  return LANGS.flatMap((lang) => entries.map((entry) => ({ params: { lang, id: entry.id }, props: { entry } })));
+}
+
+interface Props {
+  entry: Entry;
+}
+
+const { entry } = Astro.props;
+const lang = Astro.params.lang as Lang;
+const t = ui[lang];
+const instrument = getInstruments().find((i) => i.id === entry.instrument);
+
+const title = pick(lang, entry.title_en, entry.title_id);
+const summary = pick(lang, entry.summary_en, entry.ringkasan_id);
+const safetyNote = lang === 'en' ? entry.safety_note_en : entry.safety_note_id ?? entry.safety_note_en;
+const safetyNoteLang = lang === 'id' && !entry.safety_note_id ? 'en' : lang;
+
+// Bahasa pages fall back to the English text, clearly labelled.
+const euText = lang === 'id' && entry.perbandingan_eu_id ? entry.perbandingan_eu_id : entry.eu_comparison;
+const euInEnglish = lang === 'id' && !entry.perbandingan_eu_id;
+const takeText = lang === 'id' && entry.pendapat_id ? entry.pendapat_id : entry.my_take;
+const takeInEnglish = lang === 'id' && !entry.pendapat_id;
+
+const lensValue = (topic: (typeof TOPICS)[number]) => {
+  const v = entry.safety_lens[topic];
+  return topic === 'enforcement' ? t.enforcement[v as keyof typeof t.enforcement] : t.yesNo[v as keyof typeof t.yesNo];
+};
+const attribution = entry.quote ? pick(lang, entry.quote.attribution_en ?? '', entry.quote.attribution_id ?? entry.quote.attribution_en ?? '') : '';
+const quoteSource = entry.quote ? entry.sources.find((s) => s.url === entry.quote!.source_url) : undefined;
+const issueUrl = `${SITE.issues}/new?title=${encodeURIComponent(`Correction: ${entry.id}`)}`;
+---
+<Base lang={lang} path={`entries/${entry.id}/`} title={title} description={summary} ogType="article" nav="entries">
+  <article class="prose">
+    <a class="back" href={href(lang, 'entries/')}>{t.allEntries}</a>
+    <header class="entry-head">
+      <p class="kicker"><time datetime={entry.date}>{entry.date}</time></p>
+      <h1>{title}</h1>
+      <div class="meta-row">
+        <span><span class="visually-hidden">{t.statusLabel}: </span><Stamp tone={entry.status} label={t.status[entry.status]} /></span>
+        <span class="tag">{t.evidenceLabel}: {t.evidence[entry.evidence]}</span>
+        <span>{t.lastChecked} <time class="mono" datetime={entry.last_checked}>{entry.last_checked}</time></span>
+      </div>
+    </header>
+
+    <p class="lede">{summary}</p>
+
+    {
+      entry.quote && (
+        <figure class="quote">
+          <blockquote cite={entry.quote.source_url}>
+            <p class="original" lang="id">
+              <span class="visually-hidden">{t.quoteOriginal}: </span>&ldquo;{entry.quote.original}&rdquo;
+            </p>
+            <p class="translation" lang="en">{entry.quote.en}</p>
+          </blockquote>
+          {(attribution || quoteSource) && (
+            <figcaption>
+              {attribution}
+              {quoteSource && (
+                <>
+                  {attribution ? `, ${t.quotedBy} ` : ''}
+                  <a href={quoteSource.url}>{quoteSource.outlet}</a>
+                </>
+              )}
+            </figcaption>
+          )}
+        </figure>
+      )
+    }
+
+    <section class="lens" aria-labelledby="lens-h">
+      <h2 id="lens-h">{t.safetyLens}</h2>
+      <table class="ruled">
+        <tbody>
+          {
+            TOPICS.map((topic) => (
+              <tr>
+                <th scope="row">
+                  {t.topic[topic]}
+                  <span class="q">{t.topicQuestion[topic]}</span>
+                </th>
+                <td>
+                  <span class={`mark mark--${entry.safety_lens[topic]}`}>{lensValue(topic)}</span>
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+      {safetyNote && <p class="lens-note" lang={safetyNoteLang}>{safetyNote}</p>}
+    </section>
+
+    <section aria-labelledby="eu-h">
+      <h2 id="eu-h">{t.euComparison}</h2>
+      {euInEnglish && <p class="label-note">{t.inEnglish}</p>}
+      <p lang={euInEnglish ? 'en' : undefined}>{euText}</p>
+    </section>
+
+    <section aria-labelledby="take-h">
+      <h2 id="take-h">{t.myTake}</h2>
+      {takeInEnglish && <p class="label-note">{t.inEnglish}</p>}
+      <p lang={takeInEnglish ? 'en' : undefined}>{takeText}</p>
+    </section>
+
+    {
+      instrument && (
+        <p class="instrument-box">
+          {t.instrument}: <a href={href(lang, 'instruments/')}>{pick(lang, instrument.name_en, instrument.name_id)}</a>{' '}
+          <Stamp tone={instrument.binding ? 'binding' : 'not-binding'} label={instrument.binding ? t.binding : t.notBinding} />
+        </p>
+      )
+    }
+
+    <section aria-labelledby="src-h">
+      <h2 id="src-h">{t.sources}</h2>
+      <ol class="sources-list">
+        {
+          entry.sources.map((s) => (
+            <li>
+              <a href={s.url} hreflang={s.language}>{s.title}</a>
+              <span class="outlet">
+                {s.outlet}, {t.sourceLang[s.language]}
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <Wave />
+    <p class="correction">
+      {t.corrections} <a href={issueUrl}>{t.openIssue}</a>
+    </p>
+  </article>
+</Base>

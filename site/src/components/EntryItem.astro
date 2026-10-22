@@ -1,0 +1,26 @@
+---
+import type { Entry } from '../lib/data';
+import { coveredTopics } from '../lib/data';
+import { ui, href, pick, type Lang } from '../lib/i18n';
+import Stamp from './Stamp.astro';
+
+interface Props {
+  entry: Entry;
+  lang: Lang;
+  level?: 2 | 3;
+}
+const { entry, lang, level = 3 } = Astro.props;
+const Heading = level === 2 ? 'h2' : 'h3';
+const t = ui[lang];
+const title = pick(lang, entry.title_en, entry.title_id);
+const summary = pick(lang, entry.summary_en, entry.ringkasan_id);
+---
+<li data-status={entry.status} data-topics={coveredTopics(entry).join(' ')}>
+  <div class="meta-row">
+    <time datetime={entry.date}>{entry.date}</time>
+    <Stamp tone={entry.status} label={t.status[entry.status]} />
+    <span class="tag">{t.evidenceLabel}: {t.evidence[entry.evidence]}</span>
+  </div>
+  <Heading class="entry-title"><a href={href(lang, `entries/${entry.id}/`)}>{title}</a></Heading>
+  <p>{summary}</p>
+</li>

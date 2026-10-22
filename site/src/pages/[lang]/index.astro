@@ -24,6 +24,11 @@ const copy = {
     ledgerIntro: "The public deadlines officials have given for Indonesia's AI rules, and what happened to each one.",
     ledgerLink: 'Open the full ledger',
     promises: 'promises',
+    briefKicker: 'Legal brief, working draft',
+    briefTitle: 'Silencing by automation',
+    briefText:
+      'Using AI to run fake citizen voices against critics would breach the Indonesian constitution and a treaty Indonesia has ratified. What is documented, what is not, and the legal test.',
+    briefLink: 'Read the legal test',
   },
   id: {
     intro:
@@ -32,6 +37,11 @@ const copy = {
     ledgerIntro: 'Tenggat yang pernah diumumkan pejabat untuk aturan AI Indonesia, dan apa yang terjadi pada masing-masing.',
     ledgerLink: 'Buka buku catatan lengkap',
     promises: 'janji',
+    briefKicker: 'Catatan hukum, draf kerja',
+    briefTitle: 'Pembungkaman lewat otomatisasi',
+    briefText:
+      'Memakai AI untuk menjalankan suara warga palsu melawan pengkritik melanggar konstitusi Indonesia dan perjanjian yang sudah diratifikasi. Apa yang terdokumentasi, apa yang belum, dan ujian hukumnya.',
+    briefLink: 'Baca ujian hukumnya',
   },
 }[lang];
 ---
@@ -43,6 +53,13 @@ const copy = {
     <p>{copy.intro}</p>
     <p>{copy.name}</p>
   </section>
+
+  <aside class="lens" aria-labelledby="brief-h">
+    <p class="kicker">{copy.briefKicker}</p>
+    <h2 id="brief-h">{copy.briefTitle}</h2>
+    <p>{copy.briefText}</p>
+    <p><a href={href(lang, 'silencing/')}>{copy.briefLink}</a></p>
+  </aside>
 
   <Wave />
 

@@ -14,7 +14,7 @@ The monsoon is forecast and announced long before it arrives. Indonesia's AI rul
 
 ## Why it exists
 
-Indonesia's AI policy is announced, debated and missed in Bahasa Indonesia. Ministers give deadlines in interviews, drafts are described at events, and consultations with foreign business groups are reported by Indonesian outlets. Very little of that detail reaches readers who do not read Indonesian. I read Bahasa natively and I live under EU rules, so I read the original and set it beside the European rules for comparison.
+Indonesia's AI policy is announced, debated and missed in Bahasa Indonesia. Ministers give deadlines in interviews, drafts are described in official statements, and consultations with foreign business groups are reported by Indonesian outlets. Very little of that detail reaches readers who do not read Indonesian. I read Bahasa natively and I live under EU rules, so I read the original and set it beside the European rules for comparison.
 
 ## Three recurring features
 

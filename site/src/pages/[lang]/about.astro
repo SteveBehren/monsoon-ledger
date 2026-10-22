@@ -1,6 +1,5 @@
 ---
 import Base from '../../layouts/Base.astro';
-import Wave from '../../components/Wave.astro';
 import { ui, SITE, LANGS, type Lang } from '../../lib/i18n';
 
 export function getStaticPaths() {
@@ -11,8 +10,11 @@ const lang = Astro.params.lang as Lang;
 const t = ui[lang];
 ---
 <Base lang={lang} path="about/" title={t.nav.about} nav="about">
-  <article class="prose">
+  <header class="page-head">
+    <p class="kicker">{t.nav.about}</p>
     <h1>{t.nav.about}</h1>
+  </header>
+  <article class="doc-body prose">
     {
       lang === 'en' ? (
         <>
@@ -80,10 +82,9 @@ const t = ui[lang];
       )
     }
 
-    <Wave />
-    <ul>
-      <li><a href={SITE.repo}>{lang === 'en' ? 'Monsoon Ledger on GitHub' : 'Monsoon Ledger di GitHub'}</a></li>
-      <li><a href={SITE.github}>{lang === 'en' ? 'My GitHub profile' : 'Profil GitHub saya'}</a></li>
+    <ul class="link-list">
+      <li><a class="btn" href={SITE.repo}>{lang === 'en' ? 'Monsoon Ledger on GitHub' : 'Monsoon Ledger di GitHub'} <span aria-hidden="true">&#8599;</span></a></li>
+      <li><a class="btn" href={SITE.github}>{lang === 'en' ? 'My GitHub profile' : 'Profil GitHub saya'} <span aria-hidden="true">&#8599;</span></a></li>
     </ul>
   </article>
 </Base>

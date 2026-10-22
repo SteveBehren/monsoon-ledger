@@ -1,7 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Stamp from '../../components/Stamp.astro';
-import Wave from '../../components/Wave.astro';
 import { getDeadlines, getEntries, outcomeCounts, OUTCOMES } from '../../lib/data';
 import { ui, pick, href, SITE, LANGS, type Lang } from '../../lib/i18n';
 
@@ -17,97 +16,124 @@ const related = getEntries().find((e) => e.id === '2026-10-21-id-perpres-ai-keep
 
 const copy = {
   en: {
-    sub: 'Promise vs reality',
+    title: 'Promise vs Reality',
     intro:
       "The public deadlines officials have given for Indonesia's AI rules, set against what happened next. Janji is the promise. Kenyataan is the reality. Each row links to the report of the statement.",
     howTo:
       'A row stays open until the deadline passes or the rule arrives. When an outcome changes, the row is updated and the change is logged in the changelog.',
-    caption: 'Deadlines for Indonesia\'s AI regulations, newest first',
     promise: 'Promise',
     reality: 'Reality',
-    said: 'Said on',
-    stamp: 'Outcome',
     total: 'Balance',
+    promises: 'promises',
     entries: 'Read the entry on why the rules keep almost arriving',
   },
   id: {
-    sub: 'Apa yang dijanjikan, apa yang terjadi',
+    title: 'Janji vs Kenyataan',
     intro:
       'Tenggat yang pernah diumumkan pejabat untuk aturan AI Indonesia, disandingkan dengan apa yang terjadi sesudahnya. Janji adalah apa yang diucapkan. Kenyataan adalah apa yang terjadi. Setiap baris menautkan ke laporan tentang pernyataan itu.',
     howTo:
       'Sebuah baris tetap terbuka sampai tenggatnya lewat atau aturannya terbit. Kalau hasilnya berubah, baris diperbarui dan perubahannya dicatat di catatan perubahan.',
-    caption: 'Tenggat aturan AI Indonesia, terbaru di atas',
-    promise: 'Yang dijanjikan',
-    reality: 'Yang terjadi',
-    said: 'Diucapkan',
-    stamp: 'Hasil',
+    promise: 'Janji',
+    reality: 'Kenyataan',
     total: 'Saldo',
+    promises: 'janji',
     entries: 'Baca catatan tentang aturan yang tak kunjung terbit',
   },
 }[lang];
 ---
-<Base lang={lang} path="ledger/" title="Janji vs Kenyataan" description={copy.intro} nav="ledger">
-  <div class="prose">
-    <p class="kicker">{copy.sub}</p>
-    <h1>Janji vs Kenyataan</h1>
-    <p>{copy.intro}</p>
-    <p>{copy.howTo}</p>
-  </div>
+<Base lang={lang} path="ledger/" title={copy.title} description={copy.intro} nav="ledger">
+  <header class="page-head">
+    <p class="kicker">{t.ledgerOriginal}</p>
+    <h1>{copy.title}</h1>
+    <p class="lede">{copy.intro}</p>
+  </header>
 
-  <div class="balance" role="group" aria-label={copy.total}>
-    {
-      OUTCOMES.map((o) => (
-        <div>
-          <span class="figure">{counts[o]}</span>
-          <Stamp tone={o} label={t.outcome[o]} />
-        </div>
-      ))
-    }
-  </div>
-
-  <table class="ruled ledger stack" role="table">
-    <caption class="visually-hidden">{copy.caption}</caption>
-    <thead role="rowgroup">
-      <tr role="row">
-        <th scope="col" role="columnheader" class="col-date">{copy.said}</th>
-        <th scope="col" role="columnheader" class="col-janji">Janji<span class="sub">{copy.promise}</span></th>
-        <th scope="col" role="columnheader" class="col-kenyataan">Kenyataan<span class="sub">{copy.reality}</span></th>
-        <th scope="col" role="columnheader" class="col-stamp">{copy.stamp}</th>
-      </tr>
-    </thead>
-    <tbody role="rowgroup">
+  <div class="panel balance" role="group" aria-label={copy.total} data-reveal>
+    <p class="label">{deadlines.length} {copy.promises}</p>
+    <div class="balance-bar" aria-hidden="true">
+      {OUTCOMES.filter((o) => counts[o] > 0).map((o) => <i class={`b-${o}`} style={`flex:${counts[o]}`} />)}
+    </div>
+    <ul class="balance-legend">
       {
-        deadlines.map((d) => (
-          <tr role="row">
-            <td role="cell" class="col-date" data-label={copy.said}>
-              <time datetime={d.date_said}>{d.date_said}</time>
-            </td>
-            <td role="cell" class="col-janji" data-label="Janji">
-              <span class="promise">{pick(lang, d.promised_en, d.promised_id)}</span>
-              <span class="who">{d.who}</span>
-              <a class="src" href={d.source_url}>{t.source}</a>
-            </td>
-            <td role="cell" class="col-kenyataan" data-label="Kenyataan">
-              <span class="outcome">{pick(lang, d.outcome_en, d.outcome_id)}</span>
-            </td>
-            <td role="cell" class="col-stamp">
-              <Stamp tone={d.outcome_status} label={t.outcome[d.outcome_status]} />
-            </td>
-          </tr>
+        OUTCOMES.map((o) => (
+          <li>
+            <span class="figure">{counts[o]}</span>
+            <Stamp tone={o} label={t.outcome[o]} />
+          </li>
         ))
       }
-    </tbody>
-  </table>
+    </ul>
+  </div>
 
-  <Wave />
-  {
-    related && (
-      <p class="prose">
-        <a href={href(lang, `entries/${related.id}/`)}>{copy.entries}</a>
-      </p>
-    )
-  }
-  <p class="correction prose">
-    {t.corrections} <a href={SITE.issues}>{t.openIssue}</a>
-  </p>
+  <div class="section section--tight">
+    <form class="filters panel" id="outcome-filter" hidden>
+      <fieldset class="chips">
+        <legend>{t.show}</legend>
+        <label class="chip"><input type="radio" name="outcome" value="" checked /><span>{t.all} <span class="count">{deadlines.length}</span></span></label>
+        {
+          OUTCOMES.filter((o) => counts[o] > 0).map((o) => (
+            <label class="chip">
+              <input type="radio" name="outcome" value={o} />
+              <span>
+                {t.outcome[o]} <span class="count">{counts[o]}</span>
+              </span>
+            </label>
+          ))
+        }
+      </fieldset>
+    </form>
+    <p class="filter-hint">{copy.howTo}</p>
+
+    <ol class="timeline" id="timeline">
+      {
+        deadlines.map((d) => (
+          <li data-outcome={d.outcome_status}>
+            <time class="t-date" datetime={d.date_said}>{d.date_said}</time>
+            <span class="t-dot" aria-hidden="true" />
+            <div class="t-card panel">
+              <div class="t-col">
+                <p class="label">
+                  {copy.promise}
+                  {lang === 'en' && <span lang="id">Janji</span>}
+                </p>
+                <span class="t-text">{pick(lang, d.promised_en, d.promised_id)}</span>
+                <span class="t-who">
+                  <span>{d.who}</span>
+                  <a href={d.source_url}>
+                    {t.source} <span aria-hidden="true">&#8599;</span>
+                  </a>
+                </span>
+              </div>
+              <div class="t-col">
+                <p class="label">
+                  {copy.reality}
+                  {lang === 'en' && <span lang="id">Kenyataan</span>}
+                </p>
+                <span class="t-text">{pick(lang, d.outcome_en, d.outcome_id)}</span>
+                <Stamp tone={d.outcome_status} label={t.outcome[d.outcome_status]} />
+              </div>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+
+  <div class="correction">
+    <p>{related && <a href={href(lang, `entries/${related.id}/`)}>{copy.entries} <span class="arrow" aria-hidden="true">&rarr;</span></a>}</p>
+    <p>
+      {t.corrections} <a href={SITE.issues}>{t.openIssue}</a>
+    </p>
+  </div>
+
+  <script>
+    const form = document.getElementById('outcome-filter') as HTMLFormElement;
+    const rows = document.querySelectorAll<HTMLElement>('#timeline > li');
+    form.hidden = false;
+    form.addEventListener('change', () => {
+      const v = (form.querySelector('input:checked') as HTMLInputElement).value;
+      rows.forEach((li) => (li.hidden = v !== '' && li.dataset.outcome !== v));
+    });
+    form.addEventListener('submit', (e) => e.preventDefault());
+  </script>
 </Base>

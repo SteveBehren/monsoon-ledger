@@ -1,0 +1,241 @@
+---
+// Instrument map: each instrument placed by lifecycle stage (columns) and legal
+// force (rows), with the entries that discuss it in a rail on the right.
+// Selecting an instrument draws a line to each of its entries.
+import { STATUSES, type Entry, type Instrument } from '../lib/data';
+import { ui, href, pick, type Lang } from '../lib/i18n';
+import Stamp from './Stamp.astro';
+
+interface Props {
+  instruments: Instrument[];
+  entries: Entry[];
+  lang: Lang;
+}
+const { instruments, entries, lang } = Astro.props;
+const t = ui[lang];
+
+// Lifecycle order. Withdrawn only gets a column when something is withdrawn.
+const stages = STATUSES.filter((s) => s !== 'withdrawn' || instruments.some((i) => i.status === 'withdrawn'));
+const rows = [true, false];
+const linked = (i: Instrument) => entries.filter((e) => e.instrument === i.id);
+---
+<div class="panel" data-imap>
+  <div class="imap">
+    <div class="imap-board">
+      <div class="stages" style={`--cols:${stages.length}`}>
+        <span aria-hidden="true"></span>
+        {
+          stages.map((s, n) => (
+            <div class="stage-head">
+              <span class="step">{String(n + 1).padStart(2, '0')}</span>
+              {t.status[s]}
+            </div>
+          ))
+        }
+        {
+          rows.map((binding) => (
+            <>
+              <div class="force-label">
+                <Stamp tone={binding ? 'binding' : 'not-binding'} label={binding ? t.binding : t.notBinding} />
+              </div>
+              {stages.map((s) => {
+                const here = instruments.filter((i) => i.status === s && i.binding === binding);
+                return (
+                  <div class="stage-cell">
+                    {here.length === 0 && <span class="none">{t.map.noneHere}</span>}
+                    {here.map((i) => (
+                      <button type="button" class="node" aria-pressed="false" data-node={i.id} data-binding={String(i.binding)}>
+                        <span class="node-type">{t.instrumentType[i.type] ?? i.type}</span>
+                        <span class="node-name">{pick(lang, i.name_en, i.name_id)}</span>
+                        <span class="node-foot">
+                          <span>{i.issued ?? t.notIssued}</span>
+                          <span class="node-links">
+                            <b>{linked(i).length}</b> {linked(i).length === 1 ? t.entryWord : t.entriesWord}
+                          </span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                );
+              })}
+            </>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="imap-rail">
+      <p class="label">{t.map.rail}</p>
+      <ol>
+        {
+          entries.map((e) => (
+            <li>
+              <button type="button" class="rail-item" data-entry={e.id} data-instrument={e.instrument}>
+                <time datetime={e.date}>{e.date}</time>
+                {pick(lang, e.title_en, e.title_id)}
+              </button>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+
+    <svg class="imap-wires" aria-hidden="true" focusable="false"></svg>
+  </div>
+
+  <div class="imap-detail" aria-live="polite">
+    <div class="detail">
+      <div class="detail-empty" data-empty>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="5" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5" />
+          <circle cx="19" cy="6" r="2.5" fill="currentColor" />
+          <circle cx="19" cy="18" r="2.5" fill="currentColor" />
+          <path d="M8 12c5 0 6-6 9-6M8 12c5 0 6 6 9 6" fill="none" stroke="currentColor" stroke-width="1.25" />
+        </svg>
+        <p>{t.map.empty}</p>
+      </div>
+      {
+        instruments.map((i) => {
+          const list = linked(i);
+          return (
+            <div data-detail={i.id} hidden>
+              <div class="detail-body">
+                <div>
+                  <p class="label">{t.instrumentType[i.type] ?? i.type}</p>
+                  <h3>{pick(lang, i.name_en, i.name_id)}</h3>
+                  {lang === 'en' && (
+                    <p class="other-name">
+                      <span class="original-term">{t.nameOther}: </span>
+                      <span lang="id">{i.name_id}</span>
+                    </p>
+                  )}
+                  <dl>
+                    <div>
+                      <dt>{t.note}</dt>
+                      <dd>{pick(lang, i.note_en, i.note_id)}</dd>
+                    </div>
+                  </dl>
+                  <a href={i.source_url}>
+                    {t.source} <span class="arrow" aria-hidden="true">&#8599;</span>
+                  </a>
+                </div>
+                <div>
+                  <dl class="facts">
+                    <div>
+                      <dt>{t.statusLabel}</dt>
+                      <dd>
+                        <Stamp tone={i.status} label={t.status[i.status]} />
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>{t.legalForce}</dt>
+                      <dd>
+                        <Stamp tone={i.binding ? 'binding' : 'not-binding'} label={i.binding ? t.binding : t.notBinding} />
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>{t.issued}</dt>
+                      <dd class="mono">{i.issued ?? t.notIssued}</dd>
+                    </div>
+                  </dl>
+                  <p class="label">{t.map.linked}</p>
+                  {list.length === 0 ? (
+                    <p class="hint">{t.map.noLinked}</p>
+                  ) : (
+                    <ul class="linked-list">
+                      {list.map((e) => (
+                        <li>
+                          <a href={href(lang, `entries/${e.id}/`)}>
+                            <time datetime={e.date}>{e.date}</time>
+                            {pick(lang, e.title_en, e.title_id)}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })
+      }
+    </div>
+  </div>
+</div>
+
+<script>
+  const NS = 'http://www.w3.org/2000/svg';
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-imap]')) {
+    const map = root.querySelector<HTMLElement>('.imap')!;
+    const wires = root.querySelector<SVGSVGElement>('.imap-wires')!;
+    const nodes = [...root.querySelectorAll<HTMLButtonElement>('[data-node]')];
+    const rail = [...root.querySelectorAll<HTMLButtonElement>('[data-entry]')];
+    const details = root.querySelectorAll<HTMLElement>('[data-detail]');
+    const empty = root.querySelector<HTMLElement>('[data-empty]')!;
+    let active: string | null = null;
+
+    const draw = (animate: boolean) => {
+      wires.replaceChildren();
+      if (!active || getComputedStyle(wires).display === 'none') return;
+      const node = nodes.find((n) => n.dataset.node === active);
+      if (!node) return;
+      const box = map.getBoundingClientRect();
+      const a = node.getBoundingClientRect();
+      const x1 = a.right - box.left;
+      const y1 = a.top + a.height / 2 - box.top;
+      for (const item of rail.filter((r) => r.dataset.instrument === active)) {
+        const b = item.getBoundingClientRect();
+        const x2 = b.left - box.left;
+        const y2 = b.top + b.height / 2 - box.top;
+        const mid = (x1 + x2) / 2;
+        const path = document.createElementNS(NS, 'path');
+        path.setAttribute('d', `M${x1} ${y1}C${mid} ${y1} ${mid} ${y2} ${x2} ${y2}`);
+        wires.append(path);
+        const len = path.getTotalLength();
+        path.style.setProperty('--len', String(len));
+        if (!animate) path.style.animation = 'none';
+        path.style.strokeDashoffset = animate ? '' : '0';
+        for (const [cx, cy] of [
+          [x1, y1],
+          [x2, y2],
+        ]) {
+          const dot = document.createElementNS(NS, 'circle');
+          dot.setAttribute('cx', String(cx));
+          dot.setAttribute('cy', String(cy));
+          dot.setAttribute('r', '3');
+          wires.append(dot);
+        }
+      }
+    };
+
+    const select = (id: string | null, updateHash = true) => {
+      active = id;
+      map.toggleAttribute('data-active', id !== null);
+      for (const n of nodes) n.setAttribute('aria-pressed', String(n.dataset.node === id));
+      for (const r of rail) r.toggleAttribute('data-linked', id !== null && r.dataset.instrument === id);
+      empty.hidden = id !== null;
+      for (const d of details) {
+        const on = d.dataset.detail === id;
+        d.hidden = !on;
+        if (on) {
+          d.classList.remove('detail-in');
+          void d.offsetWidth;
+          d.classList.add('detail-in');
+        }
+      }
+      if (updateHash) history.replaceState(null, '', id ? `#${id}` : location.pathname);
+      draw(true);
+    };
+
+    for (const n of nodes) n.addEventListener('click', () => select(active === n.dataset.node ? null : n.dataset.node!));
+    for (const r of rail) r.addEventListener('click', () => select(r.dataset.instrument!));
+    root.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape' && active) select(null);
+    });
+    new ResizeObserver(() => draw(false)).observe(map);
+
+    const fromHash = decodeURIComponent(location.hash.slice(1));
+    if (nodes.some((n) => n.dataset.node === fromHash)) select(fromHash, false);
+  }
+</script>

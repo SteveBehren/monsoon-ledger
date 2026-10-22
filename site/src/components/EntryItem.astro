@@ -3,6 +3,8 @@ import type { Entry } from '../lib/data';
 import { coveredTopics } from '../lib/data';
 import { ui, href, pick, type Lang } from '../lib/i18n';
 import Stamp from './Stamp.astro';
+import Evidence from './Evidence.astro';
+import MiniLens from './MiniLens.astro';
 
 interface Props {
   entry: Entry;
@@ -15,12 +17,15 @@ const t = ui[lang];
 const title = pick(lang, entry.title_en, entry.title_id);
 const summary = pick(lang, entry.summary_en, entry.ringkasan_id);
 ---
-<li data-status={entry.status} data-topics={coveredTopics(entry).join(' ')}>
-  <div class="meta-row">
-    <time datetime={entry.date}>{entry.date}</time>
-    <Stamp tone={entry.status} label={t.status[entry.status]} />
-    <span class="tag">{t.evidenceLabel}: {t.evidence[entry.evidence]}</span>
+<li data-status={entry.status} data-evidence={entry.evidence} data-topics={coveredTopics(entry).join(' ')}>
+  <time datetime={entry.date}>{entry.date}</time>
+  <div>
+    <Heading class="entry-title"><a href={href(lang, `entries/${entry.id}/`)}>{title}</a></Heading>
+    <p>{summary}</p>
   </div>
-  <Heading class="entry-title"><a href={href(lang, `entries/${entry.id}/`)}>{title}</a></Heading>
-  <p>{summary}</p>
+  <div class="entry-side">
+    <Stamp tone={entry.status} label={t.status[entry.status]} />
+    <Evidence level={entry.evidence} lang={lang} />
+    <MiniLens entry={entry} lang={lang} />
+  </div>
 </li>

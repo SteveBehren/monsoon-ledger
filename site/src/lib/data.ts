@@ -123,3 +123,20 @@ export function coveredTopics(entry: Entry): Topic[] {
     return t === 'enforcement' ? v === 'binding' || v === 'soft' : v === 'yes';
   });
 }
+
+// Evidence strength drives the three-bar meter shown next to every evidence label.
+export const EVIDENCE_STRENGTH: Record<Evidence, number> = { 'legal-text': 3, 'official-statement': 2, 'press-report': 1 };
+
+// How a safety lens answer is drawn: solid for yes or binding, half for soft,
+// hatched for unclear (unknown is not no), empty for no or none.
+export type LensTone = 'full' | 'soft' | 'unclear' | 'empty';
+export function lensTone(value: YesNo | Enforcement): LensTone {
+  if (value === 'yes' || value === 'binding') return 'full';
+  if (value === 'soft') return 'soft';
+  if (value === 'unclear') return 'unclear';
+  return 'empty';
+}
+
+export function latestCheck(entries: Entry[]): string {
+  return entries.reduce((max, e) => (e.last_checked > max ? e.last_checked : max), '');
+}

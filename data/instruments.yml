@@ -1,0 +1,77 @@
+# Instruments referenced by entries. Each entry's "instrument" must match an id here.
+# binding: true means the instrument is (or would be, once signed) legally binding.
+
+- id: se-menkominfo-9-2023
+  name_en: Ministerial Circular Letter 9/2023 on AI ethics
+  name_id: Surat Edaran Menkominfo 9/2023 tentang etika kecerdasan artifisial
+  issued: 2023-12-19
+  type: circular-letter
+  status: in-force
+  binding: false
+  note_en: The only AI-specific instrument in force in Indonesia. It is guidance, not law.
+  note_id: Satu-satunya instrumen khusus AI yang berlaku di Indonesia. Isinya panduan, bukan aturan yang mengikat.
+  source_url: https://inet.detik.com/law-and-policy/d-7103666/kominfo-terbitkan-surat-edaran-etika-penggunaan-ai-di-indonesia
+
+- id: draft-perpres-ai-roadmap
+  name_en: Draft Presidential Regulation on the National AI Roadmap 2026 to 2029
+  name_id: Rancangan Perpres Peta Jalan Nasional AI 2026 sampai 2029
+  type: presidential-regulation
+  status: draft
+  binding: true
+  note_en: Unsigned as of 21 October 2026.
+  note_id: Belum ditandatangani per 21 Oktober 2026.
+  source_url: https://www.antaranews.com/berita/5802305/pemerintah-siapkan-gugus-tugas-kawal-implementasi-regulasi-ai
+
+- id: draft-perpres-ai-ethics
+  name_en: Draft Presidential Regulation on AI Ethics
+  name_id: Rancangan Perpres Etika AI
+  type: presidential-regulation
+  status: draft
+  binding: true
+  note_en: Unsigned as of 21 October 2026. Draft text has not been published.
+  note_id: Belum ditandatangani per 21 Oktober 2026. Naskah rancangan belum dipublikasikan.
+  source_url: https://www.antaranews.com/berita/5802433/kemkomdigi-terapkan-pendekatan-berbasis-risiko-dalam-aturan-etika-ai
+
+- id: asean-genai-guide-2025
+  name_en: Expanded ASEAN Guide on AI Governance and Ethics, Generative AI
+  name_id: Panduan ASEAN yang Diperluas tentang Tata Kelola dan Etika AI, AI Generatif
+  issued: 2025-01
+  type: regional-guidance
+  status: in-force
+  binding: false
+  note_en: Regional guidance, not binding on member states.
+  note_id: Panduan regional, tidak mengikat negara anggota.
+  source_url: https://asean.org/wp-content/uploads/2025/01/Expanded-ASEAN-Guide-on-AI-Governance-and-Ethics-Generative-AI.pdf
+
+- id: project-nusa
+  name_en: Project NUSA (Indonesia and Singapore AI governance initiative, Korika and AI Singapore)
+  name_id: Project NUSA (inisiatif tata kelola AI Indonesia dan Singapura, Korika dan AI Singapore)
+  issued: 2026-10-21
+  type: bilateral-initiative
+  status: announced
+  binding: false
+  note_en: Launched 21 October 2026. Not a regulation.
+  note_id: Diluncurkan 21 Oktober 2026. Bukan peraturan.
+  source_url: https://www.antaranews.com/berita/5802593/indonesia-singapura-luncurkan-project-nusa-tata-kelola-ai
+
+- id: uu-pdp-27-2022
+  name_en: Personal Data Protection Law (Law 27/2022)
+  name_id: Undang-Undang Pelindungan Data Pribadi (UU 27/2022)
+  issued: 2022
+  type: law
+  status: in-force
+  binding: true
+  note_en: The enforcing authority had still not been established as of the August 2026 report.
+  note_id: Lembaga pengawas belum dibentuk per laporan Agustus 2026.
+  source_url: https://www.hlc.com/en/publications/awaiting-indonesias-personal-data-protection-authority-a-constitutional-push-for-a-hard-deadline
+
+- id: gr-33-2026
+  name_en: Government Regulation 33/2026 implementing the PDP Law
+  name_id: Peraturan Pemerintah 33/2026 pelaksana UU Pelindungan Data Pribadi
+  issued: 2026-07-16
+  type: government-regulation
+  status: signed
+  binding: true
+  note_en: Signed 16 July 2026. Takes effect on 16 January 2027.
+  note_id: Ditandatangani 16 Juli 2026. Berlaku mulai 16 Januari 2027.
+  source_url: https://www.nusantaradfdl.com/insights/indonesia-personal-data-protection-law-gr-33-2026/

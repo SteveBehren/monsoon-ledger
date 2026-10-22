@@ -1,0 +1,66 @@
+# Janji vs Kenyataan: every public deadline for Indonesia's AI rules, newest first.
+# outcome_status is missed | open | met.
+# When an outcome changes, update the row and log it in CHANGELOG.md.
+
+- date_said: 2026-10-21
+  who: Irma Handayani, Komdigi
+  promised_en: Task force starts once the President signs
+  promised_id: Gugus tugas mulai bekerja setelah Presiden menandatangani
+  outcome_en: Still called a draft
+  outcome_id: Masih disebut rancangan
+  outcome_status: open
+  source_url: https://www.antaranews.com/berita/5802305/pemerintah-siapkan-gugus-tugas-kawal-implementasi-regulasi-ai
+
+- date_said: 2026-09-03
+  who: Edwin Hidayat Abdullah, Komdigi
+  promised_en: Only the President's signature left
+  promised_id: Tinggal menunggu tanda tangan Presiden
+  outcome_en: Not signed seven weeks later
+  outcome_id: Tujuh minggu kemudian belum ditandatangani
+  outcome_status: open
+  source_url: https://selular.id/2026/09/dua-perpres-ai-tunggu-tanda-tangan-presiden-prabowo/
+
+- date_said: 2026-01-26
+  who: Meutya Hafid, Minister
+  promised_en: A priority to sign in 2026
+  promised_id: Prioritas untuk ditandatangani pada 2026
+  outcome_en: Open, ten weeks of 2026 left
+  outcome_id: Masih terbuka, tersisa sepuluh minggu pada 2026
+  outcome_status: open
+  source_url: https://www.cnnindonesia.com/teknologi/20260126203143-185-1321329/menkomdigi-sebut-perpres-ai-segera-disahkan-presiden-awal-tahun-ini
+
+- date_said: 2025-12-16
+  who: Edwin Hidayat Abdullah, Komdigi
+  promised_en: On the President's desk early 2026, out in the first half
+  promised_id: Di meja Presiden awal 2026, terbit pada semester pertama
+  outcome_en: Missed
+  outcome_id: Terlewat
+  outcome_status: missed
+  source_url: https://teknologi.bisnis.com/read/20251217/84/1937372/regulasi-ai-tunggu-tanda-tangan-prabowo-ditarget-terbit-awal-2026
+
+- date_said: 2025-09-16
+  who: Edwin Hidayat Abdullah, Komdigi
+  promised_en: Roadmap and ethics guidelines launch that month
+  promised_id: Peta jalan dan pedoman etika diluncurkan bulan itu
+  outcome_en: Missed as a binding rule
+  outcome_id: Terlewat sebagai aturan yang mengikat
+  outcome_status: missed
+  source_url: https://teknologi.bisnis.com/read/20250916/84/1911831/komdigi-pastikan-roadmap-dan-pedoman-etika-ai-meluncur-bulan-ini
+
+- date_said: 2025-06-17
+  who: Meutya Hafid, Minister
+  promised_en: Roadmap done in June 2025
+  promised_id: Peta jalan selesai pada Juni 2025
+  outcome_en: Missed
+  outcome_id: Terlewat
+  outcome_status: missed
+  source_url: https://teknologi.bisnis.com/read/20250617/101/1885548/komdigi-rilis-peta-jalan-ai-bulan-ini-jaga-keseimbangan-inovasi-dan-perlindungan
+
+- date_said: 2025-01-13
+  who: Meutya Hafid, Minister
+  promised_en: A binding rule within three months
+  promised_id: Aturan yang mengikat dalam tiga bulan
+  outcome_en: Missed
+  outcome_id: Terlewat
+  outcome_status: missed
+  source_url: https://teknologi.bisnis.com/read/20250113/101/1831117/menkomdigi-targetkan-aturan-penggunaan-ai-rampung-april-2025

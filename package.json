@@ -1,0 +1,18 @@
+{
+  "name": "monsoon-ledger",
+  "private": true,
+  "description": "AI governance from the archipelago, read in the original Bahasa.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "setup": "npm --prefix site ci",
+    "validate": "node scripts/validate.mjs",
+    "new-entry": "node scripts/new-entry.mjs",
+    "links": "node scripts/check-links.mjs",
+    "dev": "npm --prefix site run dev",
+    "build": "npm --prefix site run build"
+  },
+  "engines": {
+    "node": ">=22.23.4"
+  }
+}

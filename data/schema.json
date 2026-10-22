@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/SteveBehren/monsoon-ledger/data/schema.json",
+  "title": "Monsoon Ledger entry",
+  "description": "One entry in data/entries/. The file name must be <id>.yml.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "date",
+    "country",
+    "instrument",
+    "status",
+    "evidence",
+    "title_en",
+    "title_id",
+    "summary_en",
+    "ringkasan_id",
+    "safety_lens",
+    "last_checked",
+    "eu_comparison",
+    "my_take",
+    "sources"
+  ],
+  "$defs": {
+    "isoDate": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "text": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "yesNoUnclear": {
+      "enum": [
+        "yes",
+        "no",
+        "unclear"
+      ]
+    },
+    "url": {
+      "type": "string",
+      "pattern": "^https?://\\S+$"
+    }
+  },
+  "properties": {
+    "id": {
+      "description": "Must equal the file name without .yml. Format: YYYY-MM-DD-slug.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "date": {
+      "description": "The date of the event or statement the entry records.",
+      "$ref": "#/$defs/isoDate"
+    },
+    "country": {
+      "description": "ISO 3166-1 alpha-2 code. Only Indonesia for now.",
+      "enum": [
+        "ID"
+      ]
+    },
+    "instrument": {
+      "description": "Must match an id in data/instruments.yml.",
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "announced",
+        "draft",
+        "signed",
+        "in-force",
+        "withdrawn"
+      ]
+    },
+    "evidence": {
+      "enum": [
+        "legal-text",
+        "official-statement",
+        "press-report"
+      ]
+    },
+    "title_en": {
+      "$ref": "#/$defs/text"
+    },
+    "title_id": {
+      "$ref": "#/$defs/text"
+    },
+    "summary_en": {
+      "$ref": "#/$defs/text"
+    },
+    "ringkasan_id": {
+      "$ref": "#/$defs/text"
+    },
+    "quote": {
+      "description": "Optional. One short quote in the original language, with an English line. The original must be under 15 words, and each source can be quoted at most once across all entries.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "original",
+        "en",
+        "source_url"
+      ],
+      "properties": {
+        "original": {
+          "$ref": "#/$defs/text"
+        },
+        "en": {
+          "$ref": "#/$defs/text"
+        },
+        "source_url": {
+          "description": "Must be one of this entry's source urls.",
+          "$ref": "#/$defs/url"
+        },
+        "attribution_en": {
+          "$ref": "#/$defs/text"
+        },
+        "attribution_id": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "safety_lens": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "incident_reporting",
+        "unacceptable_uses",
+        "general_purpose_models",
+        "enforcement"
+      ],
+      "properties": {
+        "incident_reporting": {
+          "$ref": "#/$defs/yesNoUnclear"
+        },
+        "unacceptable_uses": {
+          "$ref": "#/$defs/yesNoUnclear"
+        },
+        "general_purpose_models": {
+          "$ref": "#/$defs/yesNoUnclear"
+        },
+        "enforcement": {
+          "enum": [
+            "binding",
+            "soft",
+            "none",
+            "unclear"
+          ]
+        }
+      }
+    },
+    "safety_note_en": {
+      "description": "Optional note shown under the Safety lens panel.",
+      "$ref": "#/$defs/text"
+    },
+    "safety_note_id": {
+      "$ref": "#/$defs/text"
+    },
+    "last_checked": {
+      "description": "The last date the sources were re-verified.",
+      "$ref": "#/$defs/isoDate"
+    },
+    "eu_comparison": {
+      "$ref": "#/$defs/text"
+    },
+    "perbandingan_eu_id": {
+      "description": "Optional Bahasa Indonesia version of eu_comparison.",
+      "$ref": "#/$defs/text"
+    },
+    "my_take": {
+      "description": "English, first person. Written by the author only.",
+      "$ref": "#/$defs/text"
+    },
+    "pendapat_id": {
+      "description": "Optional Bahasa Indonesia version of my_take.",
+      "$ref": "#/$defs/text"
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "title",
+          "url",
+          "outlet",
+          "language"
+        ],
+        "properties": {
+          "title": {
+            "$ref": "#/$defs/text"
+          },
+          "url": {
+            "$ref": "#/$defs/url"
+          },
+          "outlet": {
+            "$ref": "#/$defs/text"
+          },
+          "language": {
+            "enum": [
+              "id",
+              "en"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -5,7 +5,7 @@ export type Lang = (typeof LANGS)[number];
 
 export const SITE = {
   name: 'Monsoon Ledger',
-  url: 'https://monsoon-ledger.vercel.app',
+  url: 'https://monsoonledger.vercel.app',
   repo: 'https://github.com/SteveBehren/monsoon-ledger',
   issues: 'https://github.com/SteveBehren/monsoon-ledger/issues',
   changelog: 'https://github.com/SteveBehren/monsoon-ledger/blob/main/CHANGELOG.md',

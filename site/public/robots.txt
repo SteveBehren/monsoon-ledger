@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://monsoon-ledger.vercel.app/sitemap.xml
+Sitemap: https://monsoonledger.vercel.app/sitemap.xml

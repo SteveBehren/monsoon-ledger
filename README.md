@@ -4,7 +4,7 @@
 
 *Catatan janji dan kenyataan tata kelola AI di Nusantara.*
 
-Live site: TODO, add the address after the first deploy (planned: https://monsoon-ledger.vercel.app)
+Live site: https://monsoonledger.vercel.app
 
 ## What this is
 

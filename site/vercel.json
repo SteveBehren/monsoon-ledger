@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "(monsoon-ledger-eight|monsoon-ledger-pltr-maven)\\.vercel\\.app"
+        }
+      ],
+      "destination": "https://monsoonledger.vercel.app/:path*",
+      "permanent": true
+    }
+  ]
+}

@@ -1500,3 +1500,483 @@ main {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* About: research abstract */
+
+.abstract {
+  padding: 1.4rem 1.5rem 1.3rem;
+  border-left: 3px solid var(--accent);
+}
+
+.doc-body .abstract h2 {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.abstract p {
+  font-size: 1.02rem;
+}
+
+.abstract-figures {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 1.1rem 0;
+}
+
+.abstract-figures div {
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.abstract-figures dt {
+  font-size: 0.72rem;
+  line-height: 1.3;
+  color: var(--text-faint);
+}
+
+.abstract-figures dd {
+  margin: 0.2rem 0 0;
+  font-family: var(--mono);
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.abstract-figures .is-alert dd {
+  color: var(--red);
+}
+
+.keywords {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+}
+
+.keywords .label {
+  margin: 0 0.4rem 0 0;
+}
+
+.kw {
+  padding: 0.12rem 0.55rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-size: 0.76rem;
+  color: var(--text-soft);
+}
+
+.pipeline-fig,
+.lang-fig {
+  margin: 1.75rem 0;
+  padding: 1.1rem 1.2rem 1rem;
+}
+
+.pipeline-fig figcaption,
+.lang-fig figcaption {
+  margin-bottom: 0.9rem;
+  font-size: 0.86rem;
+  color: var(--text-soft);
+}
+
+.pipeline-fig figcaption .label,
+.lang-fig figcaption .label {
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.pipe {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  counter-reset: none;
+}
+
+.doc-body .pipe li::marker {
+  content: none;
+}
+
+.pipe-stage {
+  position: relative;
+  padding: 0.7rem 0.7rem 0.8rem;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--ps);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  animation: rise-in 600ms var(--ease) both;
+  animation-delay: calc(var(--i) * 140ms);
+}
+
+.ps-announced { --ps: var(--text-faint); }
+.ps-draft { --ps: var(--amber); }
+.ps-signed { --ps: var(--t-institution); }
+.ps-in-force { --ps: var(--green); }
+
+.pipe-stage:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 1.15rem;
+  right: -0.45rem;
+  width: 0.4rem;
+  height: 2px;
+  background: var(--line-strong);
+}
+
+.pipe-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--text-soft);
+}
+
+.pipe-head b {
+  font-family: var(--mono);
+  font-size: 1.35rem;
+  font-weight: 500;
+  color: var(--ps);
+}
+
+.pipe ul {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.pipe ul li {
+  position: relative;
+  margin: 0;
+  padding-left: 0.85rem;
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.pipe ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.38em;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-faint);
+}
+
+.pipe ul li.is-binding::before {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.pipe ul a {
+  color: var(--text-soft);
+  text-decoration: none;
+}
+
+.pipe ul a:hover {
+  color: var(--accent);
+}
+
+.pipe-key {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.5rem;
+  margin: 0.8rem 0 0;
+  font-size: 0.74rem;
+  color: var(--text-faint);
+}
+
+.pk-binding,
+.pk-soft {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-faint);
+}
+
+.pk-binding {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.pk-soft {
+  margin-left: 0.6rem;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.lang-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(1.6rem, 1fr));
+  gap: 0.35rem;
+}
+
+.lang-grid span {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  animation: pop 500ms var(--ease) both;
+  animation-delay: calc(var(--i) * 70ms + 200ms);
+}
+
+.lg-id {
+  background: var(--accent);
+}
+
+.lg-en {
+  background: var(--t-person);
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+}
+
+.lang-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.25rem;
+  margin: 0.75rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-soft);
+}
+
+.lang-key i {
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  margin-right: 0.35rem;
+  border-radius: 2px;
+}
+
+.lang-key b {
+  font-family: var(--mono);
+  font-weight: 500;
+  margin-left: 0.2rem;
+}
+
+.doc-body ol.objectives {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  counter-reset: obj;
+}
+
+.objectives li {
+  counter-increment: obj;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  animation: rise-in 600ms var(--ease) both;
+  animation-delay: calc(var(--i) * 120ms);
+}
+
+.objectives li::before {
+  content: counter(obj, decimal-leading-zero);
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--accent);
+}
+
+.objectives b {
+  display: block;
+  margin: 0.1rem 0 0.2rem;
+}
+
+.objectives span {
+  font-size: 0.88rem;
+  color: var(--text-soft);
+}
+
+.bio {
+  display: grid;
+  gap: 1.25rem;
+  margin: 1.5rem 0 0.5rem;
+  padding: 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.bio-places {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 7rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.place {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: 0.8rem;
+  color: var(--text-soft);
+}
+
+.place .label {
+  margin: 0;
+}
+
+.place b {
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+.bridge {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.bridge path {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 4;
+}
+
+.bridge circle {
+  fill: var(--accent);
+}
+
+.doc-body ol.bio-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  position: relative;
+}
+
+.bio-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0.45rem;
+  left: 0.4rem;
+  right: 0.4rem;
+  height: 2px;
+  background: linear-gradient(90deg, var(--line-strong), var(--accent));
+  transform-origin: left;
+  animation: grow 1.2s var(--ease) both 200ms;
+}
+
+.bio-timeline li {
+  position: relative;
+  padding-top: 1.3rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--text-soft);
+  animation: rise-in 600ms var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 180ms + 300ms);
+}
+
+.bio-timeline li::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 50%;
+  border: 2px solid var(--line-strong);
+  background: var(--surface);
+}
+
+.bio-timeline li.is-here::before {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 0 0 var(--accent);
+  animation: here 2s ease-out infinite;
+}
+
+@keyframes here {
+  0% {
+    box-shadow: 0 0 0 0 rgba(92, 194, 204, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 0 10px rgba(92, 194, 204, 0);
+  }
+}
+
+.bt-when {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+
+@media (max-width: 44rem) {
+  .abstract-figures,
+  .pipe,
+  .doc-body ol.objectives {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .doc-body ol.bio-timeline {
+    grid-template-columns: minmax(0, 1fr);
+    padding-left: 1.6rem;
+  }
+
+  .bio-timeline::before {
+    top: 0.4rem;
+    bottom: 0.4rem;
+    left: 0.4rem;
+    right: auto;
+    width: 2px;
+    height: auto;
+    background: linear-gradient(180deg, var(--line-strong), var(--accent));
+  }
+
+  .bio-timeline li {
+    padding-top: 0;
+  }
+
+  .bio-timeline li::before {
+    left: -1.6rem;
+  }
+
+  .bio-places {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bridge {
+    width: 5rem;
+    margin: 0 auto;
+    transform: rotate(90deg);
+  }
+}
+
+@media (max-width: 32rem) {
+  .doc-body ol.objectives,
+  .abstract-figures {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

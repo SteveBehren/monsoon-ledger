@@ -4,6 +4,8 @@ import path from 'node:path';
 import yaml from 'js-yaml';
 import Base from '../../../layouts/Base.astro';
 import MethodTabs from '../../../components/MethodTabs.astro';
+import PageRail from '../../../components/PageRail.astro';
+import NextScan from '../../../components/NextScan.astro';
 import { getWatchSources, getScanLog } from '../../../lib/data';
 import { ui, href, SITE, LANGS, type Lang } from '../../../lib/i18n';
 
@@ -127,7 +129,7 @@ site/                  Astro static site, no client framework
     <p class="lede">{lede}</p>
     <MethodTabs lang={lang} current="system" />
   </header>
-  <div class="doc">
+  <div class="doc doc--rail">
     <nav class="toc" aria-label={t.onThisPage}>
       <p class="label">{t.onThisPage}</p>
       <ol>
@@ -416,5 +418,6 @@ npm run dev            # local site at http://localhost:4321`}</code></pre>
         {' '}<a href={href(lang, 'radar/')}>{t.nav.radar} <span class="arrow" aria-hidden="true">&rarr;</span></a>
       </p>
     </article>
+    <PageRail lang={lang}><NextScan lang={lang} lastScan={log[0]?.at} sources={sources.length} /></PageRail>
   </div>
 </Base>

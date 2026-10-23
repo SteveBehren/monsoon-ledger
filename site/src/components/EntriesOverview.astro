@@ -1,0 +1,144 @@
+---
+// The Entries page at a glance: when each entry happened, how strong its evidence is, and in
+// which language its sources were published. Everything is counted from data/entries/.
+// Dots dim when the filters below hide their entry.
+import { EVIDENCE_STRENGTH, type Entry, type Evidence } from '../lib/data';
+import { ui, href, pick, type Lang } from '../lib/i18n';
+
+interface Props {
+  entries: Entry[];
+  lang: Lang;
+  now?: Date;
+}
+
+const { entries, lang, now = new Date() } = Astro.props;
+const t = ui[lang];
+const DAY = 86_400_000;
+const ms = (d: string) => new Date(`${d}T00:00:00Z`).getTime();
+const dates = entries.map((e) => ms(e.date));
+const first = new Date(Math.min(...dates));
+const start = Date.UTC(first.getUTCFullYear(), first.getUTCMonth() - 1, 1);
+const end = Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1);
+const pct = (time: number) => ((time - start) / (end - start)) * 100;
+
+const months = lang === 'en' ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] : ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const ticks: { left: number; label: string }[] = [];
+for (let d = new Date(start); d.getTime() < end; d.setUTCMonth(d.getUTCMonth() + 1)) {
+  ticks.push({ left: pct(d.getTime()), label: d.getUTCMonth() === 0 ? `${months[0]} ${d.getUTCFullYear()}` : months[d.getUTCMonth()] });
+}
+
+// Entries on the same day stack upwards.
+const sameDay = new Map<string, number>();
+const dots = [...entries]
+  .sort((a, b) => a.date.localeCompare(b.date))
+  .map((e) => {
+    const n = sameDay.get(e.date) ?? 0;
+    sameDay.set(e.date, n + 1);
+    return { e, left: pct(ms(e.date)), stack: n };
+  });
+
+const levels = (Object.keys(EVIDENCE_STRENGTH) as Evidence[]).sort((a, b) => EVIDENCE_STRENGTH[b] - EVIDENCE_STRENGTH[a]);
+const byLevel = levels.map((l) => ({ l, n: entries.filter((e) => e.evidence === l).length }));
+const maxLevel = Math.max(1, ...byLevel.map((b) => b.n));
+
+const sources = entries.flatMap((e) => e.sources);
+const idSources = sources.filter((s) => s.language === 'id').length;
+const enSources = sources.length - idSources;
+const outlets = new Set(sources.map((s) => s.outlet)).size;
+const todayPct = pct(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+
+const copy =
+  lang === 'en'
+    ? {
+        timeline: 'When it happened',
+        today: 'today',
+        evidence: 'Strength of evidence',
+        evidenceNote: 'How many entries rest on each level.',
+        languages: 'Language of the sources',
+        langNote: (n: number, o: number) => `${n} sources from ${o} outlets.`,
+        id: 'Bahasa Indonesia',
+        en: 'English',
+      }
+    : {
+        timeline: 'Kapan terjadi',
+        today: 'hari ini',
+        evidence: 'Kekuatan bukti',
+        evidenceNote: 'Jumlah catatan pada setiap tingkat bukti.',
+        languages: 'Bahasa sumber',
+        langNote: (n: number, o: number) => `${n} sumber dari ${o} media.`,
+        id: 'Bahasa Indonesia',
+        en: 'Bahasa Inggris',
+      };
+---
+<section class="overview panel" data-overview aria-label={lang === 'en' ? 'Entries at a glance' : 'Ringkasan catatan'}>
+  <div class="ov-timeline">
+    <p class="label">{copy.timeline}</p>
+    <div class="ov-track">
+      <span class="ov-sweep" aria-hidden="true"></span>
+      {ticks.map((tk) => <span class="ov-tick" style={`left:${tk.left}%`}>{tk.label}</span>)}
+      <span class="ov-today" style={`left:${todayPct}%`}><span>{copy.today}</span></span>
+      {
+        dots.map(({ e, left, stack }, i) => (
+          <a
+            class={`ov-dot ev-${e.evidence}`}
+            href={href(lang, `entries/${e.id}/`)}
+            data-id={e.id}
+            style={`left:${left}%;--stack:${stack};--i:${i}`}
+            title={`${e.date} · ${pick(lang, e.title_en, e.title_id)} (${t.evidence[e.evidence]})`}
+          >
+            <span class="visually-hidden">{`${e.date}: ${pick(lang, e.title_en, e.title_id)}`}</span>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="ov-bars">
+    <p class="label">{copy.evidence}</p>
+    <ul>
+      {
+        byLevel.map(({ l, n }, i) => (
+          <li class={`ev-${l}`}>
+            <span class="ov-name">
+              <span class="meter" data-strength={EVIDENCE_STRENGTH[l]} aria-hidden="true"><i></i><i></i><i></i></span>
+              {t.evidence[l]}
+            </span>
+            <span class="ov-bar"><i style={`width:${(n / maxLevel) * 100}%;--i:${i}`}></i></span>
+            <b>{n}</b>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="ov-note">{copy.evidenceNote}</p>
+  </div>
+
+  <div class="ov-lang">
+    <p class="label">{copy.languages}</p>
+    <div class="ov-split" role="img" aria-label={`${copy.id} ${idSources}, ${copy.en} ${enSources}`}>
+      <i class="ov-id" style={`flex:${idSources || 0.0001}`}></i>
+      <i class="ov-en" style={`flex:${enSources || 0.0001}`}></i>
+    </div>
+    <ul class="ov-legend">
+      <li><span class="ov-key ov-id"></span>{copy.id} <b>{idSources}</b></li>
+      <li><span class="ov-key ov-en"></span>{copy.en} <b>{enSources}</b></li>
+    </ul>
+    <p class="ov-note">{copy.langNote(sources.length, outlets)}</p>
+  </div>
+</section>
+
+<script>
+  // Mirror the filters: a dot dims when its entry is hidden in the list.
+  const overview = document.querySelector<HTMLElement>('[data-overview]');
+  const list = document.getElementById('entry-list');
+  if (overview && list) {
+    const items = [...list.querySelectorAll<HTMLLIElement>(':scope > li')];
+    const sync = () => {
+      const hidden = new Set(
+        items.filter((li) => li.hidden).map((li) => li.querySelector<HTMLAnchorElement>('.entry-title a')?.getAttribute('href')),
+      );
+      for (const dot of overview.querySelectorAll<HTMLAnchorElement>('.ov-dot')) dot.classList.toggle('is-out', hidden.has(dot.getAttribute('href')));
+    };
+    new MutationObserver(sync).observe(list, { subtree: true, attributes: true, attributeFilter: ['hidden'] });
+    sync();
+  }
+</script>

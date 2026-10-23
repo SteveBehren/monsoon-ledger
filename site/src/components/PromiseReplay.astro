@@ -1,0 +1,234 @@
+---
+// Replays the Promise vs Reality ledger over time. Every dot is a row of data/deadlines.yml,
+// placed on the date it was said and coloured by its outcome today. The step line counts the
+// promises made so far. Moving the slider shows the ledger as it stood on any date.
+import type { Deadline } from '../lib/data';
+import { promiseAnchor } from '../lib/ontology';
+import { ui, href, pick, type Lang } from '../lib/i18n';
+
+interface Props {
+  deadlines: Deadline[];
+  lang: Lang;
+  now?: Date;
+}
+
+const { deadlines, lang, now = new Date() } = Astro.props;
+const t = ui[lang];
+const rows = [...deadlines].sort((a, b) => a.date_said.localeCompare(b.date_said));
+const DAY = 86_400_000;
+const ms = (d: string) => new Date(`${d}T00:00:00Z`).getTime();
+const first = new Date(ms(rows[0].date_said));
+const start = Date.UTC(first.getUTCFullYear(), first.getUTCMonth(), 1);
+const end = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+const total = Math.max(1, Math.round((end - start) / DAY));
+
+const W = 1000;
+const H = 230;
+const pad = { l: 34, r: 46, t: 54, b: 34 };
+const x = (time: number) => pad.l + ((time - start) / (end - start)) * (W - pad.l - pad.r);
+const y = (n: number) => H - pad.b - (n / rows.length) * (H - pad.t - pad.b);
+
+let step = `M${x(start).toFixed(1)} ${y(0).toFixed(1)}`;
+rows.forEach((r, i) => {
+  const xi = x(ms(r.date_said)).toFixed(1);
+  step += ` H${xi} V${y(i + 1).toFixed(1)}`;
+});
+step += ` H${x(end).toFixed(1)}`;
+const area = `${step} V${y(0).toFixed(1)} H${x(start).toFixed(1)}Z`;
+
+const months = lang === 'en' ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] : ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const ticks: { x: number; label: string }[] = [];
+for (let d = new Date(start); d.getTime() <= end; d.setUTCMonth(d.getUTCMonth() + 3)) {
+  ticks.push({ x: x(d.getTime()), label: `${months[d.getUTCMonth()]} ${d.getUTCFullYear()}` });
+}
+
+const copy =
+  lang === 'en'
+    ? {
+        title: 'Replay the ledger',
+        intro: 'Drag the slider, or press play, to watch the promises pile up. Dots show each promise on the day it was said, coloured by what happened to it.',
+        play: 'Play',
+        pause: 'Pause',
+        asOf: 'As of',
+        made: 'Promises made',
+        latest: 'Latest',
+        outcomeNow: 'Outcome today',
+        none: 'No promise yet.',
+        slider: 'Date',
+      }
+    : {
+        title: 'Putar ulang catatan',
+        intro: 'Geser penggeser, atau tekan putar, untuk melihat janji yang terus menumpuk. Titik menandai setiap janji pada hari diucapkan, diwarnai menurut nasibnya.',
+        play: 'Putar',
+        pause: 'Jeda',
+        asOf: 'Per',
+        made: 'Janji diucapkan',
+        latest: 'Terbaru',
+        outcomeNow: 'Hasil hari ini',
+        none: 'Belum ada janji.',
+        slider: 'Tanggal',
+      };
+
+const data = rows.map((r) => ({
+  day: Math.round((ms(r.date_said) - start) / DAY),
+  date: r.date_said,
+  who: r.who,
+  text: pick(lang, r.promised_en, r.promised_id),
+  outcome: r.outcome_status,
+  outcomeLabel: t.outcome[r.outcome_status],
+  href: `#${promiseAnchor(r)}`,
+}));
+---
+<section class="replay panel" data-replay data-start={start} data-total={total} data-months={JSON.stringify(months)} aria-labelledby="replay-h">
+  <div class="replay-head">
+    <div>
+      <h2 id="replay-h">{copy.title}</h2>
+      <p>{copy.intro}</p>
+    </div>
+    <button type="button" class="btn replay-play" data-play data-label-play={copy.play} data-label-pause={copy.pause} hidden>
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path class="i-play" d="M4 2.5v11l9-5.5z" /><path class="i-pause" d="M4 2.5h3v11H4zM9 2.5h3v11H9z" /></svg>
+      <span>{copy.play}</span>
+    </button>
+  </div>
+
+  <div class="replay-scroll">
+  <svg class="replay-chart" viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+    {ticks.map((tk) => <g class="replay-tick"><line x1={tk.x} x2={tk.x} y1={pad.t - 8} y2={H - pad.b} /><text x={tk.x + 4} y={H - pad.b + 20}>{tk.label}</text></g>)}
+    <line class="replay-axis" x1={pad.l} x2={W - pad.r} y1={H - pad.b} y2={H - pad.b} />
+    {Array.from({ length: rows.length + 1 }, (_, n) => n).filter((n) => n % 2 === 1 || n === rows.length).map((n) => <text class="replay-y" x={pad.l - 8} y={y(n) + 4}>{n}</text>)}
+    <clipPath id="replay-clip"><rect data-clip x="0" y="0" width={W} height={H} /></clipPath>
+    <g clip-path="url(#replay-clip)">
+      <path class="replay-area" d={area} />
+      <path class="replay-step" d={step} />
+    </g>
+    {
+      data.map((d, i) => (
+        <g class={`replay-dot rd-${d.outcome}`} data-day={d.day} transform={`translate(${x(ms(d.date)).toFixed(1)} 0)`}>
+          <line y1={y(i + 1)} y2={pad.t - 20 + (i % 2) * 14} />
+          <circle cy={y(i + 1)} r="6" />
+          <text y={pad.t - 24 + (i % 2) * 14} x="0">{d.date.slice(2).replaceAll('-', '.')}</text>
+        </g>
+      ))
+    }
+    <line class="replay-head-line" data-playhead x1={x(end)} x2={x(end)} y1={pad.t - 30} y2={H - pad.b} />
+  </svg>
+  <label class="replay-slider" style={`padding-left:${(pad.l / W) * 100}%;padding-right:${(pad.r / W) * 100}%`}>
+    <span class="visually-hidden">{copy.slider}</span>
+    <input type="range" min="0" max={total} value={total} step="1" data-slider />
+  </label>
+  </div>
+
+  <div class="replay-readout" data-readout aria-live="polite">
+    <p class="replay-asof"><span class="label">{copy.asOf}</span> <b data-date>{new Date(end).toISOString().slice(0, 10)}</b> <span class="replay-count"><span class="label">{copy.made}</span><b data-count>{rows.length}</b></span></p>
+    <p class="replay-latest" data-latest>
+      <span class="label">{copy.latest}</span>
+      <a href={data[data.length - 1].href}>{data[data.length - 1].text}</a>
+      <span class="who">{data[data.length - 1].who}, {data[data.length - 1].date}</span>
+      <span class={`replay-outcome rd-${data[data.length - 1].outcome}`}>{copy.outcomeNow}: {data[data.length - 1].outcomeLabel}</span>
+    </p>
+  </div>
+  <script type="application/json" data-replay-data set:html={JSON.stringify({ rows: data, words: { none: copy.none, latest: copy.latest, outcomeNow: copy.outcomeNow }, pad, W }).replace(/</g, '\\u003c')} />
+</section>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>('[data-replay]')) {
+    const { rows, words, pad, W } = JSON.parse(root.querySelector('[data-replay-data]')!.textContent!);
+    const start = Number(root.dataset.start);
+    const total = Number(root.dataset.total);
+    const slider = root.querySelector<HTMLInputElement>('[data-slider]')!;
+    const play = root.querySelector<HTMLButtonElement>('[data-play]')!;
+    const head = root.querySelector<SVGLineElement>('[data-playhead]')!;
+    const clip = root.querySelector<SVGRectElement>('[data-clip]')!;
+    const dots = [...root.querySelectorAll<SVGGElement>('.replay-dot')];
+    const dateOut = root.querySelector<HTMLElement>('[data-date]')!;
+    const countOut = root.querySelector<HTMLElement>('[data-count]')!;
+    const latest = root.querySelector<HTMLElement>('[data-latest]')!;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    play.hidden = false;
+
+    const xOf = (day: number) => pad.l + (day / total) * (W - pad.l - pad.r);
+    let shown = -1;
+
+    const render = (day: number) => {
+      const x = xOf(day);
+      head.setAttribute('x1', x.toFixed(1));
+      head.setAttribute('x2', x.toFixed(1));
+      clip.setAttribute('width', x.toFixed(1));
+      dateOut.textContent = new Date(start + day * 86_400_000).toISOString().slice(0, 10);
+      const made = rows.filter((r: { day: number }) => r.day <= day);
+      countOut.textContent = String(made.length);
+      dots.forEach((g) => g.classList.toggle('is-future', Number(g.dataset.day) > day));
+      if (made.length === shown) return;
+      shown = made.length;
+      latest.replaceChildren();
+      const label = document.createElement('span');
+      label.className = 'label';
+      label.textContent = words.latest;
+      latest.append(label);
+      const r = made[made.length - 1];
+      if (!r) {
+        latest.append(document.createTextNode(words.none));
+        return;
+      }
+      const a = document.createElement('a');
+      a.href = r.href;
+      a.textContent = r.text;
+      const who = document.createElement('span');
+      who.className = 'who';
+      who.textContent = `${r.who}, ${r.date}`;
+      const out = document.createElement('span');
+      out.className = `replay-outcome rd-${r.outcome}`;
+      out.textContent = `${words.outcomeNow}: ${r.outcomeLabel}`;
+      latest.append(a, who, out);
+      latest.classList.remove('detail-in');
+      void latest.offsetWidth;
+      latest.classList.add('detail-in');
+    };
+
+    let playing = false;
+    let raf = 0;
+    let lastTime = 0;
+    const setPlaying = (on: boolean) => {
+      playing = on;
+      play.classList.toggle('is-playing', on);
+      play.querySelector('span')!.textContent = on ? play.dataset.labelPause! : play.dataset.labelPlay!;
+      cancelAnimationFrame(raf);
+      if (on) {
+        if (Number(slider.value) >= total) slider.value = '0';
+        lastTime = 0;
+        raf = requestAnimationFrame(step);
+      }
+    };
+    // About eight seconds from the first promise to today.
+    const step = (now: number) => {
+      if (!playing) return;
+      const dt = lastTime ? now - lastTime : 16;
+      lastTime = now;
+      const next = Math.min(total, Number(slider.value) + (total / 8000) * dt);
+      slider.value = String(next);
+      render(Math.floor(next));
+      if (next >= total) return setPlaying(false);
+      raf = requestAnimationFrame(step);
+    };
+
+    slider.addEventListener('input', () => {
+      if (playing) setPlaying(false);
+      render(Number(slider.value));
+    });
+    play.addEventListener('click', () => setPlaying(!playing));
+    document.addEventListener('visibilitychange', () => document.hidden && playing && setPlaying(false));
+
+    render(total);
+    // Play once on its own the first time the chart comes into view.
+    if (!reduce) {
+      const io = new IntersectionObserver(([e]) => {
+        if (!e.isIntersecting) return;
+        io.disconnect();
+        slider.value = '0';
+        render(0);
+        setTimeout(() => setPlaying(true), 400);
+      }, { threshold: 0.6 });
+      io.observe(root);
+    }
+  }
+</script>

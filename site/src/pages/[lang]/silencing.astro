@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import PageRail from '../../components/PageRail.astro';
 import { ui, href, SITE, LANGS, type Lang } from '../../lib/i18n';
 
 export function getStaticPaths() {
@@ -26,6 +27,7 @@ const description =
     <p class="kicker">{kicker}</p>
     <h1>{title}</h1>
   </header>
+  <div class="doc doc--prose">
   <article class="doc-body prose">
     {
       lang === 'en' ? (
@@ -319,4 +321,6 @@ const description =
       )
     }
   </article>
+  <PageRail lang={lang} sections />
+  </div>
 </Base>

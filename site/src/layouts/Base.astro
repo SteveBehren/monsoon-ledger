@@ -235,6 +235,30 @@ const links = [
       } else {
         items.forEach((el) => el.classList.add('is-in'));
       }
+
+      // Whole numbers in metric tiles count up the first time they come into view.
+      const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const figures = [...document.querySelectorAll<HTMLElement>('.metric .figure, .balance-legend .figure')].filter((el) =>
+        /^\d+$/.test(el.firstChild?.textContent?.trim() ?? ''),
+      );
+      if (!still && 'IntersectionObserver' in window) {
+        const counter = new IntersectionObserver((entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            counter.unobserve(e.target);
+            const node = e.target.firstChild!;
+            const target = Number(node.textContent!.trim());
+            const t0 = performance.now();
+            const step = (now: number) => {
+              const p = Math.min(1, (now - t0) / 900);
+              node.textContent = String(Math.round(target * (1 - Math.pow(1 - p, 3))));
+              if (p < 1) requestAnimationFrame(step);
+            };
+            requestAnimationFrame(step);
+          }
+        });
+        figures.forEach((el) => counter.observe(el));
+      }
     </script>
   </body>
 </html>

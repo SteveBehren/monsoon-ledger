@@ -1,0 +1,64 @@
+---
+// Live countdown to the next scheduled Radar scan. The schedule mirrors the cron line in
+// .github/workflows/scan.yml (17 23 * * 0,3 in UTC, which is Monday and Thursday 06:17 WIB).
+// GitHub can start scheduled runs a few minutes late, which the note says.
+import type { Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+  lastScan?: string;
+  sources: number;
+}
+
+const { lang, lastScan, sources } = Astro.props;
+const words =
+  lang === 'en'
+    ? { title: 'Next scan', d: 'd', h: 'h', m: 'm', s: 's', when: 'Monday and Thursday, 06:17 WIB', late: 'Scheduled runs can start a few minutes late.', last: 'Last scan', never: 'not yet run', watched: 'Sources watched' }
+    : { title: 'Pemindaian berikutnya', d: 'h', h: 'j', m: 'm', s: 'd', when: 'Senin dan Kamis, 06.17 WIB', late: 'Jadwal bisa mulai beberapa menit terlambat.', last: 'Pemindaian terakhir', never: 'belum berjalan', watched: 'Sumber dipantau' };
+---
+<div class="rail-card next-scan" data-next-scan>
+  <p class="label"><span class="ns-dot" aria-hidden="true"></span>{words.title}</p>
+  <p class="ns-clock" aria-live="off">
+    <span><b data-u="d">0</b>{words.d}</span>
+    <span><b data-u="h">00</b>{words.h}</span>
+    <span><b data-u="m">00</b>{words.m}</span>
+    <span><b data-u="s">00</b>{words.s}</span>
+  </p>
+  <p class="ns-note">{words.when}. {words.late}</p>
+  <dl class="ns-facts">
+    <dt>{words.last}</dt>
+    <dd>{lastScan ? lastScan.slice(0, 10) : words.never}</dd>
+    <dt>{words.watched}</dt>
+    <dd>{sources}</dd>
+  </dl>
+</div>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>('[data-next-scan]')) {
+    const out = Object.fromEntries(['d', 'h', 'm', 's'].map((u) => [u, root.querySelector<HTMLElement>(`[data-u="${u}"]`)!]));
+    // Sunday (0) and Wednesday (3) at 23:17 UTC.
+    const next = () => {
+      const now = new Date();
+      for (let i = 0; i < 8; i++) {
+        const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + i, 23, 17));
+        if ((d.getUTCDay() === 0 || d.getUTCDay() === 3) && d > now) return d.getTime();
+      }
+      return now.getTime();
+    };
+    let target = next();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const tick = () => {
+      let left = Math.floor((target - Date.now()) / 1000);
+      if (left <= 0) {
+        target = next();
+        left = Math.floor((target - Date.now()) / 1000);
+      }
+      out.d.textContent = String(Math.floor(left / 86400));
+      out.h.textContent = pad(Math.floor((left % 86400) / 3600));
+      out.m.textContent = pad(Math.floor((left % 3600) / 60));
+      out.s.textContent = pad(left % 60);
+    };
+    tick();
+    setInterval(tick, 1000);
+  }
+</script>

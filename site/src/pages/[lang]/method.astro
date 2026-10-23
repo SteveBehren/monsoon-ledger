@@ -4,6 +4,8 @@ import Evidence from '../../components/Evidence.astro';
 import Cite from '../../components/Cite.astro';
 import References from '../../components/References.astro';
 import MethodTabs from '../../components/MethodTabs.astro';
+import PageRail from '../../components/PageRail.astro';
+import RailEvidence from '../../components/RailEvidence.astro';
 import { ui, href, SITE, LANGS, type Lang } from '../../lib/i18n';
 import type { RefKey } from '../../lib/references';
 
@@ -99,7 +101,7 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
     <p class="lede">{lede}</p>
     <MethodTabs lang={lang} current="research" />
   </header>
-  <div class="doc">
+  <div class="doc doc--rail">
     <nav class="toc" aria-label={t.onThisPage}>
       <p class="label">{t.onThisPage}</p>
       <ol>
@@ -831,5 +833,6 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
 
     <References keys={R} title={lang === 'en' ? 'References' : 'Daftar pustaka'} />
   </article>
+  <PageRail lang={lang}><RailEvidence lang={lang} /></PageRail>
   </div>
 </Base>

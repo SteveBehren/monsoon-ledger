@@ -1,0 +1,82 @@
+---
+// Radar: one bar per scan from data/scan-log.yml (new leads), with the share of sources
+// reached drawn as a line, and the leads on the Radar counted by country. Before the first
+// scan it shows a pulsing placeholder with no axis, so nothing reads as data.
+import type { Lead, ScanRun } from '../lib/data';
+import type { Lang } from '../lib/i18n';
+
+interface Props {
+  log: ScanRun[];
+  leads: Lead[];
+  lang: Lang;
+}
+
+const { log, leads, lang } = Astro.props;
+const runs = [...log].reverse().slice(-24);
+const W = 600;
+const H = 170;
+const pad = { l: 28, r: 10, t: 14, b: 26 };
+const maxLeads = Math.max(4, ...runs.map((r) => r.new_leads));
+const bw = runs.length ? (W - pad.l - pad.r) / runs.length : 0;
+const y = (v: number) => H - pad.b - (v / maxLeads) * (H - pad.t - pad.b);
+const okLine = runs
+  .map((r, i) => `${i ? 'L' : 'M'}${(pad.l + bw * i + bw / 2).toFixed(1)} ${(pad.t + (1 - r.sources_ok / Math.max(1, r.sources_total)) * (H - pad.t - pad.b)).toFixed(1)}`)
+  .join(' ');
+
+const countries = [...new Set(leads.map((l) => l.country))]
+  .map((c) => ({ c, n: leads.filter((l) => l.country === c).length }))
+  .sort((a, b) => b.n - a.n);
+const maxCountry = Math.max(1, ...countries.map((c) => c.n));
+
+const words =
+  lang === 'en'
+    ? { title: 'Scan history', note: 'Bars are new leads per scan. The line is the share of sources reached.', empty: 'No scans recorded yet. The first scheduled run will draw the first bar.', countries: 'Leads by country', noLeads: 'No leads yet.' }
+    : { title: 'Riwayat pemindaian', note: 'Batang menunjukkan petunjuk baru per pemindaian. Garis menunjukkan porsi sumber yang berhasil dijangkau.', empty: 'Belum ada pemindaian tercatat. Pemindaian terjadwal pertama akan menggambar batang pertama.', countries: 'Petunjuk per negara', noLeads: 'Belum ada petunjuk.' };
+---
+<div class="scan-history panel">
+  <div>
+    <p class="label">{words.title}</p>
+    <svg class="sh-chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={runs.length ? `${words.title}: ${runs.map((r) => `${r.at.slice(0, 10)} ${r.new_leads}`).join(', ')}` : words.empty}>
+      {runs.length > 0 && [0, 0.5, 1].map((f) => <line class="sh-grid" x1={pad.l} x2={W - pad.r} y1={y(maxLeads * f)} y2={y(maxLeads * f)} />)}
+      {runs.length > 0 && [0, Math.round(maxLeads / 2), maxLeads].map((v) => <text class="sh-y" x={pad.l - 6} y={y(v) + 4}>{v}</text>)}
+      {
+        runs.length === 0 ? (
+          <g class="sh-ghost">
+            {Array.from({ length: 12 }, (_, i) => (
+              <rect x={pad.l + 8 + i * 46} y={y(1 + ((i * 7) % 4))} width="30" height={H - pad.b - y(1 + ((i * 7) % 4))} style={`--i:${i}`} />
+            ))}
+          </g>
+        ) : (
+          <>
+            {runs.map((r, i) => (
+              <rect class="sh-bar" x={pad.l + bw * i + bw * 0.18} y={y(r.new_leads)} width={bw * 0.64} height={H - pad.b - y(r.new_leads)} style={`--i:${i}`}>
+                <title>{`${r.at.slice(0, 16).replace('T', ' ')}: ${r.new_leads}, ${r.sources_ok}/${r.sources_total}`}</title>
+              </rect>
+            ))}
+            <path class="sh-ok" d={okLine} />
+            {runs.map((r, i) => (i % Math.ceil(runs.length / 6) === 0 ? <text class="sh-x" x={pad.l + bw * i + bw / 2} y={H - 8}>{r.at.slice(5, 10)}</text> : null))}
+          </>
+        )
+      }
+    </svg>
+    <p class="ov-note">{runs.length ? words.note : words.empty}</p>
+  </div>
+  <div>
+    <p class="label">{words.countries}</p>
+    {
+      countries.length === 0 ? (
+        <p class="ov-note">{words.noLeads}</p>
+      ) : (
+        <ul class="sh-countries">
+          {countries.map(({ c, n }, i) => (
+            <li>
+              <span>{c}</span>
+              <span class="ov-bar"><i style={`width:${(n / maxCountry) * 100}%;--i:${i}`} /></span>
+              <b>{n}</b>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</div>

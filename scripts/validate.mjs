@@ -176,6 +176,29 @@ for (const name of files) {
   }
 }
 
+// Build log: one row per change the author asked for, newest first.
+const buildLogFile = path.join(DATA, 'build-log.yml');
+const buildLog = load(buildLogFile) ?? [];
+const BUILD_KINDS = ['feature', 'fix', 'content', 'revert', 'rollback'];
+if (!Array.isArray(buildLog) || buildLog.length === 0) {
+  fail(buildLogFile, 'must be a non-empty list');
+} else {
+  buildLog.forEach((row, i) => {
+    const where = `row ${i + 1}`;
+    for (const key of ['date', 'kind', 'title_en', 'title_id', 'detail_en', 'detail_id']) {
+      if (!row?.[key] || String(row[key]).trim() === '') fail(buildLogFile, `${where} is missing "${key}"`);
+    }
+    if (row?.date && !isRealDate(row.date)) fail(buildLogFile, `${where} "date" must be a real YYYY-MM-DD date`);
+    if (row?.kind && !BUILD_KINDS.includes(row.kind)) fail(buildLogFile, `${where} "kind" must be ${BUILD_KINDS.join(', ')}`);
+    if (row?.pr !== undefined && !(Number.isInteger(row.pr) && row.pr > 0)) fail(buildLogFile, `${where} "pr" must be a pull request number`);
+    if (!Array.isArray(row?.commits) || row.commits.length === 0) fail(buildLogFile, `${where} needs at least one commit`);
+    for (const c of row?.commits ?? []) {
+      if (typeof c !== 'string' || !/^[0-9a-f]{7,40}$/.test(c)) fail(buildLogFile, `${where} has a malformed commit "${c}", write hashes in quotes`);
+    }
+    if (i > 0 && row?.date && buildLog[i - 1]?.date && row.date > buildLog[i - 1].date) fail(buildLogFile, `${where} is out of order, keep the list newest first`);
+  });
+}
+
 // Ontology layer: institutions, curated relations, and the fused graph built from all of the above.
 const ontologyFile = path.join(DATA, 'ontology.yml');
 const ontology = load(ontologyFile) ?? {};
@@ -250,5 +273,5 @@ if (errors.length) {
   process.exit(1);
 }
 console.log(
-  `Validation passed: ${files.length} entries, ${instruments.length} instruments, ${deadlines.length} deadlines, ${watchSources.length} watched sources, ${radarLeads.length} radar leads, ontology ${graph.nodes.length} objects and ${graph.links.length} links, no em or en dashes.`,
+  `Validation passed: ${files.length} entries, ${instruments.length} instruments, ${deadlines.length} deadlines, ${watchSources.length} watched sources, ${radarLeads.length} radar leads, ontology ${graph.nodes.length} objects and ${graph.links.length} links, ${buildLog.length} build log rows, no em or en dashes.`,
 );

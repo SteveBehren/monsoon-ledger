@@ -122,6 +122,25 @@ export function getInstruments(): Instrument[] {
   }));
 }
 
+export type BuildKind = 'feature' | 'fix' | 'content' | 'revert' | 'rollback';
+export const BUILD_KINDS: BuildKind[] = ['feature', 'fix', 'content', 'revert', 'rollback'];
+
+export interface BuildRow {
+  date: string;
+  kind: BuildKind;
+  title_en: string;
+  title_id: string;
+  detail_en: string;
+  detail_id: string;
+  pr?: number;
+  commits: string[];
+}
+
+/** data/build-log.yml, newest first: every change the author asked for. */
+export function getBuildLog(): BuildRow[] {
+  return tidy(read<BuildRow[]>(path.join(DATA, 'build-log.yml')));
+}
+
 export function outcomeCounts(deadlines: Deadline[]): Record<Outcome, number> {
   const counts: Record<Outcome, number> = { missed: 0, open: 0, met: 0 };
   for (const d of deadlines) counts[d.outcome_status] += 1;

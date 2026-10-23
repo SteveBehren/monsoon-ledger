@@ -1327,9 +1327,12 @@ td.num {
   color: var(--text-faint);
 }
 
+.ns-facts dt {
+  white-space: nowrap;
+}
+
 .ns-facts dd {
   margin: 0;
-  white-space: nowrap;
   font-family: var(--mono);
   text-align: right;
 }
@@ -1869,68 +1872,133 @@ main {
 .doc-body ol.bio-timeline {
   list-style: none;
   margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.5rem;
+  padding: 0 0 0 1.6rem;
   position: relative;
+  display: grid;
+  gap: 0.7rem;
 }
 
 .bio-timeline::before {
   content: '';
   position: absolute;
-  top: 0.45rem;
-  left: 0.4rem;
-  right: 0.4rem;
-  height: 2px;
-  background: linear-gradient(90deg, var(--line-strong), var(--accent));
-  transform-origin: left;
-  animation: grow 1.2s var(--ease) both 200ms;
+  top: 0.35rem;
+  bottom: 0.35rem;
+  left: 0.42rem;
+  width: 2px;
+  background: linear-gradient(180deg, var(--line-strong), var(--accent));
+  transform-origin: top;
+  animation: grow-down 1.4s var(--ease) both 200ms;
+}
+
+@keyframes grow-down {
+  from {
+    transform: scaleY(0);
+  }
 }
 
 .bio-timeline li {
   position: relative;
-  padding-top: 1.3rem;
-  font-size: 0.8rem;
+  display: grid;
+  grid-template-columns: 6.6rem 5.4rem minmax(0, 1fr);
+  gap: 0.2rem 0.6rem;
+  align-items: baseline;
+  margin: 0;
+  font-size: 0.84rem;
   line-height: 1.4;
   color: var(--text-soft);
   animation: rise-in 600ms var(--ease) both;
-  animation-delay: calc(var(--i, 0) * 180ms + 300ms);
+  animation-delay: calc(var(--i, 0) * 110ms + 300ms);
+}
+
+.doc-body .bio-timeline li::marker {
+  content: none;
 }
 
 .bio-timeline li::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 0.22rem;
+  left: -1.6rem;
   width: 0.95rem;
   height: 0.95rem;
   border-radius: 50%;
-  border: 2px solid var(--line-strong);
+  border: 2px solid var(--bt, var(--line-strong));
   background: var(--surface);
 }
 
+.bt-work { --bt: var(--t-institution); }
+.bt-study { --bt: var(--t-person); }
+.bt-award { --bt: var(--amber); }
+.bt-here { --bt: var(--accent); }
+
 .bio-timeline li.is-here::before {
-  border-color: var(--accent);
   background: var(--accent);
-  box-shadow: 0 0 0 0 var(--accent);
   animation: here 2s ease-out infinite;
 }
 
-@keyframes here {
-  0% {
-    box-shadow: 0 0 0 0 rgba(92, 194, 204, 0.5);
-  }
-  100% {
-    box-shadow: 0 0 0 10px rgba(92, 194, 204, 0);
-  }
-}
-
 .bt-when {
-  display: block;
   font-family: var(--mono);
   font-size: 0.72rem;
   color: var(--text-faint);
+}
+
+.bt-kind {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bt);
+}
+
+.bt-what {
+  color: var(--text);
+}
+
+.doc-body ul.bio-langs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.doc-body .bio-langs li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 0.8rem;
+}
+
+.doc-body .bio-langs li::marker {
+  content: none;
+}
+
+.bl-level {
+  color: var(--text-faint);
+  font-size: 0.74rem;
+}
+
+.bio-links {
+  display: flex;
+  gap: 1.25rem;
+  margin: 0;
+  font-size: 0.86rem;
+}
+
+.bridge path {
+  animation: bridge-flow 1.6s linear infinite;
+}
+
+@keyframes bridge-flow {
+  to {
+    stroke-dashoffset: -14;
+  }
 }
 
 @media (max-width: 44rem) {
@@ -1940,27 +2008,12 @@ main {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .doc-body ol.bio-timeline {
-    grid-template-columns: minmax(0, 1fr);
-    padding-left: 1.6rem;
-  }
-
-  .bio-timeline::before {
-    top: 0.4rem;
-    bottom: 0.4rem;
-    left: 0.4rem;
-    right: auto;
-    width: 2px;
-    height: auto;
-    background: linear-gradient(180deg, var(--line-strong), var(--accent));
-  }
-
   .bio-timeline li {
-    padding-top: 0;
+    grid-template-columns: auto minmax(0, 1fr);
   }
 
-  .bio-timeline li::before {
-    left: -1.6rem;
+  .bt-what {
+    grid-column: 1 / -1;
   }
 
   .bio-places {
@@ -1978,5 +2031,141 @@ main {
   .doc-body ol.objectives,
   .abstract-figures {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Technical system: build log */
+
+.bk-feature { --bk: var(--accent); }
+.bk-fix { --bk: var(--amber); }
+.bk-content { --bk: var(--t-person); }
+.bk-revert { --bk: var(--red); }
+.bk-rollback { --bk: var(--red); }
+
+.bk-dot {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--bk);
+}
+
+.build-log .filters {
+  margin: 1rem 0;
+}
+
+.doc-body ol.build-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.build-rows::before {
+  content: '';
+  position: absolute;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  left: 6.35rem;
+  width: 1px;
+  background: var(--line-strong);
+}
+
+.build-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 5.6rem 1.5rem minmax(0, 1fr);
+  align-items: start;
+  margin: 0 0 0.75rem;
+  animation: rise-in 600ms var(--ease) both;
+  animation-delay: calc(var(--i) * 70ms);
+}
+
+.doc-body .build-row::marker {
+  content: none;
+}
+
+.br-date {
+  padding-top: 0.9rem;
+  font-size: 0.74rem;
+  color: var(--text-faint);
+}
+
+.br-dot {
+  justify-self: center;
+  margin-top: 1rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: var(--bk);
+  box-shadow: 0 0 0 3px var(--bg);
+  position: relative;
+  z-index: 1;
+}
+
+.build-row:first-child .br-dot {
+  animation: here 2s ease-out infinite;
+}
+
+.br-card {
+  padding: 0.8rem 1rem 0.85rem;
+  border-left: 2px solid var(--bk);
+}
+
+.br-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0 0 0.25rem !important;
+  font-size: 0.74rem;
+}
+
+.br-kind {
+  font-family: var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bk);
+}
+
+.doc-body .br-card h3 {
+  margin: 0 0 0.3rem;
+  font-size: 0.98rem;
+}
+
+.br-card p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-soft);
+}
+
+.br-commits {
+  margin-top: 0.4rem !important;
+  font-size: 0.74rem !important;
+}
+
+@media (max-width: 40rem) {
+  .build-row {
+    grid-template-columns: 1.2rem minmax(0, 1fr);
+  }
+
+  .build-rows::before {
+    left: 0.55rem;
+  }
+
+  .br-date {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 0;
+  }
+
+  .br-dot {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    margin-top: 0.2rem;
+  }
+
+  .br-card {
+    grid-column: 2;
+    margin-top: 0.3rem;
   }
 }

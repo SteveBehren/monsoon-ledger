@@ -23,13 +23,27 @@ const firstPromise = [...deadlines].sort((a, b) => a.date_said.localeCompare(b.d
 const circular = instruments.find((i) => i.id === 'se-menkominfo-9-2023');
 const stages = STATUSES.filter((s) => s !== 'withdrawn').map((s) => ({ s, list: instruments.filter((i) => i.status === s) }));
 
-// The author's own background, as already published on this page. Add study years and
-// further roles only from the author's CV.
-// TODO: add the years of study at Hogeschool Utrecht once the author shares the CV.
+// The author's background, from the CV and diploma the author shared for this page. Only
+// professional facts are published: no contact details, date of birth, grades or references.
 const timeline = [
-  { when: '2025', en: 'Multimedia content creator at ACAPS', id: 'Multimedia content creator di ACAPS' },
-  { when: '2026', en: 'Marketing content specialist at Rush Send', id: 'Marketing content specialist di Rush Send' },
-  { when: '2026', en: 'Starts Monsoon Ledger, first public entries on 22 October', id: 'Memulai Monsoon Ledger, catatan publik pertama pada 22 Oktober', here: true },
+  { when: '2015 to 2019', en: 'Video editor, volunteer, Mawar Sharon, Sukabumi, Indonesia', id: 'Video editor, relawan, Mawar Sharon, Sukabumi, Indonesia', kind: 'work' },
+  { when: '2019 to 2021', en: 'Content creator, volunteer, Indonesian Student Association, Deventer', id: 'Content creator, relawan, Indonesian Student Association, Deventer', kind: 'work' },
+  { when: '2020 to 2024', en: 'BA Creative Business, Hogeschool Utrecht, with a minor in Big Data and Design', id: 'BA Creative Business, Hogeschool Utrecht, dengan minor Big Data and Design', kind: 'study' },
+  { when: '2022', en: 'First place, Big Data and Design Hackathon, with Akvo and the Water Point Data Exchange', id: 'Juara pertama Big Data and Design Hackathon, bersama Akvo dan Water Point Data Exchange', kind: 'award' },
+  { when: '2023', en: 'Social media designer and content creator, internship, THYSOL Group, Enschede', id: 'Social media designer dan content creator, magang, THYSOL Group, Enschede', kind: 'work' },
+  { when: '2025', en: 'Multimedia content creator, ACAPS, The Hague', id: 'Multimedia content creator, ACAPS, Den Haag', kind: 'work' },
+  { when: '2026', en: 'Content marketing specialist, Rush Send', id: 'Content marketing specialist, Rush Send', kind: 'work' },
+  { when: '2026', en: 'Certificates in Dutch law (University of Groningen) and AI Fluency (Anthropic)', id: 'Sertifikat hukum Belanda (University of Groningen) dan AI Fluency (Anthropic)', kind: 'study' },
+  { when: '2026', en: 'Starts Monsoon Ledger, first public entries on 22 October', id: 'Memulai Monsoon Ledger, catatan publik pertama pada 22 Oktober', kind: 'here' },
+];
+const kindLabel = {
+  en: { work: 'Work', study: 'Study', award: 'Award', here: 'Now' },
+  id: { work: 'Kerja', study: 'Studi', award: 'Penghargaan', here: 'Kini' },
+}[lang];
+const languages = [
+  { en: 'Indonesian', id: 'Bahasa Indonesia', level: 3, en_l: 'native', id_l: 'bahasa ibu' },
+  { en: 'English', id: 'Bahasa Inggris', level: 2, en_l: 'full professional', id_l: 'profesional penuh' },
+  { en: 'Dutch', id: 'Bahasa Belanda', level: 1, en_l: 'conversational', id_l: 'percakapan' },
 ];
 
 const toc =
@@ -257,8 +271,20 @@ const h = (i: number) => ({ id: ids[i], text: toc[i] });
               under EU rules, so I read Indonesian AI policy in the language it is announced in and set it beside the rules I live with.
             </p>
             <p>
-              I studied Creative Business at Hogeschool Utrecht. In 2025 I worked as a multimedia content creator at ACAPS, and in 2026 I
-              work as a marketing content specialist at Rush Send. Monsoon Ledger is an independent project. It is not legal advice.
+              I hold a Bachelor of Arts in Creative Business from Hogeschool Utrecht (2020 to 2024), with a minor in Big Data and Design.
+              The programme covered data storytelling, human-centred design, and AI and creativity. In 2022 my team won first place at
+              the Big Data and Design Hackathon at Hogeschool Utrecht, redesigning the Water Point Data Exchange platform with Akvo so
+              that people deciding on rural water access could find the data faster.
+            </p>
+            <p>
+              My work sits where visual design, multimedia and data meet. In 2025 I was a multimedia content creator at ACAPS in The Hague,
+              making graphics, short videos and infographics that reached donors and humanitarian responders. Since January 2026 I have
+              been a content marketing specialist at Rush Send. Before that I edited video as a volunteer in Sukabumi, Indonesia, from
+              2015 to 2019, and made content for the Indonesian Student Association in Deventer.
+            </p>
+            <p>
+              In 2026 I completed a certificate course in Dutch law at the University of Groningen and Anthropic's AI Fluency course. That
+              is the background I bring to reading legal texts and AI policy. Monsoon Ledger is an independent project. It is not legal advice.
             </p>
           </>
         ) : (
@@ -269,8 +295,20 @@ const h = (i: number) => ({ id: ids[i], text: toc[i] });
               menyandingkannya dengan aturan yang saya jalani.
             </p>
             <p>
-              Saya lulusan Creative Business di Hogeschool Utrecht. Pada 2025 saya bekerja sebagai multimedia content creator di ACAPS, dan
-              pada 2026 sebagai marketing content specialist di Rush Send. Monsoon Ledger adalah proyek independen dan bukan nasihat hukum.
+              Saya meraih gelar Bachelor of Arts di bidang Creative Business dari Hogeschool Utrecht (2020 sampai 2024), dengan minor Big
+              Data and Design. Programnya mencakup data storytelling, desain yang berpusat pada manusia, serta AI dan kreativitas. Pada 2022
+              tim saya menjadi juara pertama Big Data and Design Hackathon di Hogeschool Utrecht. Kami mendesain ulang platform Water Point
+              Data Exchange bersama Akvo, supaya pengambil keputusan soal akses air di pedesaan bisa menemukan datanya lebih cepat.
+            </p>
+            <p>
+              Pekerjaan saya ada di pertemuan desain visual, multimedia, dan data. Pada 2025 saya menjadi multimedia content creator di ACAPS
+              di Den Haag, membuat grafis, video pendek, dan infografis yang menjangkau donor dan pekerja kemanusiaan. Sejak Januari 2026 saya
+              menjadi content marketing specialist di Rush Send. Sebelumnya, dari 2015 sampai 2019, saya menjadi relawan penyunting video di
+              Sukabumi, dan kemudian membuat konten untuk Indonesian Student Association di Deventer.
+            </p>
+            <p>
+              Pada 2026 saya menyelesaikan kursus sertifikat hukum Belanda di University of Groningen dan kursus AI Fluency dari Anthropic.
+              Itulah bekal saya dalam membaca naskah hukum dan kebijakan AI. Monsoon Ledger adalah proyek independen dan bukan nasihat hukum.
             </p>
           </>
         )
@@ -285,7 +323,8 @@ const h = (i: number) => ({ id: ids[i], text: toc[i] });
           </div>
           <svg class="bridge" viewBox="0 0 120 40" aria-hidden="true">
             <path d="M4 30 C 40 2, 80 2, 116 30" />
-            <circle r="3"><animateMotion dur="3.2s" repeatCount="indefinite" path="M4 30 C 40 2, 80 2, 116 30" /></circle>
+            <circle cx="4" cy="30" r="3" />
+            <circle cx="116" cy="30" r="3" />
           </svg>
           <div class="place">
             <span class="label">{lang === 'en' ? 'Lives under' : 'Hidup di bawah'}</span>
@@ -293,20 +332,30 @@ const h = (i: number) => ({ id: ids[i], text: toc[i] });
             <span>Deventer, {lang === 'en' ? 'the Netherlands' : 'Belanda'}</span>
           </div>
         </div>
+        <ul class="bio-langs" aria-label={lang === 'en' ? 'Languages' : 'Bahasa'}>
+          {languages.map((l) => (
+            <li>
+              <span class="bl-name">{pick(lang, l.en, l.id)}</span>
+              <span class="meter" data-strength={l.level} aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="bl-level">{pick(lang, l.en_l, l.id_l)}</span>
+            </li>
+          ))}
+        </ul>
         <ol class="bio-timeline">
-          <li class="bt-edu">
-            <span class="bt-when">{lang === 'en' ? 'Studies' : 'Pendidikan'}</span>
-            <span>{lang === 'en' ? 'Creative Business, Hogeschool Utrecht' : 'Creative Business, Hogeschool Utrecht'}</span>
-          </li>
           {
             timeline.map((r, i) => (
-              <li class={r.here ? 'is-here' : ''} style={`--i:${i + 1}`}>
+              <li class={`bt-${r.kind}${r.kind === 'here' ? ' is-here' : ''}`} style={`--i:${i}`}>
                 <span class="bt-when">{r.when}</span>
-                <span>{pick(lang, r.en, r.id)}</span>
+                <span class="bt-kind">{kindLabel[r.kind as keyof typeof kindLabel]}</span>
+                <span class="bt-what">{pick(lang, r.en, r.id)}</span>
               </li>
             ))
           }
         </ol>
+        <p class="bio-links">
+          <a href="https://sbt-portfolio.vercel.app">{lang === 'en' ? 'Portfolio' : 'Portofolio'} <span aria-hidden="true">&#8599;</span></a>
+          <a href="https://www.linkedin.com/in/stephen-behren">LinkedIn <span aria-hidden="true">&#8599;</span></a>
+        </p>
       </div>
 
       <h2 id={h(7).id}>{h(7).text}</h2>

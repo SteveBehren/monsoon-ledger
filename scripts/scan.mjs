@@ -18,7 +18,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { DATA, ENTRIES, readYaml, entryFiles, siteRequire } from './lib.mjs';
 import { parseFeed, parseLinks } from './scan/parse.mjs';
-import { makeScorer, normaliseDashes, normaliseUrl, leadId, titleKey } from './scan/score.mjs';
+import { makeScorer, normaliseDashes, normaliseUrl, leadId, titleKey, urlSlugKey } from './scan/score.mjs';
 import { triage } from './scan/triage.mjs';
 
 const args = process.argv.slice(2);
@@ -82,12 +82,17 @@ async function fetchSource(source) {
   throw lastError;
 }
 
-function loadLedgerUrls() {
-  const urls = new Set();
-  for (const name of entryFiles()) for (const s of readYaml(path.join(ENTRIES, name))?.sources ?? []) urls.add(normaliseUrl(s.url));
-  for (const row of readYaml(path.join(DATA, 'deadlines.yml')) ?? []) urls.add(normaliseUrl(row.source_url));
-  for (const row of readYaml(path.join(DATA, 'instruments.yml')) ?? []) urls.add(normaliseUrl(row.source_url));
-  return urls;
+// Every source url already in the ledger, plus its readable slug. News search results arrive
+// through redirect links, so the slug is how a story the ledger already cites is recognised.
+function loadLedgerSources() {
+  const raw = [];
+  for (const name of entryFiles()) for (const s of readYaml(path.join(ENTRIES, name))?.sources ?? []) raw.push(s.url);
+  for (const row of readYaml(path.join(DATA, 'deadlines.yml')) ?? []) raw.push(row.source_url);
+  for (const row of readYaml(path.join(DATA, 'instruments.yml')) ?? []) raw.push(row.source_url);
+  return {
+    urls: new Set(raw.map(normaliseUrl)),
+    slugs: new Set(raw.map(urlSlugKey).filter((k) => k.split(' ').length >= 4)),
+  };
 }
 
 function readJson(file, fallback) {
@@ -107,7 +112,7 @@ async function main() {
   const radar = (fs.existsSync(RADAR_FILE) ? readYaml(RADAR_FILE) : null) ?? { updated: null, leads: [] };
   radar.leads ??= [];
   const seen = readJson(SEEN_FILE, {});
-  const ledgerUrls = loadLedgerUrls();
+  const ledger = loadLedgerSources();
   const knownIds = new Set(radar.leads.map((l) => l.id));
   const knownTitles = new Set(radar.leads.map((l) => titleKey(l.title)));
 
@@ -136,7 +141,8 @@ async function main() {
       stats.kept += 1;
       const id = leadId(item.link);
       const tkey = titleKey(title);
-      if (knownIds.has(id) || seen[id] || knownTitles.has(tkey) || ledgerUrls.has(normaliseUrl(item.link))) continue;
+      if (knownIds.has(id) || seen[id] || knownTitles.has(tkey)) continue;
+      if (ledger.urls.has(normaliseUrl(item.link)) || ledger.slugs.has(tkey)) continue;
       if (added >= MAX_NEW_PER_SOURCE) break;
 
       const lead = {
@@ -146,7 +152,7 @@ async function main() {
         title,
         url: item.link,
         ...(item.outlet ? { outlet: normaliseDashes(item.outlet) } : {}),
-        country: source.country,
+        country: score.country(title, item.outlet, source.country),
         language: source.language,
         source: source.id,
         score: result.score,

@@ -2,19 +2,20 @@
 # outlet's summary text where a feed provides one.
 #
 # score = sum of the weights of every distinct term found.
-# A lead is kept when score >= threshold and no "exclude" term matches.
+# A lead is kept when score >= threshold, at least one "core" term matches (so institution
+# names alone never qualify), and no "exclude" term matches.
 
 threshold: 4
 
 terms:
   # Core subject. One of these is almost always needed to reach the threshold.
-  - { term: kecerdasan artifisial, weight: 3 }
-  - { term: kecerdasan buatan, weight: 3 }
-  - { term: artificial intelligence, weight: 3 }
-  - { term: generative ai, weight: 2 }
-  - { term: ai generatif, weight: 2 }
-  - { term: deepfake, weight: 2 }
-  - { term: AI, weight: 1, whole_word: true }
+  - { term: kecerdasan artifisial, weight: 3, core: true }
+  - { term: kecerdasan buatan, weight: 3, core: true }
+  - { term: artificial intelligence, weight: 3, core: true }
+  - { term: generative ai, weight: 2, core: true }
+  - { term: ai generatif, weight: 2, core: true }
+  - { term: deepfake, weight: 2, core: true }
+  - { term: AI, weight: 1, whole_word: true, core: true }
 
   # Governance vocabulary.
   - { term: perpres, weight: 2 }
@@ -46,9 +47,9 @@ terms:
   - { term: ASEAN, weight: 1, whole_word: true }
 
   # Data protection, where it shapes AI governance.
-  - { term: pelindungan data pribadi, weight: 2 }
-  - { term: data protection, weight: 2 }
-  - { term: UU PDP, weight: 2 }
+  - { term: pelindungan data pribadi, weight: 2, core: true }
+  - { term: data protection, weight: 2, core: true }
+  - { term: UU PDP, weight: 2, core: true }
 
   # Automated accounts in public debate (see the legal brief).
   - { term: buzzer, weight: 1 }
@@ -78,3 +79,14 @@ instruments:
   - { id: se-menkominfo-9-2023, any: [surat edaran, se 9/2023] }
   - { id: project-nusa, any: [project nusa, proyek nusa] }
   - { id: asean-genai-guide-2025, any: [asean guide, panduan asean] }
+
+# Country hints. The headline is checked first, then the outlet name. If exactly one country
+# matches, the lead is tagged with it; otherwise it keeps the country of the source that found it.
+countries:
+  ID: [indonesia, indonesian, komdigi, kemkomdigi, menkomdigi, kominfo, prabowo, jakarta]
+  MY: [malaysia, malaysian, dewan rakyat, gobind, anwar, nst online, new straits times, free malaysia today, malay mail, bernama, dayakdaily]
+  SG: [singapore, singaporean, imda]
+  TH: [thailand, thai]
+  VN: [vietnam, vietnamese, viet nam]
+  PH: [philippines, philippine, filipino, marcos]
+  ASEAN: [asean]

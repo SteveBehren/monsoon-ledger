@@ -21,9 +21,10 @@ export function makeScorer(keywords) {
   const terms = keywords.terms.map((t) => ({ ...t, re: compile(t.term, t.whole_word) }));
   const excludes = (keywords.exclude ?? []).map((t) => compile(t, true));
   const hints = (keywords.instruments ?? []).map((h) => ({ id: h.id, res: h.any.map((a) => compile(a, false)) }));
+  const countries = Object.entries(keywords.countries ?? {}).map(([code, words]) => ({ code, res: words.map((w) => compile(w, true)) }));
   const threshold = keywords.threshold;
 
-  return function score(text) {
+  function score(text) {
     const hay = text.toLowerCase();
     const matched = terms.filter((t) => t.re.test(hay));
     const value = matched.reduce((sum, t) => sum + t.weight, 0);
@@ -32,11 +33,35 @@ export function makeScorer(keywords) {
     return {
       score: value,
       terms: matched.map((t) => t.term),
-      keep: !excluded && value >= threshold,
+      keep: !excluded && value >= threshold && matched.some((t) => t.core),
       excluded,
       instrument: hint?.id,
     };
+  }
+
+  /** The one country a headline (then its outlet) clearly names, or the fallback. */
+  score.country = function country(title, outlet, fallback) {
+    for (const text of [title, outlet ?? '']) {
+      const hay = text.toLowerCase();
+      const found = countries.filter((c) => c.res.some((re) => re.test(hay)));
+      if (found.length === 1) return found[0].code;
+      if (found.length > 1) return fallback;
+    }
+    return fallback;
   };
+
+  return score;
+}
+
+/** The readable slug at the end of a url, such as "pemerintah siapkan gugus tugas". */
+export function urlSlugKey(raw) {
+  try {
+    const last = new URL(raw).pathname.split('/').filter(Boolean).pop() ?? '';
+    const slug = decodeURIComponent(last).replace(/\.[a-z]{2,5}$/i, '');
+    return slug.includes('-') ? titleKey(slug.replace(/[-_]+/g, ' ')) : '';
+  } catch {
+    return '';
+  }
 }
 
 const TRACKING = /^(utm_|fbclid$|gclid$|oc$|ref$|ref_src$)/i;

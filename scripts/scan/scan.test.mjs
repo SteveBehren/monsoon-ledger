@@ -9,7 +9,7 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { parseFeed, parseLinks, cleanText } from './parse.mjs';
-import { makeScorer, normaliseDashes, normaliseUrl, leadId } from './score.mjs';
+import { makeScorer, normaliseDashes, normaliseUrl, leadId, urlSlugKey } from './score.mjs';
 import { readYaml, ROOT } from '../lib.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -20,7 +20,7 @@ const BANNED = new RegExp(`[${String.fromCharCode(0x2013)}${String.fromCharCode(
 
 test('parseFeed reads Google News items and strips the outlet suffix', () => {
   const items = parseFeed(fs.readFileSync(path.join(FIXTURES, 'gn-id-ai-regulation.xml'), 'utf8'), 'https://news.google.com/');
-  assert.equal(items.length, 6);
+  assert.equal(items.length, 9);
   assert.equal(items[0].title, '[TEST] Komdigi bahas rancangan Perpres kecerdasan artifisial');
   assert.equal(items[0].outlet, 'Contoh Media');
   assert.equal(items[0].published, '2026-10-21');
@@ -45,6 +45,27 @@ test('scoring keeps governance headlines and drops excluded ones', () => {
   assert.equal(score('Harga saham naik karena kecerdasan artifisial dan regulasi').keep, false, 'excluded term wins');
   assert.equal(score('Resep rendang enak').keep, false);
   assert.equal(score('Mainan baru untuk anak').score, 0, '"ai" inside a word does not count');
+});
+
+test('institution names alone never qualify, a core subject term is required', () => {
+  const result = score('Menkomdigi Meutya Hafid tegaskan tata kelola pemerintahan Komdigi');
+  assert.ok(result.score >= keywords.threshold, 'scores above the threshold');
+  assert.equal(result.keep, false, 'but has no AI or data protection term');
+});
+
+test('country comes from the headline, then the outlet, then the source', () => {
+  assert.equal(score.country('AI Governance Bill tabled in Dewan Rakyat', 'Contoh Media', 'ID'), 'MY');
+  assert.equal(score.country('AI Governance Bill to require safety measures', 'NST Online', 'ID'), 'MY');
+  assert.equal(score.country('President Marcos on ASEAN and AI', 'pageone.ph', 'ASEAN'), 'ASEAN', 'two countries named: keep the source');
+  assert.equal(score.country('Regulasi AI segera terbit', 'Contoh Media', 'ID'), 'ID');
+});
+
+test('url slugs give a readable key for stories the ledger already cites', () => {
+  assert.equal(
+    urlSlugKey('https://www.antaranews.com/berita/5802305/pemerintah-siapkan-gugus-tugas-kawal-implementasi-regulasi-ai'),
+    'pemerintah siapkan gugus tugas kawal implementasi regulasi ai',
+  );
+  assert.equal(urlSlugKey('https://example.org/'), '');
 });
 
 test('scoring suggests an instrument from hint terms', () => {
@@ -76,6 +97,10 @@ test('end to end: a fixture scan writes clean, deduplicated, idempotent output',
   assert.ok(!titles.some((t) => t.includes('saham')), 'excluded term dropped');
   assert.ok(!titles.some((t) => t.includes('rendang')), 'irrelevant item dropped');
   assert.ok(!titles.some((t) => t.includes('Already in the ledger')), 'urls already in the ledger are skipped');
+  assert.ok(!titles.some((t) => t.startsWith('Pemerintah siapkan gugus tugas')), 'a ledger story behind a redirect link is skipped');
+  assert.ok(!titles.some((t) => t.includes('kantor baru')), 'no core term, not kept');
+  const bill = radar.leads.find((l) => l.title.includes('Dewan Rakyat'));
+  assert.equal(bill?.country, 'MY', 'country taken from the headline, not the Indonesian source');
   assert.equal(titles.filter((t) => t.startsWith('[TEST] Komdigi bahas')).length, 1, 'same headline via two urls stored once');
   for (const lead of radar.leads) {
     assert.equal(lead.status, 'new');

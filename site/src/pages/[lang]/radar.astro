@@ -1,0 +1,334 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getRadar, getScanLog, getWatchSources, getEntries, getInstruments, type Lead } from '../../lib/data';
+import { ui, href, pick, LANGS, type Lang } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const t = ui[lang];
+const radar = getRadar();
+const log = getScanLog();
+const sources = getWatchSources();
+const entries = getEntries();
+const instruments = new Map(getInstruments().map((i) => [i.id, i]));
+const last = log[0];
+
+// Entries whose sources have not been re-opened for 45 days, measured from the last scan.
+const STALE_DAYS = 45;
+const reference = last ? new Date(last.at) : new Date();
+const stale = entries.filter((e) => (reference.getTime() - new Date(`${e.last_checked}T00:00:00Z`).getTime()) / 86_400_000 > STALE_DAYS);
+
+const active = radar.leads.filter((l) => l.status !== 'dismissed' && l.triage?.relevant !== false);
+const filtered = radar.leads.filter((l) => l.status !== 'dismissed' && l.triage?.relevant === false);
+const dismissed = radar.leads.filter((l) => l.status === 'dismissed');
+const awaiting = active.filter((l) => l.status === 'new').length;
+const countries = [...new Set(active.map((l) => l.country))].sort((a, b) => (a === 'ID' ? -1 : b === 'ID' ? 1 : a.localeCompare(b)));
+
+const byDate = new Map<string, Lead[]>();
+for (const lead of active) byDate.set(lead.found, [...(byDate.get(lead.found) ?? []), lead]);
+
+const copy = {
+  en: {
+    kicker: 'Automated monitoring',
+    lede: 'Every Monday and Thursday a scanner reads Indonesian and ASEAN news searches and official legal databases, and lists what looks like AI governance news here. These are leads, not findings. Each one waits for the author to read the source before anything enters the ledger.',
+    warning: 'Unreviewed leads. Not verified and not entries. Headlines are shown as published.',
+    how: 'How the scanner works',
+    lastScan: 'Last scan',
+    never: 'Not yet run',
+    sourcesOk: 'Sources reached',
+    newLeads: 'New in last scan',
+    awaiting: 'Awaiting review',
+    mode: 'Mode',
+    modeRules: 'Keyword rules',
+    modeClaude: 'Rules and Claude',
+    schedule: 'Scans run every Monday and Thursday at 06:17 Western Indonesian Time (UTC+7).',
+    all: 'All',
+    found: 'Found',
+    published: 'published',
+    matched: 'Matched',
+    instrument: 'Possible instrument',
+    machine: 'Machine summary of the headline',
+    status: { new: 'New', reviewed: 'Reviewed', promoted: 'Promoted to entry', dismissed: 'Dismissed' },
+    empty: 'No leads yet. The first scheduled scan will fill this page.',
+    filteredTitle: 'Judged not relevant by Claude',
+    dismissedTitle: 'Dismissed by the author',
+    staleTitle: 'Entries due for re-checking',
+    staleIntro: `Entries whose sources were last re-opened more than ${STALE_DAYS} days before the last scan.`,
+    staleNone: `Every entry was checked within ${STALE_DAYS} days of the last scan.`,
+    lastChecked: 'last checked',
+    historyTitle: 'Scan history',
+    when: 'When (UTC)',
+    reached: 'Sources',
+    read: 'Items read',
+    relevant: 'Above threshold',
+    added: 'New leads',
+    sourcesTitle: 'Watched sources',
+    kind: { 'news-search': 'News search', 'page-links': 'Official page', rss: 'Feed' } as Record<string, string>,
+    country: 'Country',
+    type: 'Type',
+    source: 'Source',
+  },
+  id: {
+    kicker: 'Pemantauan otomatis',
+    lede: 'Setiap Senin dan Kamis, sebuah pemindai membaca pencarian berita Indonesia dan ASEAN serta basis data hukum resmi, lalu mencantumkan di sini apa yang tampak seperti berita tata kelola AI. Ini petunjuk, bukan temuan. Setiap petunjuk menunggu penulis membaca sumbernya sebelum ada yang masuk ke catatan.',
+    warning: 'Petunjuk yang belum ditinjau. Belum terverifikasi dan bukan catatan. Judul ditampilkan sesuai aslinya.',
+    how: 'Cara kerja pemindai',
+    lastScan: 'Pemindaian terakhir',
+    never: 'Belum berjalan',
+    sourcesOk: 'Sumber terjangkau',
+    newLeads: 'Baru di pemindaian terakhir',
+    awaiting: 'Menunggu tinjauan',
+    mode: 'Mode',
+    modeRules: 'Aturan kata kunci',
+    modeClaude: 'Aturan dan Claude',
+    schedule: 'Pemindaian berjalan setiap Senin dan Kamis pukul 06.17 WIB.',
+    all: 'Semua',
+    found: 'Ditemukan',
+    published: 'terbit',
+    matched: 'Kata yang cocok',
+    instrument: 'Kemungkinan instrumen',
+    machine: 'Ringkasan mesin dari judul (bahasa Inggris)',
+    status: { new: 'Baru', reviewed: 'Sudah ditinjau', promoted: 'Dijadikan catatan', dismissed: 'Diabaikan' },
+    empty: 'Belum ada petunjuk. Pemindaian terjadwal pertama akan mengisi halaman ini.',
+    filteredTitle: 'Dinilai tidak relevan oleh Claude',
+    dismissedTitle: 'Diabaikan oleh penulis',
+    staleTitle: 'Catatan yang perlu dicek ulang',
+    staleIntro: `Catatan yang sumbernya terakhir dibuka lebih dari ${STALE_DAYS} hari sebelum pemindaian terakhir.`,
+    staleNone: `Semua catatan sudah dicek dalam ${STALE_DAYS} hari sebelum pemindaian terakhir.`,
+    lastChecked: 'terakhir dicek',
+    historyTitle: 'Riwayat pemindaian',
+    when: 'Waktu (UTC)',
+    reached: 'Sumber',
+    read: 'Butir dibaca',
+    relevant: 'Di atas ambang',
+    added: 'Petunjuk baru',
+    sourcesTitle: 'Sumber yang dipantau',
+    kind: { 'news-search': 'Pencarian berita', 'page-links': 'Halaman resmi', rss: 'Umpan' } as Record<string, string>,
+    country: 'Negara',
+    type: 'Jenis',
+    source: 'Sumber',
+  },
+}[lang];
+
+const fmtTime = (iso: string) => iso.replace('T', ' ').replace(/:\d{2}Z$/, '');
+---
+<Base lang={lang} path="radar/" title={t.nav.radar} nav="radar" description={copy.lede}>
+  <header class="page-head">
+    <p class="kicker">{copy.kicker}</p>
+    <h1>{t.nav.radar}</h1>
+    <p class="lede">{copy.lede}</p>
+  </header>
+
+  <aside class="callout radar-warning">
+    <div>
+      <p><span class="unverified">{copy.warning}</span></p>
+      <p>{copy.schedule}</p>
+    </div>
+    <a class="btn" href={href(lang, 'method/system/#scanner')}>{copy.how} <span class="arrow" aria-hidden="true">&rarr;</span></a>
+  </aside>
+
+  <div class="metrics">
+    <div class="metric">
+      <p class="label">{copy.lastScan}</p>
+      {last ? <time class="figure figure--date" datetime={last.at}>{last.at.slice(0, 10)}</time> : <span class="figure figure--date">{copy.never}</span>}
+    </div>
+    <div class="metric">
+      <p class="label">{copy.sourcesOk}</p>
+      <span class="figure">{last ? last.sources_ok : 0}<small>/ {sources.length}</small></span>
+    </div>
+    <div class="metric">
+      <p class="label">{copy.newLeads}</p>
+      <span class="figure">{last ? last.new_leads : 0}</span>
+    </div>
+    <div class="metric">
+      <p class="label">{copy.awaiting}</p>
+      <span class="figure">{awaiting}</span>
+    </div>
+  </div>
+
+  <section class="section" aria-labelledby="leads-h">
+    <div class="section-head">
+      <div>
+        <h2 id="leads-h">{lang === 'en' ? 'Leads' : 'Petunjuk'}</h2>
+        {last && <p>{copy.mode}: {last.mode === 'rules+claude' ? `${copy.modeClaude} (${last.model})` : copy.modeRules}</p>}
+      </div>
+    </div>
+
+    {
+      countries.length > 1 && (
+        <form class="filters panel" hidden data-radar-filter>
+          <fieldset class="chips">
+            <legend>{copy.country}</legend>
+            <label class="chip"><input type="radio" name="country" value="all" checked /><span>{copy.all} {active.length}</span></label>
+            {countries.map((c) => (
+              <label class="chip">
+                <input type="radio" name="country" value={c} />
+                <span>{c} {active.filter((l) => l.country === c).length}</span>
+              </label>
+            ))}
+          </fieldset>
+        </form>
+      )
+    }
+
+    {active.length === 0 && <p class="panel empty-state">{copy.empty}</p>}
+
+    {
+      [...byDate.entries()].map(([date, leads]) => (
+        <div class="lead-day">
+          <h3 class="label"><time datetime={date}>{copy.found} {date}</time></h3>
+          <ul class="leads">
+            {leads.map((lead) => {
+              const instrument = lead.instrument ? instruments.get(lead.instrument) : undefined;
+              return (
+                <li class="lead panel" data-country={lead.country}>
+                  <div class="lead-meta">
+                    <span class="lead-country">{lead.country}</span>
+                    <span>{lead.outlet ?? lead.source}</span>
+                    {lead.published && <span>{copy.published} <time datetime={lead.published}>{lead.published}</time></span>}
+                    <span class={`lead-status lead-status--${lead.status}`}>
+                      {lead.status === 'promoted' && lead.promoted_to ? (
+                        <a href={href(lang, `entries/${lead.promoted_to}/`)}>{copy.status.promoted}</a>
+                      ) : (
+                        copy.status[lead.status]
+                      )}
+                    </span>
+                  </div>
+                  <p class="lead-title" lang={lead.language}>
+                    <a href={lead.url} rel="noopener nofollow external">{lead.title}</a>
+                  </p>
+                  {lead.triage && (
+                    <p class="lead-summary" lang="en">
+                      <span class="label">{copy.machine}</span> {lead.triage.summary_en}
+                    </p>
+                  )}
+                  <p class="lead-terms">
+                    {copy.matched}: {lead.terms.join(', ')}
+                    {instrument && (
+                      <>
+                        {' '}&middot; {copy.instrument}:{' '}
+                        <a href={href(lang, `instruments/#${instrument.id}`)}>{pick(lang, instrument.name_en, instrument.name_id)}</a>
+                      </>
+                    )}
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))
+    }
+
+    {
+      filtered.length > 0 && (
+        <details class="panel radar-more">
+          <summary>{copy.filteredTitle} ({filtered.length})</summary>
+          <ul>{filtered.map((l) => <li><a href={l.url} rel="noopener nofollow external" lang={l.language}>{l.title}</a> <span class="lead-terms">{l.outlet ?? l.source}, {l.found}</span></li>)}</ul>
+        </details>
+      )
+    }
+    {
+      dismissed.length > 0 && (
+        <details class="panel radar-more">
+          <summary>{copy.dismissedTitle} ({dismissed.length})</summary>
+          <ul>{dismissed.map((l) => <li><a href={l.url} rel="noopener nofollow external" lang={l.language}>{l.title}</a> <span class="lead-terms">{l.outlet ?? l.source}, {l.found}</span></li>)}</ul>
+        </details>
+      )
+    }
+  </section>
+
+  <section class="section" aria-labelledby="stale-h">
+    <div class="section-head">
+      <div>
+        <h2 id="stale-h">{copy.staleTitle}</h2>
+        <p>{copy.staleIntro}</p>
+      </div>
+    </div>
+    {
+      stale.length === 0 ? (
+        <p class="panel empty-state">{copy.staleNone}</p>
+      ) : (
+        <ul class="panel stale-list">
+          {stale.map((e) => (
+            <li>
+              <a href={href(lang, `entries/${e.id}/`)}>{pick(lang, e.title_en, e.title_id)}</a>{' '}
+              <span class="lead-terms">{copy.lastChecked} <time datetime={e.last_checked}>{e.last_checked}</time></span>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </section>
+
+  <section class="section" aria-labelledby="history-h">
+    <div class="section-head">
+      <h2 id="history-h">{copy.historyTitle}</h2>
+    </div>
+    {
+      log.length === 0 ? (
+        <p class="panel empty-state">{copy.empty}</p>
+      ) : (
+        <div class="panel table-panel">
+          <table class="ruled stack">
+            <caption class="visually-hidden">{copy.historyTitle}</caption>
+            <thead>
+              <tr><th scope="col">{copy.when}</th><th scope="col">{copy.mode}</th><th scope="col">{copy.reached}</th><th scope="col">{copy.read}</th><th scope="col">{copy.relevant}</th><th scope="col">{copy.added}</th></tr>
+            </thead>
+            <tbody>
+              {log.slice(0, 8).map((r) => (
+                <tr>
+                  <td data-label={copy.when}><span class="mono">{fmtTime(r.at)}</span></td>
+                  <td data-label={copy.mode}>{r.mode === 'rules+claude' ? copy.modeClaude : copy.modeRules}</td>
+                  <td data-label={copy.reached}>{r.sources_ok}/{r.sources_total}</td>
+                  <td data-label={copy.read}>{r.items_read}</td>
+                  <td data-label={copy.relevant}>{r.items_relevant}</td>
+                  <td data-label={copy.added}>{r.new_leads}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )
+    }
+  </section>
+
+  <section class="section" aria-labelledby="sources-h">
+    <details class="panel radar-more" id="sources">
+      <summary id="sources-h">{copy.sourcesTitle} ({sources.length})</summary>
+      <div class="table-panel">
+        <table class="ruled stack">
+          <caption class="visually-hidden">{copy.sourcesTitle}</caption>
+          <thead><tr><th scope="col">{copy.source}</th><th scope="col">{copy.country}</th><th scope="col">{copy.type}</th></tr></thead>
+          <tbody>
+            {sources.map((s) => (
+              <tr>
+                <td data-label={copy.source}>{s.url ? <a href={s.url}>{s.name}</a> : s.name}</td>
+                <td data-label={copy.country}>{s.country}</td>
+                <td data-label={copy.type}>{copy.kind[s.kind] ?? s.kind}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+</Base>
+
+<script>
+  // Country filter, same pattern as the Entries filters. Without JavaScript the form stays
+  // hidden and every lead is visible.
+  const form = document.querySelector<HTMLFormElement>('[data-radar-filter]');
+  if (form) {
+    form.hidden = false;
+    const leads = [...document.querySelectorAll<HTMLElement>('.lead[data-country]')];
+    const days = [...document.querySelectorAll<HTMLElement>('.lead-day')];
+    form.addEventListener('change', () => {
+      const country = new FormData(form).get('country');
+      for (const lead of leads) lead.hidden = country !== 'all' && lead.dataset.country !== country;
+      for (const day of days) day.hidden = ![...day.querySelectorAll<HTMLElement>('.lead')].some((l) => !l.hidden);
+    });
+  }
+</script>

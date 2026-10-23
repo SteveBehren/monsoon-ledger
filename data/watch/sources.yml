@@ -1,0 +1,120 @@
+# Sources the scanner checks on every run (npm run scan).
+#
+# kind:
+#   news-search  A Google News RSS search. "query" uses Google News syntax. "edition" sets the
+#                language and country edition (hl, gl, ceid). Results link through Google News.
+#   page-links   An HTML page. The scanner collects links whose text matches the keywords.
+#   rss          A plain RSS or Atom feed at "url".
+#
+# country: ISO 3166-1 alpha-2, or ASEAN for regional sources.
+# Entries stay Indonesia-only until there are 12 (see CLAUDE.md). The Radar may show ASEAN leads.
+
+- id: gn-id-ai-regulation
+  name: Google News (Bahasa Indonesia), AI regulation
+  kind: news-search
+  country: ID
+  language: id
+  edition: id-ID
+  query: '"kecerdasan artifisial" (regulasi OR perpres OR aturan OR etika OR "peta jalan")'
+
+- id: gn-id-perpres-ai
+  name: Google News (Bahasa Indonesia), AI presidential regulations
+  kind: news-search
+  country: ID
+  language: id
+  edition: id-ID
+  query: '("Perpres AI" OR "Perpres kecerdasan artifisial" OR "regulasi AI") Komdigi'
+
+- id: gn-id-komdigi-ai
+  name: Google News (Bahasa Indonesia), Komdigi and AI
+  kind: news-search
+  country: ID
+  language: id
+  edition: id-ID
+  query: 'Komdigi (AI OR "kecerdasan artifisial") (tata kelola OR etika OR gugus tugas OR deepfake)'
+
+- id: gn-id-pdp
+  name: Google News (Bahasa Indonesia), personal data protection authority
+  kind: news-search
+  country: ID
+  language: id
+  edition: id-ID
+  query: '("lembaga PDP" OR "lembaga pelindungan data pribadi" OR "PP 33 Tahun 2026" OR "UU PDP")'
+
+- id: gn-id-buzzer-ai
+  name: Google News (Bahasa Indonesia), automated accounts and AI in public debate
+  kind: news-search
+  country: ID
+  language: id
+  edition: id-ID
+  query: '(buzzer OR pendengung OR "akun bot") (AI OR "kecerdasan artifisial") pemerintah'
+
+- id: gn-en-indonesia-ai
+  name: Google News (English), Indonesia AI policy
+  kind: news-search
+  country: ID
+  language: en
+  edition: en-ID
+  query: 'Indonesia ("AI regulation" OR "AI governance" OR "AI ethics" OR "artificial intelligence law")'
+
+- id: gn-asean-ai
+  name: Google News (English), ASEAN AI governance
+  kind: news-search
+  country: ASEAN
+  language: en
+  edition: en-SG
+  query: 'ASEAN ("AI governance" OR "AI regulation" OR "AI guide" OR "artificial intelligence")'
+
+- id: gn-my-ai
+  name: Google News (English), Malaysia AI governance
+  kind: news-search
+  country: MY
+  language: en
+  edition: en-MY
+  query: 'Malaysia ("AI governance" OR "AI regulation" OR "AI law" OR "AI bill")'
+
+- id: gn-sg-ai
+  name: Google News (English), Singapore AI governance
+  kind: news-search
+  country: SG
+  language: en
+  edition: en-SG
+  query: 'Singapore ("AI governance" OR "AI regulation" OR "AI Verify" OR "model AI governance framework")'
+
+- id: gn-th-ai
+  name: Google News (English), Thailand AI governance
+  kind: news-search
+  country: TH
+  language: en
+  edition: en-SG
+  query: 'Thailand ("AI law" OR "AI regulation" OR "AI governance")'
+
+- id: gn-vn-ai
+  name: Google News (English), Vietnam AI governance
+  kind: news-search
+  country: VN
+  language: en
+  edition: en-SG
+  query: 'Vietnam ("AI law" OR "artificial intelligence law" OR "AI regulation")'
+
+- id: gn-ph-ai
+  name: Google News (English), Philippines AI governance
+  kind: news-search
+  country: PH
+  language: en
+  edition: en-PH
+  query: 'Philippines ("AI regulation" OR "AI bill" OR "AI governance")'
+
+- id: jdih-komdigi
+  name: JDIH Komdigi (legal documentation network of the Ministry of Communication and Digital Affairs)
+  kind: page-links
+  country: ID
+  language: id
+  url: https://jdih.komdigi.go.id/
+
+- id: peraturan-go-id
+  name: Database Peraturan, peraturan.go.id
+  kind: page-links
+  country: ID
+  language: id
+  url: https://peraturan.go.id/

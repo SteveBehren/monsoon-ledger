@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import Evidence from '../../components/Evidence.astro';
 import Cite from '../../components/Cite.astro';
 import References from '../../components/References.astro';
+import MethodTabs from '../../components/MethodTabs.astro';
 import { ui, href, SITE, LANGS, type Lang } from '../../lib/i18n';
 import type { RefKey } from '../../lib/references';
 
@@ -93,9 +94,10 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
 ---
 <Base lang={lang} path="method/" title={t.nav.method} nav="method">
   <header class="page-head">
-    <p class="kicker">{lang === 'en' ? 'Research protocol' : 'Protokol penelitian'}</p>
+    <p class="kicker">{lang === 'en' ? 'How the ledger works' : 'Cara catatan ini bekerja'}</p>
     <h1>{t.nav.method}</h1>
     <p class="lede">{lede}</p>
+    <MethodTabs lang={lang} current="research" />
   </header>
   <div class="doc">
     <nav class="toc" aria-label={t.onThisPage}>
@@ -427,6 +429,7 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             </li>
             <li><strong>Continuous integration.</strong> Every push runs the validator and a full site build. The build refuses to publish data that fails validation.</li>
             <li><strong>Audit trail.</strong> The full history of every change is public in git, so anyone can see what changed, when and why.</li>
+            <li><strong>Automated monitoring.</strong> A scanner checks the watched sources twice a week and lists unreviewed leads on the <a href={href(lang, 'radar/')}>Radar</a>. The <a href={href(lang, 'method/system/')}>Technical system</a> page documents the pipeline in full.</li>
           </ul>
 
           <h2 id="ethics">12. Research ethics</h2>
@@ -785,6 +788,7 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             </li>
             <li><strong>Integrasi berkelanjutan.</strong> Setiap perubahan yang diunggah menjalankan validator dan membangun situs penuh. Data yang gagal validasi tidak akan terbit.</li>
             <li><strong>Jejak audit.</strong> Seluruh riwayat perubahan terbuka di git, jadi siapa pun bisa melihat apa yang berubah, kapan, dan mengapa.</li>
+            <li><strong>Pemantauan otomatis.</strong> Sebuah pemindai memeriksa sumber yang dipantau dua kali seminggu dan mencantumkan petunjuk yang belum ditinjau di <a href={href(lang, 'radar/')}>Radar</a>. Halaman <a href={href(lang, 'method/system/')}>Sistem teknis</a> menjelaskan seluruh alurnya.</li>
           </ul>
 
           <h2 id="ethics">12. Etika penelitian</h2>

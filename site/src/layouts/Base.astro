@@ -10,7 +10,7 @@ interface Props {
   title?: string;
   description?: string;
   ogType?: 'website' | 'article';
-  nav?: 'home' | 'entries' | 'ledger' | 'instruments' | 'method' | 'about';
+  nav?: 'home' | 'entries' | 'ledger' | 'instruments' | 'radar' | 'method' | 'about';
 }
 
 const { lang, path, title, description, ogType = 'website', nav } = Astro.props;
@@ -27,6 +27,7 @@ const links = [
   { key: 'entries', path: 'entries/' },
   { key: 'ledger', path: 'ledger/' },
   { key: 'instruments', path: 'instruments/' },
+  { key: 'radar', path: 'radar/' },
   { key: 'method', path: 'method/' },
   { key: 'about', path: 'about/' },
 ] as const;

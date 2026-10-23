@@ -7,7 +7,9 @@
   "scripts": {
     "setup": "npm --prefix site ci",
     "validate": "node scripts/validate.mjs",
+    "test": "node --test \"scripts/**/*.test.mjs\"",
     "new-entry": "node scripts/new-entry.mjs",
+    "scan": "node scripts/scan.mjs",
     "links": "node scripts/check-links.mjs",
     "dev": "npm --prefix site run dev",
     "build": "npm --prefix site run build"

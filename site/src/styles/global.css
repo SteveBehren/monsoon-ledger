@@ -426,7 +426,8 @@ main:focus {
   display: none;
 }
 
-@media (max-width: 60rem) {
+/* The full menu bar needs about 76rem with seven items. Below that the menu button takes over. */
+@media (max-width: 76rem) {
   .brand-sub {
     display: none;
   }
@@ -2548,7 +2549,7 @@ button.chip {
 
 @media (max-width: 52rem) {
   .doc {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 1.5rem;
   }
 
@@ -2875,4 +2876,220 @@ button.chip {
   border-radius: 999px;
   color: var(--accent);
   font-weight: 600;
+}
+
+/* Method tabs: research protocol and technical system */
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 1.5rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.tabs a {
+  padding: 0.55rem 0.9rem;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  color: var(--text-soft);
+  text-decoration: none;
+  font-size: 0.92rem;
+}
+
+.tabs a:hover {
+  color: var(--text);
+}
+
+.tabs a[aria-current='page'] {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+/* Technical system: pipeline and code blocks */
+
+.pipeline {
+  list-style: none;
+  counter-reset: step;
+  padding: 0;
+  margin: 1.25rem 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.pipeline li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 2rem 7rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: baseline;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.pipeline li::before {
+  content: counter(step, decimal-leading-zero);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+}
+
+.pipeline span {
+  color: var(--text-soft);
+  font-size: 0.92rem;
+}
+
+@media (max-width: 44rem) {
+  .pipeline li {
+    grid-template-columns: 2rem minmax(0, 1fr);
+  }
+
+  .pipeline span {
+    grid-column: 2;
+  }
+}
+
+.code {
+  margin: 1rem 0 1.5rem;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--text-soft);
+}
+
+.doc-body code {
+  font-family: var(--mono);
+  font-size: 0.86em;
+}
+
+/* Radar */
+
+.radar-warning p {
+  margin: 0 0 0.4rem;
+}
+
+.empty-state {
+  padding: 1.1rem 1.25rem;
+  color: var(--text-soft);
+}
+
+.lead-day {
+  margin-top: 1.5rem;
+}
+
+.lead-day > .label {
+  margin: 0 0 0.6rem;
+  font-size: 0.72rem;
+}
+
+.leads {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.lead {
+  padding: 0.9rem 1.1rem;
+}
+
+.lead-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+  align-items: center;
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+
+.lead-country {
+  font-family: var(--mono);
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  color: var(--text-soft);
+}
+
+.lead-status {
+  margin-left: auto;
+  padding: 0.05rem 0.5rem;
+  border: 1px dashed var(--line-strong);
+  border-radius: 999px;
+}
+
+.lead-status--promoted,
+.lead-status--reviewed {
+  border-style: solid;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.lead-title {
+  margin: 0.45rem 0 0.3rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.lead-summary {
+  margin: 0 0 0.3rem;
+  font-size: 0.88rem;
+  color: var(--text-soft);
+}
+
+.lead-summary .label {
+  display: block;
+  margin-bottom: 0.1rem;
+}
+
+.lead-terms {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+
+.radar-more {
+  margin-top: 1rem;
+  padding: 0.9rem 1.1rem;
+}
+
+.radar-more summary {
+  cursor: pointer;
+  color: var(--text-soft);
+}
+
+.radar-more ul {
+  margin: 0.75rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.88rem;
+}
+
+.radar-more .table-panel {
+  margin-top: 0.75rem;
+}
+
+.stale-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.6rem 1.1rem;
+}
+
+.stale-list li {
+  padding: 0.35rem 0;
+}
+
+.page-head:has(.tabs) {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.radar-warning {
+  margin: 0 0 1rem;
 }

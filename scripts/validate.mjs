@@ -65,6 +65,60 @@ if (!Array.isArray(deadlines)) {
   });
 }
 
+// Monitoring layer: watched sources, the Radar and the scan log
+const COUNTRIES = new Set(['ID', 'MY', 'SG', 'TH', 'VN', 'PH', 'BN', 'KH', 'LA', 'MM', 'TL', 'ASEAN']);
+const sourcesFile = path.join(DATA, 'watch', 'sources.yml');
+const watchSources = load(sourcesFile) ?? [];
+const sourceIds = new Set();
+if (!Array.isArray(watchSources)) {
+  fail(sourcesFile, 'must be a list');
+} else {
+  watchSources.forEach((row, i) => {
+    for (const key of ['id', 'name', 'kind', 'country', 'language']) {
+      if (!row?.[key]) fail(sourcesFile, `row ${i + 1} is missing "${key}"`);
+    }
+    if (row?.id && sourceIds.has(row.id)) fail(sourcesFile, `duplicate id "${row.id}"`);
+    if (row?.id) sourceIds.add(row.id);
+    if (row?.country && !COUNTRIES.has(row.country)) fail(sourcesFile, `row ${i + 1} has an unknown country "${row.country}"`);
+    if (row?.kind === 'news-search' && (!row.query || !/^[a-z]{2}-[A-Z]{2}$/.test(row.edition ?? ''))) {
+      fail(sourcesFile, `row ${i + 1} news-search needs "query" and an "edition" like id-ID`);
+    } else if (['page-links', 'rss'].includes(row?.kind) && !/^https:\/\/\S+$/.test(row.url ?? '')) {
+      fail(sourcesFile, `row ${i + 1} ${row.kind} needs an https "url"`);
+    } else if (row?.kind && !['news-search', 'page-links', 'rss'].includes(row.kind)) {
+      fail(sourcesFile, `row ${i + 1} has an unknown kind "${row.kind}"`);
+    }
+  });
+}
+
+const radarFile = path.join(DATA, 'radar.yml');
+const radar = load(radarFile) ?? {};
+const radarLeads = Array.isArray(radar.leads) ? radar.leads : [];
+if (!Array.isArray(radar.leads)) fail(radarFile, 'must have a "leads" list');
+const leadIds = new Set();
+radarLeads.forEach((lead, i) => {
+  const where = `lead ${i + 1}`;
+  for (const key of ['id', 'found', 'title', 'url', 'country', 'source', 'status']) {
+    if (lead?.[key] === undefined || lead[key] === null || lead[key] === '') fail(radarFile, `${where} is missing "${key}"`);
+  }
+  if (lead?.id && !/^[0-9a-f]{10}$/.test(lead.id)) fail(radarFile, `${where} has a malformed id`);
+  if (lead?.id && leadIds.has(lead.id)) fail(radarFile, `duplicate lead id "${lead.id}"`);
+  if (lead?.id) leadIds.add(lead.id);
+  if (lead?.found && !isRealDate(lead.found)) fail(radarFile, `${where} "found" must be a real date`);
+  if (lead?.url && !/^https?:\/\/\S+$/.test(lead.url)) fail(radarFile, `${where} has an invalid url`);
+  if (lead?.status && !['new', 'reviewed', 'promoted', 'dismissed'].includes(lead.status)) {
+    fail(radarFile, `${where} "status" must be new, reviewed, promoted or dismissed`);
+  }
+  if (lead?.country && !COUNTRIES.has(lead.country)) fail(radarFile, `${where} has an unknown country`);
+  if (lead?.instrument && !instrumentIds.has(lead.instrument)) fail(radarFile, `${where} instrument "${lead.instrument}" does not exist`);
+  if (lead?.promoted_to && !fs.existsSync(path.join(ENTRIES, `${lead.promoted_to}.yml`))) {
+    fail(radarFile, `${where} promoted_to "${lead.promoted_to}" is not an entry`);
+  }
+});
+
+const scanLogFile = path.join(DATA, 'scan-log.yml');
+const scanLog = load(scanLogFile) ?? [];
+if (!Array.isArray(scanLog)) fail(scanLogFile, 'must be a list');
+
 // Entries
 const schema = JSON.parse(fs.readFileSync(path.join(DATA, 'schema.json'), 'utf8'));
 const ajv = new Ajv2020({ allErrors: true, strict: true });
@@ -148,5 +202,5 @@ if (errors.length) {
   process.exit(1);
 }
 console.log(
-  `Validation passed: ${files.length} entries, ${instruments.length} instruments, ${deadlines.length} deadlines, no em or en dashes.`,
+  `Validation passed: ${files.length} entries, ${instruments.length} instruments, ${deadlines.length} deadlines, ${watchSources.length} watched sources, ${radarLeads.length} radar leads, no em or en dashes.`,
 );

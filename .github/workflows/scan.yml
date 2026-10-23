@@ -1,0 +1,80 @@
+name: Scan
+
+# The ledger's monitoring layer. Twice a week it reads every watched source, writes new
+# leads to data/radar.yml and a row to data/scan-log.yml, validates, builds, and commits.
+# The commit to main triggers a Vercel deploy, so the Radar page updates by itself.
+#
+# Schedule: Monday and Thursday at 06:17 Western Indonesian Time (UTC+7).
+# On pull requests that touch the scanner it runs as a dry run against the live sources,
+# without Claude and without committing, so changes are tested on real feeds.
+
+on:
+  schedule:
+    - cron: '17 23 * * 0,3'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/scan.mjs'
+      - 'scripts/scan/**'
+      - 'data/watch/**'
+      - '.github/workflows/scan.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scan-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Install
+        run: npm run setup
+
+      - name: Test the scanner
+        run: npm test
+
+      - name: Scan (dry run)
+        if: github.event_name == 'pull_request'
+        run: npm run scan -- --dry-run --no-claude
+
+      - name: Scan
+        if: github.event_name != 'pull_request'
+        env:
+          # Optional. Without it the scan uses keyword rules only.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: npm run scan
+
+      - name: Validate and build
+        run: |
+          npm run validate
+          npm run build
+
+      - name: Commit the results
+        if: github.event_name != 'pull_request'
+        run: |
+          git config user.name "monsoon-ledger-scanner"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/radar.yml data/scan-log.yml data/watch/seen.json
+          if git diff --cached --quiet; then
+            echo "Nothing to commit."
+            exit 0
+          fi
+          NEW=$(node -e "const y=require('./site/node_modules/js-yaml');const fs=require('fs');const l=y.load(fs.readFileSync('data/scan-log.yml','utf8'));console.log(l[0].new_leads)")
+          git commit -m "Scan: ${NEW} new radar leads"
+          # Someone may have pushed while the scan ran. The scanner only touches its own files.
+          git pull --rebase origin main
+          git push

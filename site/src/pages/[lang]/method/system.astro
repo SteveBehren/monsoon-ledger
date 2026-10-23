@@ -1,0 +1,420 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import yaml from 'js-yaml';
+import Base from '../../../layouts/Base.astro';
+import MethodTabs from '../../../components/MethodTabs.astro';
+import { getWatchSources, getScanLog } from '../../../lib/data';
+import { ui, href, SITE, LANGS, type Lang } from '../../../lib/i18n';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const t = ui[lang];
+const sources = getWatchSources();
+const log = getScanLog();
+const keywords = yaml.load(fs.readFileSync(path.resolve(process.cwd(), '..', 'data', 'watch', 'keywords.yml'), 'utf8'), { schema: yaml.CORE_SCHEMA }) as {
+  threshold: number;
+  terms: unknown[];
+  exclude: unknown[];
+};
+const newsSources = sources.filter((s) => s.kind === 'news-search').length;
+const pageSources = sources.filter((s) => s.kind !== 'news-search').length;
+const countries = [...new Set(sources.map((s) => s.country))].join(', ');
+const cols = lang === 'en' ? ['Layer', 'Choice', 'Why'] : ['Lapisan', 'Pilihan', 'Alasan'];
+const commit = (hash: string) => `${SITE.repo}/commit/${hash}`;
+const file = (p: string) => `${SITE.repo}/blob/main/${p}`;
+
+const toc = {
+  en: [
+    ['overview', 'Architecture'],
+    ['stack', 'Technology'],
+    ['repo', 'Repository map'],
+    ['model', 'Data model'],
+    ['scanner', 'The scanner'],
+    ['automation', 'Schedule and deployment'],
+    ['quality', 'Quality gates'],
+    ['workflow', 'From lead to entry'],
+    ['claude', 'How Claude was used'],
+    ['maintenance', 'Keeping it current'],
+    ['security', 'Security and privacy'],
+    ['limits', 'Limits of automation'],
+    ['run', 'Run it yourself'],
+  ],
+  id: [
+    ['overview', 'Arsitektur'],
+    ['stack', 'Teknologi'],
+    ['repo', 'Peta repositori'],
+    ['model', 'Model data'],
+    ['scanner', 'Pemindai'],
+    ['automation', 'Jadwal dan penerbitan'],
+    ['quality', 'Gerbang mutu'],
+    ['workflow', 'Dari petunjuk ke catatan'],
+    ['claude', 'Cara Claude dipakai'],
+    ['maintenance', 'Menjaga tetap mutakhir'],
+    ['security', 'Keamanan dan privasi'],
+    ['limits', 'Batas otomatisasi'],
+    ['run', 'Menjalankan sendiri'],
+  ],
+}[lang];
+
+const pipeline = {
+  en: [
+    ['Sources', `${sources.length} watched sources: ${newsSources} news searches and ${pageSources} official pages, covering ${countries}.`],
+    ['Scanner', 'Twice a week, GitHub Actions runs npm run scan. It fetches, parses, scores and deduplicates.'],
+    ['Triage', 'Optional. If an API key is set, Claude gives a second opinion on each new headline.'],
+    ['Radar', 'New leads are written to data/radar.yml and appear on the Radar page, marked unreviewed.'],
+    ['Author', 'The author opens the source, judges it, and either dismisses the lead or writes an entry.'],
+    ['Gates', 'Every change passes the schema, the validator, the tests and a full build.'],
+    ['Site', 'A commit to main triggers a Vercel build. The static site updates within minutes.'],
+  ],
+  id: [
+    ['Sumber', `${sources.length} sumber yang dipantau: ${newsSources} pencarian berita dan ${pageSources} halaman resmi, mencakup ${countries}.`],
+    ['Pemindai', 'Dua kali seminggu, GitHub Actions menjalankan npm run scan. Pemindai mengambil, mengurai, menilai, dan menyaring duplikat.'],
+    ['Triase', 'Opsional. Bila kunci API dipasang, Claude memberi pendapat kedua untuk setiap judul baru.'],
+    ['Radar', 'Petunjuk baru ditulis ke data/radar.yml dan tampil di halaman Radar dengan tanda belum ditinjau.'],
+    ['Penulis', 'Penulis membuka sumbernya, menilainya, lalu mengabaikan petunjuk itu atau menulis catatan.'],
+    ['Gerbang', 'Setiap perubahan melewati skema, validator, pengujian, dan pembangunan situs penuh.'],
+    ['Situs', 'Commit ke main memicu pembangunan di Vercel. Situs statis diperbarui dalam hitungan menit.'],
+  ],
+}[lang];
+
+const timeline = [
+  { date: '2026-10-22', hashes: ['12614ad', '996aa5d', '26c2dfd', '4518e71'], en: 'Repository layout, licences, CI, the entry schema, the validator, instruments, deadlines and the first four entries.', id: 'Struktur repositori, lisensi, CI, skema catatan, validator, instrumen, tenggat, dan empat catatan pertama.' },
+  { date: '2026-10-22', hashes: ['bf20b7e', '29a95ea', '422f381'], en: 'The bilingual Astro site, the README, the project rules in CLAUDE.md and the changelog.', id: 'Situs Astro dua bahasa, README, aturan proyek di CLAUDE.md, dan catatan perubahan.' },
+  { date: '2026-10-22', hashes: ['51ea1f5', 'f49efd7'], en: 'First deployment on Vercel, the live address, and redirects so only one address serves the site.', id: 'Penerbitan pertama di Vercel, alamat situs, dan pengalihan agar hanya satu alamat yang melayani situs.' },
+  { date: '2026-10-22', hashes: ['63a28ac'], en: 'Redesign as a bilingual analytical console, with the Safety lens matrix and the instrument map.', id: 'Desain ulang menjadi konsol analitis dua bahasa, dengan matriks Lensa keselamatan dan peta instrumen.' },
+  { date: '2026-10-22', hashes: ['2106df6', 'e01a8a7'], en: 'The legal brief on silencing by automation, ported onto the redesign.', id: 'Catatan hukum tentang pembungkaman lewat otomatisasi, dipindahkan ke desain baru.' },
+  { date: '2026-10-23', hashes: ['309286a'], en: 'The research protocol on the Method page and the instrument dossiers, with verified references.', id: 'Protokol penelitian di halaman Metode dan berkas instrumen, dengan rujukan yang sudah diverifikasi.' },
+  { date: '2026-10-23', hashes: [], en: 'This monitoring layer: the scanner, its tests, the scheduled workflow, the Radar and this page.', id: 'Lapisan pemantauan ini: pemindai, pengujiannya, alur kerja terjadwal, Radar, dan halaman ini.' },
+];
+
+const lede = {
+  en: 'How Monsoon Ledger is built, how it collects and checks data, how it watches for new developments by itself, and how a lead becomes an entry. Everything described here is in the public repository.',
+  id: 'Bagaimana Monsoon Ledger dibangun, bagaimana data dikumpulkan dan dicek, bagaimana situs ini memantau perkembangan baru dengan sendirinya, dan bagaimana sebuah petunjuk menjadi catatan. Semua yang dijelaskan di sini ada di repositori publik.',
+}[lang];
+
+const repoMap = `data/
+  entries/*.yml        one file per entry (the ledger itself)
+  instruments.yml      laws, drafts and guidance, with dossier fields
+  deadlines.yml        public promises, newest first
+  schema.json          JSON Schema for entries
+  radar.yml            scanner output: unreviewed leads
+  scan-log.yml         one row per scan
+  watch/sources.yml    what the scanner reads
+  watch/keywords.yml   how it scores
+  watch/seen.json      ids already seen, so leads never return
+scripts/
+  validate.mjs         schema and project rules, run before every build
+  scan.mjs             the monitoring layer
+  scan/parse.mjs       RSS, Atom and HTML link parsing
+  scan/score.mjs       scoring, deduplication, dash rule
+  scan/triage.mjs      optional Claude second opinion
+  scan/scan.test.mjs   tests on synthetic fixtures
+  new-entry.mjs        creates a dated entry from a template
+  check-links.mjs      reports sources that stopped responding
+site/                  Astro static site, no client framework
+.github/workflows/
+  ci.yml               tests, validation and build on every push
+  scan.yml             the scheduled scan`;
+---
+<Base lang={lang} path="method/system/" title={lang === 'en' ? 'Technical system' : 'Sistem teknis'} nav="method" description={lede}>
+  <header class="page-head">
+    <p class="kicker">{lang === 'en' ? 'How the ledger works' : 'Cara catatan ini bekerja'}</p>
+    <h1>{t.nav.method}</h1>
+    <p class="lede">{lede}</p>
+    <MethodTabs lang={lang} current="system" />
+  </header>
+  <div class="doc">
+    <nav class="toc" aria-label={t.onThisPage}>
+      <p class="label">{t.onThisPage}</p>
+      <ol>
+        {toc.map(([id, label]) => <li><a href={`#${id}`}>{label}</a></li>)}
+      </ol>
+    </nav>
+    <article class="doc-body">
+      <h2 id="overview">1. {toc[0][1]}</h2>
+      <ol class="pipeline">
+        {pipeline.map(([name, text]) => <li><strong>{name}</strong><span>{text}</span></li>)}
+      </ol>
+      {
+        lang === 'en' ? (
+          <p>
+            The design has one rule at its centre: automation may find things, but only the author may publish a claim. The scanner
+            writes to the Radar and nowhere else. Entries, instruments and deadlines change only through a human edit that passes the
+            same checks as every other change.
+          </p>
+        ) : (
+          <p>
+            Desainnya berpusat pada satu aturan: otomatisasi boleh menemukan, tetapi hanya penulis yang boleh menerbitkan klaim. Pemindai
+            hanya menulis ke Radar. Catatan, instrumen, dan tenggat hanya berubah lewat suntingan manusia yang melewati pemeriksaan yang
+            sama dengan perubahan lain.
+          </p>
+        )
+      }
+
+      <h2 id="stack">2. {toc[1][1]}</h2>
+      <div class="panel table-panel">
+        <table class="ruled stack">
+          <caption class="visually-hidden">{toc[1][1]}</caption>
+          <thead>
+            <tr>{cols.map((c) => <th scope="col">{c}</th>)}</tr>
+          </thead>
+          <tbody>
+            <tr><td data-label={cols[0]}>Data</td><td data-label={cols[1]}>YAML files, JSON Schema 2020-12</td><td data-label={cols[2]}>{lang === 'en' ? 'Readable in a diff, editable by hand, versioned in git.' : 'Mudah dibaca di diff, bisa disunting manual, terekam di git.'}</td></tr>
+            <tr><td data-label={cols[0]}>{lang === 'en' ? 'Validation' : 'Validasi'}</td><td data-label={cols[1]}>Ajv 8, js-yaml 4, Node.js</td><td data-label={cols[2]}>{lang === 'en' ? 'Rules the schema cannot express run in a script before every build.' : 'Aturan yang tidak bisa dinyatakan skema dijalankan lewat skrip sebelum setiap build.'}</td></tr>
+            <tr><td data-label={cols[0]}>{lang === 'en' ? 'Site' : 'Situs'}</td><td data-label={cols[1]}>Astro 7, static output</td><td data-label={cols[2]}>{lang === 'en' ? 'No server, no client framework, no tracking. Small scripts only for filters and the theme.' : 'Tanpa server, tanpa kerangka klien, tanpa pelacakan. Skrip kecil hanya untuk filter dan tema.'}</td></tr>
+            <tr><td data-label={cols[0]}>{lang === 'en' ? 'Monitoring' : 'Pemantauan'}</td><td data-label={cols[1]}>Node.js scanner, GitHub Actions cron</td><td data-label={cols[2]}>{lang === 'en' ? 'Free, scheduled, logged, and every result is a reviewable commit.' : 'Gratis, terjadwal, tercatat, dan setiap hasilnya berupa commit yang bisa ditinjau.'}</td></tr>
+            <tr><td data-label={cols[0]}>{lang === 'en' ? 'Triage' : 'Triase'}</td><td data-label={cols[1]}>Claude API through the official Anthropic SDK, structured JSON output</td><td data-label={cols[2]}>{lang === 'en' ? 'Optional second opinion on relevance. The scanner works without it.' : 'Pendapat kedua yang opsional tentang relevansi. Pemindai tetap bekerja tanpanya.'}</td></tr>
+            <tr><td data-label={cols[0]}>{lang === 'en' ? 'Hosting' : 'Hosting'}</td><td data-label={cols[1]}>Vercel, Node 24</td><td data-label={cols[2]}>{lang === 'en' ? 'Builds every push to main and serves static files.' : 'Membangun setiap push ke main dan menyajikan berkas statis.'}</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="repo">3. {toc[2][1]}</h2>
+      <pre class="code" tabindex="0"><code>{repoMap}</code></pre>
+
+      <h2 id="model">4. {toc[3][1]}</h2>
+      {
+        lang === 'en' ? (
+          <ul>
+            <li><strong>Entry</strong> (<a href={file('data/schema.json')}>schema</a>): id, date, instrument, status, evidence level, titles and summaries in both languages, the four Safety lens codes, last checked date, EU comparison, the author's take, and at least one source with title, outlet, language and URL. An optional quote must be under 15 words.</li>
+            <li><strong>Instrument</strong>: id, names, type, status, legal force, a source, and dossier fields: issuer, legal form, key points, EU counterpart, references, and whether the author has read it in full.</li>
+            <li><strong>Deadline</strong>: date said, who said it, the promise and the outcome in both languages, an outcome code, and the source.</li>
+            <li><strong>Lead</strong>: id (a hash of the normalised URL), date found, date published, headline, URL, outlet, country, language, source id, score, matched terms, an optional instrument hint, an optional Claude triage, and a review status: new, reviewed, promoted or dismissed.</li>
+          </ul>
+        ) : (
+          <ul>
+            <li><strong>Catatan</strong> (<a href={file('data/schema.json')}>skema</a>): id, tanggal, instrumen, status, tingkat bukti, judul dan ringkasan dalam dua bahasa, empat kode Lensa keselamatan, tanggal terakhir dicek, perbandingan Uni Eropa, pendapat penulis, dan paling sedikit satu sumber dengan judul, media, bahasa, dan URL. Kutipan opsional harus kurang dari 15 kata.</li>
+            <li><strong>Instrumen</strong>: id, nama, jenis, status, kekuatan hukum, sumber, dan isian berkas: penerbit, bentuk hukum, pokok isi, padanan Uni Eropa, rujukan, dan apakah penulis sudah membacanya lengkap.</li>
+            <li><strong>Tenggat</strong>: tanggal diucapkan, siapa yang mengucapkan, janji dan hasilnya dalam dua bahasa, kode hasil, dan sumbernya.</li>
+            <li><strong>Petunjuk</strong>: id (hash dari URL yang dinormalkan), tanggal ditemukan, tanggal terbit, judul, URL, media, negara, bahasa, id sumber, skor, kata yang cocok, petunjuk instrumen opsional, triase Claude opsional, dan status tinjauan: baru, sudah ditinjau, dijadikan catatan, atau diabaikan.</li>
+          </ul>
+        )
+      }
+
+      <h2 id="scanner">5. {toc[4][1]}</h2>
+      {
+        lang === 'en' ? (
+          <>
+            <p>The scanner (<a href={file('scripts/scan.mjs')}>scripts/scan.mjs</a>) runs these steps in order:</p>
+            <ol>
+              <li><strong>Read the source list.</strong> {sources.length} sources in <a href={file('data/watch/sources.yml')}>data/watch/sources.yml</a>. News searches use the Google News RSS endpoint in the right language edition, limited to the last 30 days. Official pages are read for their links.</li>
+              <li><strong>Fetch.</strong> Each source is requested with a 25 second timeout and one retry, identifying itself as the Monsoon Ledger scanner. A failed source is logged and skipped. The run fails only if every source fails.</li>
+              <li><strong>Parse.</strong> A small parser extracts headline, link, outlet, publication date and summary from RSS or Atom, or visible link text from HTML. It keeps only text and absolute http or https links, never markup or scripts.</li>
+              <li><strong>Score.</strong> Each headline is matched against {keywords.terms.length} weighted terms in <a href={file('data/watch/keywords.yml')}>data/watch/keywords.yml</a>, in Bahasa Indonesia and English. The score is the sum of the weights of the distinct terms found. A lead is kept at a score of {keywords.threshold} or more, only if at least one core subject term (AI or data protection) is among them, so institution names alone never qualify, and unless one of {keywords.exclude.length} exclusion terms appears.</li>
+              <li><strong>Deduplicate.</strong> URLs are normalised (host case, tracking parameters, fragments, trailing slashes) and hashed into a ten character id. A lead is skipped if its id was seen before, if the same headline arrived through another URL, or if the story is already a source in the ledger. Because news searches link through redirects, the ledger's own source URLs are also compared by their readable slug.</li>
+              <li><strong>Hint and tag.</strong> Instrument hint terms suggest which instrument a lead may concern, linked on the Radar. The country tag comes from the headline, then the outlet name, and falls back to the source that found it, so a Malaysian story found by an Indonesian search is tagged Malaysia.</li>
+              <li><strong>Triage, optional.</strong> With an ANTHROPIC_API_KEY secret set, up to 30 new leads go to Claude in one request. Claude sees only headline, outlet, date and country, and must answer in a fixed JSON schema: relevant or not, event type, instrument, a one sentence restatement of the headline, and confidence. Returned ids and instrument ids are checked against the input, summaries are capped at 30 words, and any error or refusal leaves the leads untriaged. On the site the summary is labelled as a machine summary of the headline.</li>
+              <li><strong>Write.</strong> New leads are merged into data/radar.yml, newest first. Unreviewed leads are kept 180 days, reviewed ones a year, and the seen index 400 days so a pruned lead never comes back. Em and en dashes in headlines become hyphens, because the project bans them.</li>
+            </ol>
+            <p>The scanner is tested on synthetic fixtures (<a href={file('scripts/scan/scan.test.mjs')}>scan.test.mjs</a>): parsing, scoring, exclusion, deduplication, the dash rule, and that a second run adds nothing new.</p>
+          </>
+        ) : (
+          <>
+            <p>Pemindai (<a href={file('scripts/scan.mjs')}>scripts/scan.mjs</a>) menjalankan langkah-langkah ini secara berurutan:</p>
+            <ol>
+              <li><strong>Membaca daftar sumber.</strong> {sources.length} sumber di <a href={file('data/watch/sources.yml')}>data/watch/sources.yml</a>. Pencarian berita memakai RSS Google News dalam edisi bahasa yang sesuai, dibatasi 30 hari terakhir. Halaman resmi dibaca tautannya.</li>
+              <li><strong>Mengambil.</strong> Setiap sumber diminta dengan batas waktu 25 detik dan satu kali percobaan ulang, dengan identitas pemindai Monsoon Ledger. Sumber yang gagal dicatat lalu dilewati. Pemindaian hanya dianggap gagal bila semua sumber gagal.</li>
+              <li><strong>Mengurai.</strong> Pengurai kecil mengambil judul, tautan, media, tanggal terbit, dan ringkasan dari RSS atau Atom, atau teks tautan dari HTML. Yang disimpan hanya teks dan tautan http atau https absolut, tidak pernah markup atau skrip.</li>
+              <li><strong>Menilai.</strong> Setiap judul dicocokkan dengan {keywords.terms.length} istilah berbobot di <a href={file('data/watch/keywords.yml')}>data/watch/keywords.yml</a>, dalam bahasa Indonesia dan Inggris. Skornya adalah jumlah bobot istilah berbeda yang ditemukan. Petunjuk disimpan bila skornya {keywords.threshold} atau lebih, hanya bila paling sedikit satu istilah inti (AI atau pelindungan data) ikut cocok, sehingga nama lembaga saja tidak pernah cukup, dan kecuali muncul salah satu dari {keywords.exclude.length} istilah pengecualian.</li>
+              <li><strong>Menyaring duplikat.</strong> URL dinormalkan (huruf host, parameter pelacak, fragmen, garis miring di akhir) lalu di-hash menjadi id sepuluh karakter. Petunjuk dilewati bila id-nya pernah terlihat, bila judul yang sama datang lewat URL lain, atau bila beritanya sudah menjadi sumber di catatan. Karena pencarian berita memakai tautan pengalihan, URL sumber di catatan juga dibandingkan lewat slug yang bisa dibaca.</li>
+              <li><strong>Petunjuk dan label.</strong> Istilah petunjuk menyarankan instrumen mana yang mungkin terkait, dan ditautkan di Radar. Label negara diambil dari judul, lalu nama media, dan bila tidak jelas memakai negara sumber yang menemukannya, sehingga berita Malaysia yang ditemukan lewat pencarian Indonesia tetap berlabel Malaysia.</li>
+              <li><strong>Triase, opsional.</strong> Bila rahasia ANTHROPIC_API_KEY dipasang, sampai 30 petunjuk baru dikirim ke Claude dalam satu permintaan. Claude hanya melihat judul, media, tanggal, dan negara, dan wajib menjawab dalam skema JSON tetap: relevan atau tidak, jenis peristiwa, instrumen, satu kalimat yang mengulang judul, dan tingkat keyakinan. Id dan id instrumen yang dikembalikan dicocokkan dengan masukan, ringkasan dibatasi 30 kata, dan setiap galat atau penolakan membuat petunjuk tetap tanpa triase. Di situs, ringkasan itu diberi label ringkasan mesin dari judul.</li>
+              <li><strong>Menulis.</strong> Petunjuk baru digabung ke data/radar.yml, terbaru di atas. Petunjuk yang belum ditinjau disimpan 180 hari, yang sudah ditinjau setahun, dan indeks yang pernah terlihat 400 hari supaya petunjuk yang sudah dibuang tidak kembali. Tanda pisah panjang di judul diganti tanda hubung, karena proyek ini melarangnya.</li>
+            </ol>
+            <p>Pemindai diuji dengan data contoh sintetis (<a href={file('scripts/scan/scan.test.mjs')}>scan.test.mjs</a>): penguraian, penilaian, pengecualian, penyaringan duplikat, aturan tanda pisah, dan bahwa pemindaian kedua tidak menambah apa pun.</p>
+          </>
+        )
+      }
+
+      <h2 id="automation">6. {toc[5][1]}</h2>
+      {
+        lang === 'en' ? (
+          <ul>
+            <li><strong>When.</strong> Every Monday and Thursday at 06:17 Western Indonesian Time (cron <code>17 23 * * 0,3</code> in UTC), so fresh leads are waiting at the start of the working day in Jakarta. Twice a week matches how often Indonesian AI policy news actually moves, without flooding the Radar.</li>
+              <li><strong>What runs.</strong> The <a href={file('.github/workflows/scan.yml')}>scan workflow</a> installs dependencies, runs the tests, runs the scan, validates the data and builds the site. Only if all of that passes does it commit radar.yml, scan-log.yml and seen.json to main.</li>
+            <li><strong>Publishing.</strong> The commit triggers Vercel, which builds and serves the new static site. No server is involved at any point.</li>
+            <li><strong>On pull requests.</strong> Changes to the scanner run it as a dry run against the live sources, without Claude and without committing, so a change is tested on real feeds before it is merged.</li>
+            <li><strong>On demand.</strong> The workflow can also be started by hand from the GitHub Actions tab.</li>
+          </ul>
+        ) : (
+          <ul>
+            <li><strong>Kapan.</strong> Setiap Senin dan Kamis pukul 06.17 WIB (cron <code>17 23 * * 0,3</code> dalam UTC), supaya petunjuk baru sudah menunggu di awal hari kerja di Jakarta. Dua kali seminggu sesuai dengan seberapa sering berita kebijakan AI Indonesia benar-benar bergerak, tanpa membanjiri Radar.</li>
+            <li><strong>Apa yang dijalankan.</strong> <a href={file('.github/workflows/scan.yml')}>Alur kerja pemindaian</a> memasang dependensi, menjalankan pengujian, menjalankan pemindaian, memvalidasi data, dan membangun situs. Hanya bila semuanya lolos, alur kerja meng-commit radar.yml, scan-log.yml, dan seen.json ke main.</li>
+            <li><strong>Penerbitan.</strong> Commit itu memicu Vercel, yang membangun dan menyajikan situs statis yang baru. Tidak ada server yang terlibat.</li>
+            <li><strong>Pada pull request.</strong> Perubahan pada pemindai menjalankannya sebagai uji coba terhadap sumber asli, tanpa Claude dan tanpa commit, supaya perubahan diuji pada umpan nyata sebelum digabung.</li>
+            <li><strong>Sesuai permintaan.</strong> Alur kerja ini juga bisa dijalankan manual dari tab GitHub Actions.</li>
+          </ul>
+        )
+      }
+
+      <h2 id="quality">7. {toc[6][1]}</h2>
+      {
+        lang === 'en' ? (
+          <p>
+            Every push, by the author or by the scanner, passes four gates in <a href={file('.github/workflows/ci.yml')}>CI</a>: the scanner tests, the
+            validator, the JSON Schema and a full site build. The validator checks entries, instruments, deadlines, the watched sources and
+            every Radar lead (ids, dates, URLs, status codes, countries, instrument references), and rejects any em or en dash anywhere in
+            the project. The checks applied to entries are listed on the <a href={href(lang, 'method/#data')}>Research protocol</a> page.
+          </p>
+        ) : (
+          <p>
+            Setiap push, oleh penulis maupun pemindai, melewati empat gerbang di <a href={file('.github/workflows/ci.yml')}>CI</a>: pengujian pemindai,
+            validator, JSON Schema, dan pembangunan situs penuh. Validator memeriksa catatan, instrumen, tenggat, sumber yang dipantau, dan
+            setiap petunjuk Radar (id, tanggal, URL, kode status, negara, rujukan instrumen), dan menolak tanda pisah panjang di mana pun di
+            proyek ini. Pemeriksaan untuk catatan dijelaskan di halaman <a href={href(lang, 'method/#data')}>Protokol penelitian</a>.
+          </p>
+        )
+      }
+
+      <h2 id="workflow">8. {toc[7][1]}</h2>
+      {
+        lang === 'en' ? (
+          <ol>
+            <li>Open the <a href={href(lang, 'radar/')}>Radar</a> and pick a lead.</li>
+            <li>Open the source, then look for the primary text or the official statement it reports, as the <a href={href(lang, 'method/#verification')}>verification protocol</a> requires.</li>
+            <li>If it does not hold up, set its status to <code>dismissed</code> in data/radar.yml. If it is worth watching, set <code>reviewed</code>.</li>
+            <li>If it holds up, run <code>npm run new-entry -- --slug id-topic</code>, fill every field from the sources you read, and set the lead to <code>promoted</code> with <code>promoted_to</code> pointing at the new entry id.</li>
+            <li>Run <code>npm run validate</code>, commit and push. CI checks it and Vercel publishes it.</li>
+          </ol>
+        ) : (
+          <ol>
+            <li>Buka <a href={href(lang, 'radar/')}>Radar</a> dan pilih sebuah petunjuk.</li>
+            <li>Buka sumbernya, lalu cari naskah asli atau pernyataan resmi yang dilaporkannya, sesuai <a href={href(lang, 'method/#verification')}>protokol verifikasi</a>.</li>
+            <li>Bila tidak bertahan, ubah statusnya menjadi <code>dismissed</code> di data/radar.yml. Bila layak dipantau, ubah menjadi <code>reviewed</code>.</li>
+            <li>Bila bertahan, jalankan <code>npm run new-entry -- --slug id-topik</code>, isi setiap kolom dari sumber yang sudah dibaca, lalu ubah petunjuk itu menjadi <code>promoted</code> dengan <code>promoted_to</code> berisi id catatan baru.</li>
+            <li>Jalankan <code>npm run validate</code>, commit, dan push. CI memeriksanya dan Vercel menerbitkannya.</li>
+          </ol>
+        )
+      }
+
+      <h2 id="claude">9. {toc[8][1]}</h2>
+      {
+        lang === 'en' ? (
+          <>
+            <p>
+              Monsoon Ledger was built from an empty repository with Claude Code, Anthropic's coding agent, in cloud sessions linked to the
+              GitHub repository. The division of work is fixed:
+            </p>
+            <ul>
+              <li><strong>The author</strong> decides the scope, chooses what to track, reads the sources, sets every evidence level, writes every "My take", and approves every merge into main.</li>
+              <li><strong>Claude</strong> writes code and configuration, drafts and translates text for the author to review, checks URLs and legal citations against databases before they are used, and runs the tests, validator and build before each push.</li>
+              <li><strong>The rules</strong> live in <a href={file('CLAUDE.md')}>CLAUDE.md</a>, which Claude reads at the start of every session: never invent a fact, quote, date or URL, leave a marked TODO instead, never rewrite the author's own words, and pass the validator. The validator enforces the parts a machine can check.</li>
+            </ul>
+            <p>The build so far, in public commits:</p>
+          </>
+        ) : (
+          <>
+            <p>
+              Monsoon Ledger dibangun dari repositori kosong dengan Claude Code, agen pemrograman buatan Anthropic, dalam sesi cloud yang
+              tersambung ke repositori GitHub. Pembagian kerjanya tetap:
+            </p>
+            <ul>
+              <li><strong>Penulis</strong> menentukan cakupan, memilih apa yang dilacak, membaca sumber, menetapkan setiap tingkat bukti, menulis setiap "Pendapat saya", dan menyetujui setiap penggabungan ke main.</li>
+              <li><strong>Claude</strong> menulis kode dan konfigurasi, membuat draf dan terjemahan untuk ditinjau penulis, mengecek URL dan kutipan hukum terhadap basis data sebelum dipakai, serta menjalankan pengujian, validator, dan build sebelum setiap push.</li>
+              <li><strong>Aturannya</strong> ada di <a href={file('CLAUDE.md')}>CLAUDE.md</a>, yang dibaca Claude di awal setiap sesi: jangan pernah mengarang fakta, kutipan, tanggal, atau URL, tinggalkan TODO yang ditandai, jangan menulis ulang kata-kata penulis, dan lolos validator. Validator menegakkan bagian yang bisa diperiksa mesin.</li>
+            </ul>
+            <p>Proses pembangunan sejauh ini, dalam commit publik:</p>
+          </>
+        )
+      }
+      <div class="panel table-panel">
+        <table class="ruled stack">
+          <caption class="visually-hidden">{toc[8][1]}</caption>
+          <thead><tr><th scope="col">{t.date}</th><th scope="col">{lang === 'en' ? 'What was built' : 'Yang dibangun'}</th><th scope="col">Commits</th></tr></thead>
+          <tbody>
+            {timeline.map((row) => (
+              <tr>
+                <td data-label={t.date}><span class="mono">{row.date}</span></td>
+                <td data-label={lang === 'en' ? 'What was built' : 'Yang dibangun'}>{lang === 'en' ? row.en : row.id}</td>
+                <td data-label="Commits">
+                  {row.hashes.length ? row.hashes.map((h, i) => <>{i > 0 && ' '}<a class="mono" href={commit(h)}>{h}</a></>) : <span class="lead-terms">{lang === 'en' ? 'this release' : 'rilis ini'}</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="maintenance">10. {toc[9][1]}</h2>
+      {
+        lang === 'en' ? (
+          <ul>
+            <li><strong>Twice a week, automatic.</strong> The scan runs, the Radar updates and the scan history records it.</li>
+            <li><strong>Weekly, the author.</strong> Review the Radar, dismiss or promote each new lead, and write entries for what holds up.</li>
+            <li><strong>When an outcome changes.</strong> Update data/deadlines.yml and add a dated line to the changelog.</li>
+            <li><strong>Monthly.</strong> Run <code>npm run links</code>, re-open the sources of entries listed under "due for re-checking" on the Radar, and update their last checked dates.</li>
+            <li><strong>When coverage drifts.</strong> Add or adjust sources and terms in data/watch/. The pull request dry run shows the effect on live feeds before merging.</li>
+          </ul>
+        ) : (
+          <ul>
+            <li><strong>Dua kali seminggu, otomatis.</strong> Pemindaian berjalan, Radar diperbarui, dan riwayat pemindaian mencatatnya.</li>
+            <li><strong>Mingguan, penulis.</strong> Tinjau Radar, abaikan atau jadikan catatan setiap petunjuk baru, dan tulis catatan untuk yang bertahan.</li>
+            <li><strong>Bila hasil janji berubah.</strong> Perbarui data/deadlines.yml dan tambahkan baris bertanggal di catatan perubahan.</li>
+            <li><strong>Bulanan.</strong> Jalankan <code>npm run links</code>, buka ulang sumber catatan yang tercantum sebagai "perlu dicek ulang" di Radar, dan perbarui tanggal terakhir dicek.</li>
+            <li><strong>Bila cakupan bergeser.</strong> Tambah atau ubah sumber dan istilah di data/watch/. Uji coba pada pull request menunjukkan dampaknya pada umpan nyata sebelum digabung.</li>
+          </ul>
+        )
+      }
+
+      <h2 id="security">11. {toc[10][1]}</h2>
+      {
+        lang === 'en' ? (
+          <ul>
+            <li>No analytics, no cookies, no trackers and no external fonts. The site is static files.</li>
+            <li>The only secret is the optional ANTHROPIC_API_KEY, stored as a GitHub Actions secret, never in the repository. Pull request dry runs never use it.</li>
+            <li>The scanner workflow has write access to repository contents only, and only on scheduled or manual runs.</li>
+            <li>Feeds and pages are treated as untrusted input: only text and links are extracted, and links open with <code>rel="noopener nofollow"</code>.</li>
+            <li>The scanner collects headlines from public news and official sites. It does not collect social media posts or data about private individuals.</li>
+          </ul>
+        ) : (
+          <ul>
+            <li>Tanpa analitik, tanpa cookie, tanpa pelacak, dan tanpa fon eksternal. Situsnya berupa berkas statis.</li>
+            <li>Satu-satunya rahasia adalah ANTHROPIC_API_KEY yang opsional, disimpan sebagai rahasia GitHub Actions, tidak pernah di repositori. Uji coba pada pull request tidak pernah memakainya.</li>
+            <li>Alur kerja pemindai hanya punya akses tulis ke isi repositori, dan hanya pada pemindaian terjadwal atau manual.</li>
+            <li>Umpan dan halaman diperlakukan sebagai masukan yang tidak tepercaya: hanya teks dan tautan yang diambil, dan tautan dibuka dengan <code>rel="noopener nofollow"</code>.</li>
+            <li>Pemindai mengumpulkan judul dari berita publik dan situs resmi. Pemindai tidak mengumpulkan unggahan media sosial atau data tentang orang perseorangan.</li>
+          </ul>
+        )
+      }
+
+      <h2 id="limits">12. {toc[11][1]}</h2>
+      {
+        lang === 'en' ? (
+          <ul>
+            <li><strong>Headlines only.</strong> The scanner reads headlines and feed summaries, not full articles. Relevance is judged on little text.</li>
+            <li><strong>Recall and precision.</strong> Keyword rules miss stories phrased in unexpected ways and let some noise through. The threshold trades one against the other, and the Radar shows the matched terms so the choice is visible.</li>
+            <li><strong>Google News links.</strong> News search results link through Google News, which redirects to the outlet. The outlet name is recorded so the original can be found.</li>
+            <li><strong>Official sites.</strong> Some government pages render content with JavaScript or block automated requests. Those sources fail visibly in the scan history rather than silently.</li>
+            <li><strong>Machine summaries.</strong> Claude's one line restates a headline. It is not verified and is labelled that way.</li>
+          </ul>
+        ) : (
+          <ul>
+            <li><strong>Hanya judul.</strong> Pemindai membaca judul dan ringkasan umpan, bukan artikel lengkap. Relevansi dinilai dari teks yang sedikit.</li>
+            <li><strong>Cakupan dan ketepatan.</strong> Aturan kata kunci bisa melewatkan berita yang ditulis dengan cara tak terduga, dan meloloskan sebagian derau. Ambang batas menyeimbangkan keduanya, dan Radar menampilkan kata yang cocok supaya pilihannya terlihat.</li>
+            <li><strong>Tautan Google News.</strong> Hasil pencarian berita ditautkan lewat Google News, yang mengalihkan ke media aslinya. Nama media dicatat supaya sumber aslinya bisa ditemukan.</li>
+            <li><strong>Situs resmi.</strong> Sebagian halaman pemerintah memuat isinya dengan JavaScript atau memblokir permintaan otomatis. Sumber seperti itu tercatat gagal di riwayat pemindaian, tidak diam-diam.</li>
+            <li><strong>Ringkasan mesin.</strong> Satu kalimat dari Claude hanya mengulang judul. Kalimat itu belum diverifikasi dan diberi label demikian.</li>
+          </ul>
+        )
+      }
+
+      <h2 id="run">13. {toc[12][1]}</h2>
+      <pre class="code" tabindex="0"><code>{`git clone ${SITE.repo}
+cd monsoon-ledger
+npm run setup          # install dependencies (Node 22.23.4 or newer)
+npm test               # scanner tests on synthetic fixtures
+npm run validate       # schema and project rules
+npm run scan -- --dry-run --no-claude   # live scan, writes nothing
+npm run dev            # local site at http://localhost:4321`}</code></pre>
+      <p>
+        {lang === 'en' ? 'Last scan recorded: ' : 'Pemindaian terakhir yang tercatat: '}
+        {log[0] ? <time class="mono" datetime={log[0].at}>{log[0].at}</time> : (lang === 'en' ? 'none yet.' : 'belum ada.')}
+        {' '}<a href={href(lang, 'radar/')}>{t.nav.radar} <span class="arrow" aria-hidden="true">&rarr;</span></a>
+      </p>
+    </article>
+  </div>
+</Base>

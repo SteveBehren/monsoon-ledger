@@ -37,10 +37,19 @@ git add data && git commit -m "Add entry: ..." && git push
 
 When a deadline outcome changes, update `data/deadlines.yml` (newest first) and add a dated line to `CHANGELOG.md`. Update `last_checked` on an entry only when its sources were actually re-opened.
 
+## Monitoring layer (the Radar)
+
+- `.github/workflows/scan.yml` runs `npm run scan` every Monday and Thursday at 06:17 WIB and commits `data/radar.yml`, `data/scan-log.yml` and `data/watch/seen.json` to main.
+- The scanner only ever writes those three files. It never creates or edits entries, instruments or deadlines. Never change that.
+- Radar leads are unreviewed. To review one, set `status` to `reviewed`, `dismissed` or `promoted` (with `promoted_to: <entry id>`). Promote only after reading the source and writing a full entry.
+- Sources and scoring live in `data/watch/sources.yml` and `data/watch/keywords.yml`. Test changes with `npm test` and `npm run scan -- --dry-run --no-claude`.
+- Claude triage runs only if the `ANTHROPIC_API_KEY` repository secret exists. Its summaries restate headlines and are labelled as machine summaries on the site.
+
 ## Where things live
 
 - `data/schema.json`: the entry schema. `scripts/validate.mjs` adds checks the schema cannot express (id equals file name, instrument exists, quote rules, deadlines fields, no dashes).
 - `data/instruments.yml`, `data/deadlines.yml`: shared data.
+- `data/radar.yml`, `data/scan-log.yml`, `data/watch/`: the monitoring layer. `scripts/scan.mjs` and `scripts/scan/` (tests in `scripts/scan/scan.test.mjs`, run with `npm test`).
 - `site/`: Astro static site, no runtime server, no client framework. UI strings in `site/src/lib/i18n.ts`, data loading in `site/src/lib/data.ts`.
 - Dependencies are installed in `site/node_modules` (`npm run setup`). Scripts resolve them from there.
 - Node 22.23.4 or newer (Astro 7).

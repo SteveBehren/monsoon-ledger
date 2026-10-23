@@ -1,0 +1,80 @@
+# Scoring vocabulary for the scanner. Matching is case-insensitive, on the headline and the
+# outlet's summary text where a feed provides one.
+#
+# score = sum of the weights of every distinct term found.
+# A lead is kept when score >= threshold and no "exclude" term matches.
+
+threshold: 4
+
+terms:
+  # Core subject. One of these is almost always needed to reach the threshold.
+  - { term: kecerdasan artifisial, weight: 3 }
+  - { term: kecerdasan buatan, weight: 3 }
+  - { term: artificial intelligence, weight: 3 }
+  - { term: generative ai, weight: 2 }
+  - { term: ai generatif, weight: 2 }
+  - { term: deepfake, weight: 2 }
+  - { term: AI, weight: 1, whole_word: true }
+
+  # Governance vocabulary.
+  - { term: perpres, weight: 2 }
+  - { term: peraturan presiden, weight: 2 }
+  - { term: rancangan, weight: 1 }
+  - { term: regulasi, weight: 2 }
+  - { term: regulation, weight: 2 }
+  - { term: undang-undang, weight: 2 }
+  - { term: law, weight: 1, whole_word: true }
+  - { term: bill, weight: 1, whole_word: true }
+  - { term: etika, weight: 2 }
+  - { term: ethics, weight: 2 }
+  - { term: tata kelola, weight: 2 }
+  - { term: governance, weight: 2 }
+  - { term: peta jalan, weight: 2 }
+  - { term: roadmap, weight: 1 }
+  - { term: gugus tugas, weight: 1 }
+  - { term: tanda tangan, weight: 1 }
+  - { term: guideline, weight: 1 }
+  - { term: framework, weight: 1 }
+  - { term: surat edaran, weight: 2 }
+
+  # Institutions and people.
+  - { term: komdigi, weight: 2 }
+  - { term: kominfo, weight: 1 }
+  - { term: menkomdigi, weight: 2 }
+  - { term: meutya hafid, weight: 1 }
+  - { term: DPR, weight: 1, whole_word: true }
+  - { term: ASEAN, weight: 1, whole_word: true }
+
+  # Data protection, where it shapes AI governance.
+  - { term: pelindungan data pribadi, weight: 2 }
+  - { term: data protection, weight: 2 }
+  - { term: UU PDP, weight: 2 }
+
+  # Automated accounts in public debate (see the legal brief).
+  - { term: buzzer, weight: 1 }
+  - { term: pendengung, weight: 1 }
+  - { term: akun bot, weight: 1 }
+
+# A headline containing any of these is dropped, however high it scores.
+exclude:
+  - saham
+  - kripto
+  - crypto
+  - promo
+  - diskon
+  - lowongan
+  - smartphone
+  - review hp
+  - harga hp
+  - giveaway
+  - sinopsis
+
+# Hints that link a lead to an instrument in data/instruments.yml. First match wins.
+instruments:
+  - { id: draft-perpres-ai-ethics, any: [etika ai, etika kecerdasan, perpres etika, berbasis risiko] }
+  - { id: draft-perpres-ai-roadmap, any: [peta jalan, roadmap ai, gugus tugas] }
+  - { id: gr-33-2026, any: [pp 33, pp nomor 33, peraturan pemerintah nomor 33] }
+  - { id: uu-pdp-27-2022, any: [pelindungan data pribadi, uu pdp, lembaga pdp] }
+  - { id: se-menkominfo-9-2023, any: [surat edaran, se 9/2023] }
+  - { id: project-nusa, any: [project nusa, proyek nusa] }
+  - { id: asean-genai-guide-2025, any: [asean guide, panduan asean] }

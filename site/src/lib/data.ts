@@ -152,3 +152,68 @@ export function lensTone(value: YesNo | Enforcement): LensTone {
 export function latestCheck(entries: Entry[]): string {
   return entries.reduce((max, e) => (e.last_checked > max ? e.last_checked : max), '');
 }
+
+// Monitoring layer: written by npm run scan (scripts/scan.mjs), never by hand except "status".
+
+export type LeadStatus = 'new' | 'reviewed' | 'promoted' | 'dismissed';
+
+export interface Lead {
+  id: string;
+  found: string;
+  published?: string;
+  title: string;
+  url: string;
+  outlet?: string;
+  country: string;
+  language: string;
+  source: string;
+  score: number;
+  terms: string[];
+  instrument?: string;
+  status: LeadStatus;
+  promoted_to?: string;
+  triage?: {
+    by: string;
+    relevant: boolean;
+    event: string;
+    confidence: 'low' | 'medium' | 'high';
+    summary_en: string;
+  };
+}
+
+export interface ScanRun {
+  at: string;
+  mode: 'rules' | 'rules+claude';
+  model?: string;
+  sources_total: number;
+  sources_ok: number;
+  sources_failed?: string[];
+  items_read: number;
+  items_relevant: number;
+  new_leads: number;
+  triaged: number;
+}
+
+export interface WatchSource {
+  id: string;
+  name: string;
+  kind: 'news-search' | 'page-links' | 'rss';
+  country: string;
+  language: string;
+  edition?: string;
+  query?: string;
+  url?: string;
+}
+
+export function getRadar(): { updated: string | null; leads: Lead[] } {
+  const radar = read<{ updated: string | null; leads: Lead[] } | null>(path.join(DATA, 'radar.yml'));
+  return { updated: radar?.updated ?? null, leads: (radar?.leads ?? []).map((l) => tidy(l)) };
+}
+
+export function getScanLog(): ScanRun[] {
+  return read<ScanRun[] | null>(path.join(DATA, 'scan-log.yml')) ?? [];
+}
+
+export function getWatchSources(): WatchSource[] {
+  return read<WatchSource[]>(path.join(DATA, 'watch', 'sources.yml')).map((s) => tidy(s));
+}

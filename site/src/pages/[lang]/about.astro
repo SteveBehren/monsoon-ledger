@@ -11,7 +11,7 @@ const t = ui[lang];
 ---
 <Base lang={lang} path="about/" title={t.nav.about} nav="about">
   <header class="page-head">
-    <p class="kicker">{t.nav.about}</p>
+    <p class="kicker">{lang === 'en' ? 'Who writes this' : 'Siapa penulisnya'}</p>
     <h1>{t.nav.about}</h1>
   </header>
   <article class="doc-body prose">

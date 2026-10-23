@@ -64,10 +64,26 @@ data/schema.json        entry schema (JSON Schema 2020-12)
 data/entries/           one YAML file per entry
 data/deadlines.yml      the Janji vs Kenyataan ledger, newest first
 data/instruments.yml    laws, drafts and guidance referenced by entries
+data/radar.yml          unreviewed leads written by the scanner
+data/scan-log.yml       one row per scan
+data/watch/             what the scanner reads and how it scores
 writing/                longer analysis (analysis/ in English, analisis/ in Bahasa)
-scripts/                validate, new-entry, check-links
+scripts/                validate, new-entry, check-links, scan (monitoring layer) and its tests
 site/                   the Astro static site
 ```
+
+## Automatic monitoring
+
+Every Monday and Thursday at 06:17 WIB a GitHub Actions workflow runs `npm run scan`. It reads Indonesian and ASEAN news searches and official legal databases, keeps headlines that score above a keyword threshold, drops anything already seen or already in the ledger, and writes new leads to `data/radar.yml`. The site shows them on the [Radar](https://monsoonledger.vercel.app/en/radar/) as unreviewed leads. The scanner never writes entries: a lead becomes an entry only after the author reads the source.
+
+If the repository has an `ANTHROPIC_API_KEY` secret, the scanner also asks Claude for a second opinion on each new headline, through structured output that is checked before use. Without the key it runs on keyword rules alone.
+
+```sh
+npm test                                  # scanner tests on synthetic fixtures
+npm run scan -- --dry-run --no-claude     # live scan, writes nothing
+```
+
+The full pipeline is documented on the site under [Method, Technical system](https://monsoonledger.vercel.app/en/method/system/).
 
 ## Corrections
 

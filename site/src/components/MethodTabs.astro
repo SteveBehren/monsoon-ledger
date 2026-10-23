@@ -1,0 +1,18 @@
+---
+// Switches between the two halves of the Method section. Both pages keep "Method" active in the main nav.
+import { href, type Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+  current: 'research' | 'system';
+}
+
+const { lang, current } = Astro.props;
+const tabs = [
+  { key: 'research', path: 'method/', label: lang === 'en' ? 'Research protocol' : 'Protokol penelitian' },
+  { key: 'system', path: 'method/system/', label: lang === 'en' ? 'Technical system' : 'Sistem teknis' },
+] as const;
+---
+<nav class="tabs" aria-label={lang === 'en' ? 'Method sections' : 'Bagian metode'}>
+  {tabs.map((tab) => <a href={href(lang, tab.path)} aria-current={tab.key === current ? 'page' : undefined}>{tab.label}</a>)}
+</nav>

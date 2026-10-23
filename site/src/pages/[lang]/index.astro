@@ -4,7 +4,7 @@ import Stamp from '../../components/Stamp.astro';
 import EntryItem from '../../components/EntryItem.astro';
 import Isobars from '../../components/Isobars.astro';
 import LensMatrix from '../../components/LensMatrix.astro';
-import { getEntries, getDeadlines, getInstruments, outcomeCounts, latestCheck, OUTCOMES } from '../../lib/data';
+import { getEntries, getDeadlines, getInstruments, getRadar, getScanLog, outcomeCounts, latestCheck, OUTCOMES } from '../../lib/data';
 import { ui, href, pick, LANGS, type Lang } from '../../lib/i18n';
 
 export function getStaticPaths() {
@@ -19,6 +19,8 @@ const deadlines = getDeadlines();
 const instruments = getInstruments();
 const counts = outcomeCounts(deadlines);
 const checked = latestCheck(entries);
+const lastScan = getScanLog()[0];
+const leads = getRadar().leads.filter((l) => l.status !== 'dismissed' && l.triage?.relevant !== false).slice(0, 3);
 
 const copy = {
   en: {
@@ -38,6 +40,11 @@ const copy = {
     briefText:
       'Using AI to run fake citizen voices against critics would breach the Indonesian constitution and a treaty Indonesia has ratified. What is documented, what is not, and the legal test.',
     briefLink: 'Read the legal test',
+    radarIntro: 'Twice a week a scanner checks Indonesian and ASEAN news and official legal databases. What it finds waits here, unreviewed, until the author reads the source.',
+    radarLink: 'Open the Radar',
+    radarEmpty: 'The first scheduled scan will list its leads here.',
+    radarLast: 'Last scan',
+    unreviewed: 'Unreviewed',
   },
   id: {
     kicker: 'Pelacak tata kelola AI Indonesia',
@@ -56,6 +63,11 @@ const copy = {
     briefText:
       'Memakai AI untuk menjalankan suara warga palsu melawan pengkritik melanggar konstitusi Indonesia dan perjanjian yang sudah diratifikasi. Apa yang terdokumentasi, apa yang belum, dan ujian hukumnya.',
     briefLink: 'Baca ujian hukumnya',
+    radarIntro: 'Dua kali seminggu sebuah pemindai memeriksa berita Indonesia dan ASEAN serta basis data hukum resmi. Temuannya menunggu di sini, belum ditinjau, sampai penulis membaca sumbernya.',
+    radarLink: 'Buka Radar',
+    radarEmpty: 'Pemindaian terjadwal pertama akan mencantumkan petunjuknya di sini.',
+    radarLast: 'Pemindaian terakhir',
+    unreviewed: 'Belum ditinjau',
   },
 }[lang];
 ---
@@ -171,5 +183,36 @@ const copy = {
     <ol class="entry-list">
       {latest.map((entry) => <EntryItem entry={entry} lang={lang} />)}
     </ol>
+  </section>
+
+  <section class="section" aria-labelledby="radar-h" data-reveal>
+    <div class="section-head">
+      <div>
+        <p class="kicker">04</p>
+        <h2 id="radar-h">{t.nav.radar}</h2>
+        <p>{copy.radarIntro}</p>
+      </div>
+      <a class="section-link" href={href(lang, 'radar/')}>{copy.radarLink} <span class="arrow" aria-hidden="true">&rarr;</span></a>
+    </div>
+    {
+      leads.length === 0 ? (
+        <p class="panel empty-state">{copy.radarEmpty}</p>
+      ) : (
+        <ul class="leads">
+          {leads.map((lead) => (
+            <li class="lead panel">
+              <div class="lead-meta">
+                <span class="lead-country">{lead.country}</span>
+                <span>{lead.outlet ?? lead.source}</span>
+                <time datetime={lead.found}>{lead.found}</time>
+                <span class="lead-status lead-status--new">{copy.unreviewed}</span>
+              </div>
+              <p class="lead-title" lang={lead.language}><a href={lead.url} rel="noopener nofollow external">{lead.title}</a></p>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+    {lastScan && <p class="filter-count">{copy.radarLast}: <time datetime={lastScan.at}>{lastScan.at.slice(0, 10)}</time></p>}
   </section>
 </Base>

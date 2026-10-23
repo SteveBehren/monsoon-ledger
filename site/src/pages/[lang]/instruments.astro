@@ -30,7 +30,6 @@ const copy = {
   en: {
     intro:
       'The laws, regulations, drafts and guidance this ledger refers to, with the legal force of each, what it says, how far the author has read it, and its closest EU counterpart.',
-    caption: 'Instruments referenced by Monsoon Ledger',
     hierarchyTitle: 'How legal force is decided',
     dossierTitle: 'Instrument dossiers',
     dossierIntro: 'One card per instrument. "Read in full" means the author has read the complete text. Everything else is drawn from official statements or secondary analysis, as the entries show.',
@@ -51,7 +50,6 @@ const copy = {
   id: {
     intro:
       'Undang-undang, peraturan, rancangan, dan panduan yang dirujuk di sini, lengkap dengan kekuatan hukumnya, isinya, sejauh mana penulis sudah membacanya, dan padanan terdekatnya di Uni Eropa.',
-    caption: 'Instrumen yang dirujuk Monsoon Ledger',
     hierarchyTitle: 'Cara kekuatan hukum ditentukan',
     dossierTitle: 'Berkas instrumen',
     dossierIntro: 'Satu kartu untuk tiap instrumen. "Sudah dibaca lengkap" berarti penulis sudah membaca naskah utuhnya. Selebihnya diambil dari pernyataan resmi atau analisis sekunder, seperti tercantum di tiap catatan.',
@@ -131,7 +129,7 @@ const entriesFor = (id: string) => entries.filter((e) => e.instrument === id);
 ---
 <Base lang={lang} path="instruments/" title={t.nav.instruments} nav="instruments">
   <header class="page-head">
-    <p class="kicker">{t.map.title}</p>
+    <p class="kicker">{lang === 'en' ? 'Laws, drafts and guidance' : 'Undang-undang, rancangan, dan panduan'}</p>
     <h1>{t.nav.instruments}</h1>
     <p class="lede">{copy.intro}</p>
   </header>
@@ -144,54 +142,6 @@ const entriesFor = (id: string) => entries.filter((e) => e.instrument === id);
       </div>
     </div>
     <InstrumentMap instruments={instruments} entries={entries} lang={lang} />
-  </section>
-
-  <section class="section" aria-labelledby="table-h" data-reveal>
-    <div class="section-head">
-      <h2 id="table-h">{t.map.tableTitle}</h2>
-    </div>
-    <div class="panel table-panel">
-      <table class="ruled stack">
-        <caption class="visually-hidden">{copy.caption}</caption>
-        <thead>
-          <tr>
-            <th scope="col">{t.instrument}</th>
-            <th scope="col">{t.type}</th>
-            <th scope="col">{t.issued}</th>
-            <th scope="col">{t.statusLabel}</th>
-            <th scope="col">{t.legalForce}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            instruments.map((i) => (
-              <tr id={i.id}>
-                <td data-label={t.instrument}>
-                  <a class="instr-name" href={`#dossier-${i.id}`}>{pick(lang, i.name_en, i.name_id)}</a>
-                  {lang === 'en' && (
-                    <span class="instr-other" lang="id">
-                      {i.name_id}
-                    </span>
-                  )}
-                  <span class="instr-note">{pick(lang, i.note_en, i.note_id)}</span>
-                  <a class="instr-note" href={i.source_url}>
-                    {t.source} <span aria-hidden="true">&#8599;</span>
-                  </a>
-                </td>
-                <td data-label={t.type}>{t.instrumentType[i.type] ?? i.type}</td>
-                <td data-label={t.issued}>{i.issued ? <span class="mono">{i.issued}</span> : t.notIssued}</td>
-                <td data-label={t.statusLabel}>
-                  <Stamp tone={i.status} label={t.status[i.status]} />
-                </td>
-                <td data-label={t.legalForce}>
-                  <Stamp tone={i.binding ? 'binding' : 'not-binding'} label={i.binding ? t.binding : t.notBinding} />
-                </td>
-              </tr>
-            ))
-          }
-        </tbody>
-      </table>
-    </div>
   </section>
 
   <section class="section doc-body prose" aria-labelledby="hierarchy-h" data-reveal>
@@ -257,7 +207,7 @@ const entriesFor = (id: string) => entries.filter((e) => e.instrument === id);
           const points = (lang === 'en' ? i.points_en : i.points_id) ?? [];
           const related = entriesFor(i.id);
           return (
-            <article class="dossier panel" id={`dossier-${i.id}`}>
+            <article class="dossier panel" id={i.id}>
               <header>
                 <h3>{pick(lang, i.name_en, i.name_id)}</h3>
                 <div class="dossier-stamps">
@@ -267,6 +217,8 @@ const entriesFor = (id: string) => entries.filter((e) => e.instrument === id);
                 </div>
               </header>
               <dl>
+                <dt>{t.type}</dt>
+                <dd>{t.instrumentType[i.type] ?? i.type}{i.issued ? <>, <span class="mono">{i.issued}</span></> : <>, {t.notIssued.toLowerCase()}</>}</dd>
                 {i.issuer_en && (<><dt>{copy.issuer}</dt><dd>{pick(lang, i.issuer_en, i.issuer_id ?? i.issuer_en)}</dd></>)}
                 {i.level_en && (<><dt>{copy.level}</dt><dd>{pick(lang, i.level_en, i.level_id ?? i.level_en)}</dd></>)}
                 {points.length > 0 && (

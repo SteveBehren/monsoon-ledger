@@ -43,7 +43,7 @@ const copy = {
 ---
 <Base lang={lang} path="ledger/" title={copy.title} description={copy.intro} nav="ledger">
   <header class="page-head">
-    <p class="kicker">{t.ledgerOriginal}</p>
+    <p class="kicker">{lang === 'en' ? t.ledgerOriginal : 'Tenggat yang dijanjikan pejabat'}</p>
     <h1>{copy.title}</h1>
     <p class="lede">{copy.intro}</p>
   </header>

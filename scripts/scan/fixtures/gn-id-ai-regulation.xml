@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic test feed in Google News RSS format. Not real news. -->
+<rss version="2.0"><channel><title>test</title>
+<item>
+  <title>[TEST] Komdigi bahas rancangan Perpres kecerdasan artifisial - Contoh Media</title>
+  <link>https://example.org/news/perpres-ai-test?utm_source=rss</link>
+  <pubDate>Tue, 21 Oct 2026 07:00:00 GMT</pubDate>
+  <description>&lt;a href="https://example.org/news/perpres-ai-test"&gt;Komdigi bahas rancangan&lt;/a&gt;</description>
+  <source url="https://example.org">Contoh Media</source>
+</item>
+<item>
+  <title>[TEST] Harga saham teknologi naik karena kecerdasan artifisial - Contoh Media</title>
+  <link>https://example.org/news/saham-test</link>
+  <pubDate>Tue, 21 Oct 2026 08:00:00 GMT</pubDate>
+  <source url="https://example.org">Contoh Media</source>
+</item>
+<item>
+  <title>[TEST] Peta jalan AI nasional &#8212; tata kelola dan etika - Media Lain</title>
+  <link>https://example.net/peta-jalan-test</link>
+  <pubDate>Mon, 20 Oct 2026 03:00:00 GMT</pubDate>
+  <source url="https://example.net">Media Lain</source>
+</item>
+<item>
+  <title>[TEST] Komdigi bahas rancangan Perpres kecerdasan artifisial - Media Ketiga</title>
+  <link>https://example.com/syndicated-copy</link>
+  <pubDate>Tue, 21 Oct 2026 09:00:00 GMT</pubDate>
+  <source url="https://example.com">Media Ketiga</source>
+</item>
+<item>
+  <title>[TEST] Already in the ledger: AI task force story - ANTARA</title>
+  <link>https://www.antaranews.com/berita/5802305/pemerintah-siapkan-gugus-tugas-kawal-implementasi-regulasi-ai</link>
+  <pubDate>Tue, 21 Oct 2026 10:00:00 GMT</pubDate>
+  <source url="https://www.antaranews.com">ANTARA</source>
+</item>
+<item>
+  <title>[TEST] Resep rendang enak - Contoh Media</title>
+  <link>https://example.org/news/rendang-test</link>
+  <pubDate>Tue, 21 Oct 2026 11:00:00 GMT</pubDate>
+  <source url="https://example.org">Contoh Media</source>
+</item>
+</channel></rss>

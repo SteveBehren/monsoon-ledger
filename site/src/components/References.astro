@@ -1,0 +1,24 @@
+---
+// The numbered reference list for a page. Order follows `keys`, which also drives <Cite> numbering.
+import { REFERENCES, type RefKey } from '../lib/references';
+
+interface Props {
+  keys: readonly RefKey[];
+  title: string;
+}
+
+const { keys, title } = Astro.props;
+---
+<section class="refs" aria-labelledby="refs-h">
+  <h2 id="refs-h">{title}</h2>
+  <ol>
+    {
+      keys.map((key) => (
+        <li id={`ref-${key}`}>
+          {REFERENCES[key].text}{' '}
+          <a href={REFERENCES[key].url}>{REFERENCES[key].url}</a>
+        </li>
+      ))
+    }
+  </ol>
+</section>

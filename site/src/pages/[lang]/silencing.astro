@@ -1,0 +1,322 @@
+---
+import Base from '../../layouts/Base.astro';
+import { ui, href, SITE, LANGS, type Lang } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const t = ui[lang];
+const kicker = lang === 'en' ? 'Legal brief, working draft' : 'Catatan hukum, draf kerja';
+const perpresEntry = href(lang, 'entries/2026-10-21-id-perpres-ai-keep-almost-arriving/');
+
+const title = lang === 'en' ? 'Silencing by automation: the legal test' : 'Pembungkaman lewat otomatisasi: ujian hukumnya';
+const description =
+  lang === 'en'
+    ? 'Using AI to run fake citizen voices against critics would breach Indonesia\'s constitution and a treaty it has ratified. What is documented, what is not, and the legal test.'
+    : 'Memakai AI untuk menjalankan suara warga palsu melawan pengkritik melanggar konstitusi Indonesia dan perjanjian yang sudah diratifikasi. Apa yang terdokumentasi, apa yang belum, dan ujian hukumnya.';
+
+// TODO: the author should open each press source below and confirm the wording of the summaries before this page is cited.
+// TODO: check the quoted constitutional text, the ICCPR article text and the General Comment 34 paragraph numbers against the primary
+// texts (peraturan.go.id, OHCHR), then remove the status box.
+---
+<Base lang={lang} path="silencing/" title={title} description={description}>
+  <header class="page-head">
+    <p class="kicker">{kicker}</p>
+    <h1>{title}</h1>
+  </header>
+  <article class="doc-body prose">
+    {
+      lang === 'en' ? (
+        <>
+          <p class="lede">
+            Running fake citizen voices with AI against critics is not a clever way to govern. If a state body did it, it would breach
+            Indonesia's own constitution and a treaty Indonesia has ratified.
+          </p>
+
+          <aside class="status-box" aria-labelledby="status-h">
+            <h2 id="status-h">Status of this page</h2>
+            <p>
+              Working draft, not legal advice. The factual reports below are press reports, which are provisional. The legal citations
+              are given by article and paragraph number and are still to be checked against the primary texts.
+            </p>
+          </aside>
+
+          <h2>The argument</h2>
+          <p>
+            A state may answer its critics. It may not pretend to be the public while it does so. Accounts that present official or
+            paid messaging as the independent opinion of ordinary citizens, in order to drown out, discredit or frighten critics, turn a
+            right into a stage prop. The citizen speaks. The state replies in its own name. That is the line, and automation does not
+            move it. Automation only makes crossing it cheaper, faster and harder to see.
+          </p>
+
+          <h2>What is documented</h2>
+          <p>Evidence level for everything in this section: press report. Provisional.</p>
+          <ul>
+            <li>
+              Harian Terbit reported in May 2026, citing Japanese media and Amnesty International research, that military-linked social
+              media accounts ran disinformation campaigns against activists, and that critics were labelled "antek asing" (foreign
+              agents). <a href="https://www.harianterbit.com/nasional/27417158170/media-jepang-soroti-pemerintah-prabowo-dan-militer-memakai-buzzer-untuk-bungkam-kritik-publik-berujung-intimidasi-dan-kekerasan">Source</a>
+            </li>
+            <li>
+              Kompas reported that some ministries and government agencies are said to use buzzer services, directly or through
+              intermediaries. <a href="https://www.kompas.id/artikel/buzzer-politik-antara-pemborosan-anggaran-dan-alat-propaganda">Source</a>
+            </li>
+            <li>
+              Officials have denied it. A presidential spokesperson of the previous government rejected the idea that the government
+              uses buzzers to silence criticism. <a href="https://voi.id/berita/32666/bantah-pakai-i-buzzer-i-jubir-presiden-pemerintah-tidak-takut-dikritik-sebelum-mengkritik-pelajari-uu-ite">Source</a>
+            </li>
+          </ul>
+
+          <h2>What is not documented</h2>
+          <p>
+            As of 22 October 2026, Monsoon Ledger has found no published investigation, platform report or official document showing
+            that Indonesian state bodies use AI models such as Claude or GPT to run these accounts. This page does not claim it. It sets
+            out the test that such conduct would have to pass, and could not.
+          </p>
+
+          <h2 id="screenshot">A screenshot that circulated, and why it is not evidence</h2>
+          <figure class="screenshot">
+            <img
+              src="/images/threads-api-error-redacted.webp"
+              width="828"
+              height="1086"
+              loading="lazy"
+              alt="A Threads post whose whole text is an Anthropic API billing error. A reply asks whether buzzer accounts are now automated with Claude. The account replies in English that it is not a bot but a mother who supports the President's programmes. Faces and usernames are blurred."
+            />
+            <figcaption>
+              <span class="unverified">Unverified. Not evidence.</span> Screenshot of a Threads post, shared on X in October 2026.
+              Faces and usernames redacted by Monsoon Ledger.
+            </figcaption>
+          </figure>
+          <p>
+            In October 2026 a screenshot spread on X showing a Threads post whose entire text was a billing error from the Anthropic API,
+            the same message developers report when an account runs out of credit
+            (<a href="https://github.com/anthropics/claude-code/issues/867">example</a>). A commenter asked whether buzzer accounts are now
+            automated with Claude. The account replied, in English, that it was not a bot.
+          </p>
+          <p><strong>What it shows.</strong> If the screenshot is genuine, some software connected to an Anthropic API key posted the error to that account instead of a written message.</p>
+          <p>
+            <strong>What it does not show.</strong> Who runs the account, whether anyone paid for it, whether it belongs to a network, or any link
+            to a government body. The original post has not been authenticated, and a screenshot can be edited. Under the
+            <a href={href(lang, 'method/#verification')}>verification protocol</a>, content like this is a lead, never evidence.
+          </p>
+          <p>
+            <strong>Provenance.</strong> The link to the post on X is kept on file and not published, because the original image shows
+            the account holder's face and name.
+          </p>
+          <p>
+            <strong>Why it is here.</strong> It shows why the question on this page is not hypothetical. A single account can leak an AI
+            provider's error message, and the same tools can run thousands of accounts. Whether any state body does this is exactly what
+            the evidence does not yet show.
+          </p>
+
+          <h2>The legal test</h2>
+          <ol>
+            <li>
+              <strong>The constitution.</strong> Article 28E(3) of the 1945 Constitution protects the freedom to express opinions. Article
+              28F protects the right to communicate and to seek and share information. Article 28J(2) allows limits only by law, and
+              only for named purposes in a democratic society.
+              <figure class="quote">
+                <blockquote>
+                  <p class="label">{t.quoteOriginalShort}</p>
+                  <p class="original" lang="id">&ldquo;Setiap orang berhak atas kebebasan berserikat, berkumpul, dan mengeluarkan pendapat.&rdquo;</p>
+                  <p class="label">{t.quoteTranslation}</p>
+                  <p class="translation" lang="en">Everyone has the right to freedom of association, assembly and expression.</p>
+                </blockquote>
+                <figcaption>UUD 1945, Pasal 28E ayat (3)</figcaption>
+              </figure>
+            </li>
+            <li>
+              <strong>The treaty.</strong> Indonesia ratified the International Covenant on Civil and Political Rights through Law 12 of
+              2005. Article 19(2) protects the freedom to seek, receive and impart information and ideas of all kinds. Article 19(3)
+              allows restrictions only if they are provided by law and necessary to protect the rights or reputations of others, national
+              security, public order, public health or morals. The UN Human Rights Committee's General Comment 34 (2011) adds that a
+              rule must be public and precise enough to follow (paragraph 25), and that the state must show necessity and
+              proportionality in a specific and individual way (paragraph 35).
+            </li>
+            <li>
+              <strong>The human rights statute.</strong> Article 23(2) of Law 39 of 1999 on Human Rights gives everyone the freedom to hold
+              and spread opinions, in speech or writing, in print or electronic media.
+            </li>
+          </ol>
+
+          <p>Applied to automated, covert accounts used against critics:</p>
+          <ul>
+            <li><strong>No law behind it.</strong> A restriction must be provided by law. A covert campaign is not a law. Nobody can read it, challenge it or appeal it.</li>
+            <li><strong>No necessary purpose.</strong> The state must show a specific threat to a named interest. Hiding who is speaking does not protect public order. It undermines it.</li>
+            <li><strong>Not proportionate.</strong> Automation multiplies one voice into thousands. Against that, a citizen with one account cannot be heard, and that is the point of the exercise.</li>
+            <li><strong>Deception of the audience.</strong> Freedom to seek and receive information assumes people can tell who is speaking. Fake citizens remove that.</li>
+          </ul>
+
+          <h2>A comparison with the EU</h2>
+          <p>
+            Article 5(1)(a) of the EU AI Act bans AI systems that use purposefully manipulative or deceptive techniques to materially
+            distort people's behaviour in ways that cause or are likely to cause significant harm. It binds in the EU, not in Indonesia.
+            It shows where a comparable rule would sit.
+          </p>
+
+          <h2>Why this belongs in an AI ledger</h2>
+          <p>
+            The rules above already apply, whether or not an AI-specific rule arrives. Indonesia's AI presidential regulation is still
+            described as awaiting signature, and none of the sources the ledger has read so far names this use as unacceptable. Read
+            <a href={perpresEntry}> why the rules keep almost arriving</a>.
+          </p>
+
+          <div class="correction"><p>
+            Spotted an error or have a source that belongs here? <a href={SITE.issues}>Open an issue</a> with the link and I will check
+            it in the open.
+          </p></div>
+        </>
+      ) : (
+        <>
+          <p class="lede">
+            Menjalankan suara warga palsu dengan AI untuk melawan pengkritik bukan cara memerintah yang cerdas. Kalau lembaga negara
+            melakukannya, itu melanggar konstitusi Indonesia sendiri dan perjanjian yang sudah Indonesia ratifikasi.
+          </p>
+
+          <aside class="status-box" aria-labelledby="status-h">
+            <h2 id="status-h">Status halaman ini</h2>
+            <p>
+              Draf kerja, bukan nasihat hukum. Laporan fakta di bawah ini berasal dari pemberitaan, jadi sifatnya sementara. Kutipan
+              hukum ditulis menurut nomor pasal dan paragraf, dan masih perlu dicocokkan dengan teks aslinya.
+            </p>
+          </aside>
+
+          <h2>Argumennya</h2>
+          <p>
+            Negara boleh menjawab kritik. Negara tidak boleh berpura-pura menjadi publik saat melakukannya. Akun yang menyajikan pesan
+            resmi atau pesan berbayar sebagai pendapat mandiri warga biasa, untuk menenggelamkan, menjelekkan, atau menakut-nakuti
+            pengkritik, menjadikan hak sebagai properti panggung. Warga berbicara. Negara menjawab atas nama dirinya sendiri. Itulah
+            garisnya, dan otomatisasi tidak menggesernya. Otomatisasi hanya membuat pelanggaran garis itu lebih murah, lebih cepat, dan
+            lebih sulit terlihat.
+          </p>
+
+          <h2>Yang sudah terdokumentasi</h2>
+          <p>Tingkat bukti untuk semua yang ada di bagian ini: laporan pers. Sementara.</p>
+          <ul>
+            <li>
+              Harian Terbit melaporkan pada Mei 2026, dengan mengutip media Jepang dan riset Amnesty International, bahwa akun media
+              sosial yang terkait militer menjalankan kampanye disinformasi terhadap aktivis, dan bahwa pengkritik dicap "antek asing".
+              <a href="https://www.harianterbit.com/nasional/27417158170/media-jepang-soroti-pemerintah-prabowo-dan-militer-memakai-buzzer-untuk-bungkam-kritik-publik-berujung-intimidasi-dan-kekerasan"> Sumber</a>
+            </li>
+            <li>
+              Kompas melaporkan bahwa sejumlah kementerian dan lembaga pemerintah disebut memakai jasa pendengung, langsung maupun lewat
+              perantara. <a href="https://www.kompas.id/artikel/buzzer-politik-antara-pemborosan-anggaran-dan-alat-propaganda">Sumber</a>
+            </li>
+            <li>
+              Pejabat membantahnya. Juru bicara presiden pada pemerintahan sebelumnya menolak anggapan bahwa pemerintah memakai
+              pendengung untuk membungkam kritik. <a href="https://voi.id/berita/32666/bantah-pakai-i-buzzer-i-jubir-presiden-pemerintah-tidak-takut-dikritik-sebelum-mengkritik-pelajari-uu-ite">Sumber</a>
+            </li>
+          </ul>
+
+          <h2>Yang belum terdokumentasi</h2>
+          <p>
+            Per 22 Oktober 2026, Monsoon Ledger belum menemukan investigasi, laporan platform, atau dokumen resmi yang menunjukkan bahwa
+            lembaga negara Indonesia memakai model AI seperti Claude atau GPT untuk menjalankan akun-akun ini. Halaman ini tidak
+            mengklaimnya. Halaman ini memaparkan ujian yang harus dilewati perbuatan semacam itu, dan tidak akan lolos.
+          </p>
+
+          <h2 id="screenshot">Tangkapan layar yang beredar, dan kenapa itu bukan bukti</h2>
+          <figure class="screenshot">
+            <img
+              src="/images/threads-api-error-redacted.webp"
+              width="828"
+              height="1086"
+              loading="lazy"
+              alt="Unggahan Threads yang seluruh isinya pesan galat tagihan API Anthropic. Sebuah balasan bertanya apakah akun pendengung sekarang diotomatisasi dengan Claude. Akun itu menjawab dalam bahasa Inggris bahwa ia bukan bot, melainkan seorang ibu yang mendukung program Presiden. Wajah dan nama pengguna disamarkan."
+            />
+            <figcaption>
+              <span class="unverified">Belum terverifikasi. Bukan bukti.</span> Tangkapan layar unggahan Threads yang dibagikan di X pada
+              Oktober 2026. Wajah dan nama pengguna disamarkan oleh Monsoon Ledger.
+            </figcaption>
+          </figure>
+          <p>
+            Pada Oktober 2026 beredar tangkapan layar di X yang menunjukkan unggahan Threads berisi pesan galat tagihan dari API Anthropic,
+            pesan yang sama yang dilaporkan pengembang ketika kredit akun mereka habis
+            (<a href="https://github.com/anthropics/claude-code/issues/867">contoh</a>). Seorang pengguna bertanya apakah akun pendengung
+            sekarang diotomatisasi dengan Claude. Akun itu menjawab dalam bahasa Inggris bahwa ia bukan bot.
+          </p>
+          <p><strong>Yang ditunjukkan.</strong> Bila tangkapan layar ini asli, ada perangkat lunak yang tersambung ke kunci API Anthropic dan mengunggah pesan galat itu ke akun tersebut, alih-alih pesan yang ditulis.</p>
+          <p>
+            <strong>Yang tidak ditunjukkan.</strong> Siapa yang menjalankan akun itu, apakah ada yang membayarnya, apakah akun itu bagian
+            dari sebuah jaringan, atau kaitannya dengan lembaga pemerintah. Unggahan aslinya belum diautentikasi, dan tangkapan layar bisa
+            disunting. Menurut <a href={href(lang, 'method/#verification')}>protokol verifikasi</a>, konten seperti ini adalah petunjuk,
+            bukan bukti.
+          </p>
+          <p>
+            <strong>Asal-usul.</strong> Tautan ke unggahan di X disimpan sebagai arsip dan tidak dipublikasikan, karena gambar aslinya
+            memperlihatkan wajah dan nama pemilik akun.
+          </p>
+          <p>
+            <strong>Kenapa ditampilkan.</strong> Gambar ini menunjukkan bahwa pertanyaan di halaman ini bukan sekadar pengandaian. Satu akun
+            bisa membocorkan pesan galat penyedia AI, dan alat yang sama bisa menjalankan ribuan akun. Apakah ada lembaga negara yang
+            melakukannya, justru itulah yang belum ditunjukkan oleh bukti.
+          </p>
+
+          <h2>Ujian hukumnya</h2>
+          <ol>
+            <li>
+              <strong>Konstitusi.</strong> Pasal 28E ayat (3) UUD 1945 melindungi kebebasan mengeluarkan pendapat. Pasal 28F melindungi
+              hak berkomunikasi serta mencari dan menyampaikan informasi. Pasal 28J ayat (2) hanya membolehkan pembatasan lewat undang-undang,
+              dan hanya untuk tujuan tertentu dalam masyarakat demokratis.
+              <figure class="quote">
+                <blockquote>
+                  <p class="label">{t.quoteOriginalShort}</p>
+                  <p class="original" lang="id">&ldquo;Setiap orang berhak atas kebebasan berserikat, berkumpul, dan mengeluarkan pendapat.&rdquo;</p>
+                  <p class="label">{t.quoteTranslation}</p>
+                  <p class="translation" lang="en">
+                    <span class="visually-hidden">(dalam bahasa Inggris) </span>Everyone has the right to freedom of association, assembly and expression.
+                  </p>
+                </blockquote>
+                <figcaption>UUD 1945, Pasal 28E ayat (3)</figcaption>
+              </figure>
+            </li>
+            <li>
+              <strong>Perjanjian internasional.</strong> Indonesia meratifikasi Kovenan Internasional tentang Hak-Hak Sipil dan Politik
+              (ICCPR) lewat Undang-Undang Nomor 12 Tahun 2005. Pasal 19 ayat (2) melindungi kebebasan mencari, menerima, dan
+              menyampaikan informasi dan gagasan dalam segala bentuk. Pasal 19 ayat (3) hanya membolehkan pembatasan yang diatur
+              undang-undang dan perlu untuk melindungi hak atau nama baik orang lain, keamanan nasional, ketertiban umum, kesehatan
+              umum, atau moral. Komentar Umum 34 (2011) dari Komite HAM PBB menambahkan bahwa aturan harus terbuka dan cukup jelas untuk
+              diikuti (paragraf 25), dan bahwa negara harus menunjukkan perlunya dan proporsionalitas pembatasan secara khusus dan
+              individual (paragraf 35).
+            </li>
+            <li>
+              <strong>Undang-undang HAM.</strong> Pasal 23 ayat (2) Undang-Undang Nomor 39 Tahun 1999 tentang Hak Asasi Manusia memberi
+              setiap orang kebebasan memiliki dan menyebarkan pendapat, lisan maupun tulisan, lewat media cetak maupun elektronik.
+            </li>
+          </ol>
+
+          <p>Diterapkan pada akun otomatis yang menyamar dan dipakai melawan pengkritik:</p>
+          <ul>
+            <li><strong>Tidak ada hukum di baliknya.</strong> Pembatasan harus diatur undang-undang. Kampanye diam-diam bukan undang-undang. Tidak ada yang bisa membacanya, menggugatnya, atau mengajukan banding.</li>
+            <li><strong>Tidak ada tujuan yang diperlukan.</strong> Negara harus menunjukkan ancaman nyata terhadap kepentingan tertentu. Menyembunyikan siapa yang berbicara tidak melindungi ketertiban umum. Itu merusaknya.</li>
+            <li><strong>Tidak proporsional.</strong> Otomatisasi melipatgandakan satu suara menjadi ribuan. Warga dengan satu akun tidak akan terdengar, dan itulah tujuannya.</li>
+            <li><strong>Menipu pendengar.</strong> Kebebasan mencari dan menerima informasi mengandaikan orang bisa tahu siapa yang berbicara. Warga palsu menghilangkan itu.</li>
+          </ul>
+
+          <h2>Pembanding dari Uni Eropa</h2>
+          <p>
+            Pasal 5 ayat (1) huruf a EU AI Act melarang sistem AI yang memakai teknik manipulatif atau menipu dengan sengaja untuk
+            mengubah perilaku orang secara berarti, sehingga menimbulkan atau berpotensi menimbulkan kerugian yang signifikan. Aturan
+            itu mengikat di Uni Eropa, bukan di Indonesia. Ia menunjukkan di mana aturan yang sepadan akan berada.
+          </p>
+
+          <h2>Kenapa ini ada di catatan AI</h2>
+          <p>
+            Aturan di atas sudah berlaku, ada atau tidaknya aturan khusus AI. Peraturan Presiden tentang AI masih disebut menunggu
+            tanda tangan, dan dari sumber yang sudah dibaca ledger ini, belum ada yang menyebut penggunaan seperti ini sebagai hal yang
+            tidak boleh. Baca
+            <a href={perpresEntry}> kenapa aturan itu terus nyaris terbit</a>.
+          </p>
+
+          <div class="correction"><p>
+            Menemukan kesalahan atau punya sumber yang layak ada di sini? <a href={SITE.issues}>Buka isu</a> dengan tautannya dan saya
+            akan memeriksanya secara terbuka.
+          </p></div>
+        </>
+      )
+    }
+  </article>
+</Base>

@@ -33,6 +33,11 @@ const copy = {
     ledgerLink: 'Open the full ledger',
     recent: 'Most recent promises',
     promises: 'promises',
+    briefKicker: 'Legal brief, working draft',
+    briefTitle: 'Silencing by automation',
+    briefText:
+      'Using AI to run fake citizen voices against critics would breach the Indonesian constitution and a treaty Indonesia has ratified. What is documented, what is not, and the legal test.',
+    briefLink: 'Read the legal test',
   },
   id: {
     kicker: 'Pelacak tata kelola AI Indonesia',
@@ -46,6 +51,11 @@ const copy = {
     ledgerLink: 'Buka buku catatan lengkap',
     recent: 'Janji terbaru',
     promises: 'janji',
+    briefKicker: 'Catatan hukum, draf kerja',
+    briefTitle: 'Pembungkaman lewat otomatisasi',
+    briefText:
+      'Memakai AI untuk menjalankan suara warga palsu melawan pengkritik melanggar konstitusi Indonesia dan perjanjian yang sudah diratifikasi. Apa yang terdokumentasi, apa yang belum, dan ujian hukumnya.',
+    briefLink: 'Baca ujian hukumnya',
   },
 }[lang];
 ---
@@ -83,6 +93,15 @@ const copy = {
       <time class="figure figure--date" datetime={checked}>{checked}</time>
     </a>
   </div>
+
+  <aside class="callout" aria-labelledby="brief-h" data-reveal>
+    <div>
+      <p class="kicker">{copy.briefKicker}</p>
+      <h2 id="brief-h">{copy.briefTitle}</h2>
+      <p>{copy.briefText}</p>
+    </div>
+    <a class="btn btn--primary" href={href(lang, 'silencing/')}>{copy.briefLink} <span class="arrow" aria-hidden="true">&rarr;</span></a>
+  </aside>
 
   <section class="section" aria-labelledby="lens-h" data-reveal>
     <div class="section-head">

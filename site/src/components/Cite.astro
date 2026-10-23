@@ -1,0 +1,16 @@
+---
+// An in-text citation such as [3] or [3, 7], linked to the reference list on the same page.
+// `keys` is the page's ordered reference list, so numbering matches <References>.
+import type { RefKey } from '../lib/references';
+
+interface Props {
+  k: RefKey | RefKey[];
+  keys: readonly RefKey[];
+}
+
+const { k, keys } = Astro.props;
+const list = Array.isArray(k) ? k : [k];
+const missing = list.filter((key) => !keys.includes(key));
+if (missing.length) throw new Error(`Cite: ${missing.join(', ')} not in this page's reference list`);
+---
+<sup class="cite">[{list.map((key, i) => <>{i > 0 && ', '}<a href={`#ref-${key}`}>{keys.indexOf(key) + 1}</a></>)}]</sup>

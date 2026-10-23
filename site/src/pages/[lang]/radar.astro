@@ -1,5 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
+import ScanHistory from '../../components/ScanHistory.astro';
+import NextScan from '../../components/NextScan.astro';
 import { getRadar, getScanLog, getWatchSources, getEntries, getInstruments, type Lead } from '../../lib/data';
 import { ui, href, pick, LANGS, type Lang } from '../../lib/i18n';
 
@@ -147,6 +149,11 @@ const fmtTime = (iso: string) => iso.replace('T', ' ').replace(/:\d{2}Z$/, '');
       <p class="label">{copy.awaiting}</p>
       <span class="figure">{awaiting}</span>
     </div>
+  </div>
+
+  <div class="radar-visuals">
+    <ScanHistory log={log} leads={active} lang={lang} />
+    <NextScan lang={lang} lastScan={last?.at} sources={sources.length} />
   </div>
 
   <section class="section" aria-labelledby="leads-h">

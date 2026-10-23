@@ -1,8 +1,11 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Stamp from '../../components/Stamp.astro';
+import PromiseReplay from '../../components/PromiseReplay.astro';
+import LiveSince from '../../components/LiveSince.astro';
 import { getDeadlines, getEntries, outcomeCounts, OUTCOMES } from '../../lib/data';
 import { ui, pick, href, SITE, LANGS, type Lang } from '../../lib/i18n';
+import { promiseAnchor } from '../../lib/ontology';
 
 export function getStaticPaths() {
   return LANGS.map((lang) => ({ params: { lang } }));
@@ -12,6 +15,7 @@ const lang = Astro.params.lang as Lang;
 const t = ui[lang];
 const deadlines = getDeadlines();
 const counts = outcomeCounts(deadlines);
+const firstPromise = [...deadlines].sort((a, b) => a.date_said.localeCompare(b.date_said))[0];
 const related = getEntries().find((e) => e.id === '2026-10-21-id-perpres-ai-keep-almost-arriving');
 
 const copy = {
@@ -65,6 +69,12 @@ const copy = {
     </ul>
   </div>
 
+  {firstPromise && <LiveSince deadline={firstPromise} lang={lang} />}
+
+  <div class="section section--tight">
+    <PromiseReplay deadlines={deadlines} lang={lang} />
+  </div>
+
   <div class="section section--tight">
     <form class="filters panel" id="outcome-filter" hidden>
       <fieldset class="chips">
@@ -87,7 +97,7 @@ const copy = {
     <ol class="timeline" id="timeline">
       {
         deadlines.map((d) => (
-          <li data-outcome={d.outcome_status}>
+          <li data-outcome={d.outcome_status} id={promiseAnchor(d)}>
             <time class="t-date" datetime={d.date_said}>{d.date_said}</time>
             <span class="t-dot" aria-hidden="true" />
             <div class="t-card panel">

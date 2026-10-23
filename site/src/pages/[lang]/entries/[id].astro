@@ -24,7 +24,7 @@ const summary = pick(lang, entry.summary_en, entry.ringkasan_id);
 const safetyNote = lang === 'en' ? entry.safety_note_en : entry.safety_note_id ?? entry.safety_note_en;
 const safetyNoteLang = lang === 'id' && !entry.safety_note_id ? 'en' : lang;
 
-// Bahasa pages fall back to the English text, clearly labelled.
+// Bahasa Indonesia pages fall back to the English text, clearly labelled.
 const euText = lang === 'id' && entry.perbandingan_eu_id ? entry.perbandingan_eu_id : entry.eu_comparison;
 const euInEnglish = lang === 'id' && !entry.perbandingan_eu_id;
 const takeText = lang === 'id' && entry.pendapat_id ? entry.pendapat_id : entry.my_take;

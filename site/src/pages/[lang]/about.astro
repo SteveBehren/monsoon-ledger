@@ -1,6 +1,8 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { ui, SITE, LANGS, type Lang } from '../../lib/i18n';
+import PageRail from '../../components/PageRail.astro';
+import { getEntries, getDeadlines, getInstruments, outcomeCounts, STATUSES } from '../../lib/data';
+import { ui, href, pick, SITE, LANGS, type Lang } from '../../lib/i18n';
 
 export function getStaticPaths() {
   return LANGS.map((lang) => ({ params: { lang } }));
@@ -8,83 +10,415 @@ export function getStaticPaths() {
 
 const lang = Astro.params.lang as Lang;
 const t = ui[lang];
+
+// Every figure on this page is counted from the data files at build time.
+const entries = getEntries();
+const deadlines = getDeadlines();
+const instruments = getInstruments();
+const counts = outcomeCounts(deadlines);
+const sources = entries.flatMap((e) => e.sources);
+const idSources = sources.filter((s) => s.language === 'id').length;
+const idShare = sources.length ? Math.round((idSources / sources.length) * 100) : 0;
+const firstPromise = [...deadlines].sort((a, b) => a.date_said.localeCompare(b.date_said))[0];
+const circular = instruments.find((i) => i.id === 'se-menkominfo-9-2023');
+const stages = STATUSES.filter((s) => s !== 'withdrawn').map((s) => ({ s, list: instruments.filter((i) => i.status === s) }));
+
+// The author's background, from the CV and diploma the author shared for this page. Only
+// professional facts are published: no contact details, date of birth, grades or references.
+const timeline = [
+  { when: '2015 to 2019', en: 'Video editor, volunteer, Mawar Sharon, Sukabumi, Indonesia', id: 'Video editor, relawan, Mawar Sharon, Sukabumi, Indonesia', kind: 'work' },
+  { when: '2019 to 2021', en: 'Content creator, volunteer, Indonesian Student Association, Deventer', id: 'Content creator, relawan, Indonesian Student Association, Deventer', kind: 'work' },
+  { when: '2020 to 2024', en: 'BA Creative Business, Hogeschool Utrecht, with a minor in Big Data and Design', id: 'BA Creative Business, Hogeschool Utrecht, dengan minor Big Data and Design', kind: 'study' },
+  { when: '2022', en: 'First place, Big Data and Design Hackathon, with Akvo and the Water Point Data Exchange', id: 'Juara pertama Big Data and Design Hackathon, bersama Akvo dan Water Point Data Exchange', kind: 'award' },
+  { when: '2023', en: 'Social media designer and content creator, internship, THYSOL Group, Enschede', id: 'Social media designer dan content creator, magang, THYSOL Group, Enschede', kind: 'work' },
+  { when: '2025', en: 'Multimedia content creator, ACAPS, The Hague', id: 'Multimedia content creator, ACAPS, Den Haag', kind: 'work' },
+  { when: '2026', en: 'Content marketing specialist, Rush Send', id: 'Content marketing specialist, Rush Send', kind: 'work' },
+  { when: '2026', en: 'Certificates in Dutch law (University of Groningen) and AI Fluency (Anthropic)', id: 'Sertifikat hukum Belanda (University of Groningen) dan AI Fluency (Anthropic)', kind: 'study' },
+  { when: '2026', en: 'Starts Monsoon Ledger, first public entries on 22 October', id: 'Memulai Monsoon Ledger, catatan publik pertama pada 22 Oktober', kind: 'here' },
+];
+const kindLabel = {
+  en: { work: 'Work', study: 'Study', award: 'Award', here: 'Now' },
+  id: { work: 'Kerja', study: 'Studi', award: 'Penghargaan', here: 'Kini' },
+}[lang];
+const languages = [
+  { en: 'Indonesian', id: 'Bahasa Indonesia', level: 3, en_l: 'native', id_l: 'bahasa ibu' },
+  { en: 'English', id: 'Bahasa Inggris', level: 2, en_l: 'full professional', id_l: 'profesional penuh' },
+  { en: 'Dutch', id: 'Bahasa Belanda', level: 1, en_l: 'conversational', id_l: 'percakapan' },
+];
+
+const toc =
+  lang === 'en'
+    ? ['Abstract', 'Background', 'The problem', 'Objectives', 'Scope and limits', 'Contribution', 'About the author', 'Why Indonesian first', 'Why the name']
+    : ['Abstrak', 'Latar belakang', 'Masalah', 'Tujuan', 'Cakupan dan batasan', 'Kontribusi', 'Tentang penulis', 'Kenapa bahasa Indonesia lebih dulu', 'Kenapa namanya Monsoon Ledger'];
+const ids = ['abstract', 'background', 'problem', 'objectives', 'scope', 'contribution', 'author', 'language', 'name'];
+const h = (i: number) => ({ id: ids[i], text: toc[i] });
 ---
-<Base lang={lang} path="about/" title={t.nav.about} nav="about">
+<Base lang={lang} path="about/" title={t.nav.about} nav="about" description={lang === 'en' ? 'Why Monsoon Ledger exists, what it sets out to do, and who writes it.' : 'Mengapa Monsoon Ledger ada, apa tujuannya, dan siapa penulisnya.'}>
   <header class="page-head">
-    <p class="kicker">{lang === 'en' ? 'Who writes this' : 'Siapa penulisnya'}</p>
+    <p class="kicker">{lang === 'en' ? 'Why this exists' : 'Mengapa catatan ini ada'}</p>
     <h1>{t.nav.about}</h1>
+    <p class="lede">
+      {
+        lang === 'en'
+          ? 'Monsoon Ledger is written like a small, open research project. This page sets it out the way a paper would: the background, the problem, what the ledger tries to do, its limits, and who is behind it.'
+          : 'Monsoon Ledger ditulis seperti proyek riset kecil yang terbuka. Halaman ini menjelaskannya seperti sebuah makalah: latar belakang, masalah, tujuan, batasan, dan siapa yang mengerjakannya.'
+      }
+    </p>
   </header>
-  <article class="doc-body prose">
-    {
-      lang === 'en' ? (
-        <>
-          <p class="lede">
-            I'm Stephen Behren Tanjung, an Indonesian living in Deventer, the Netherlands. I read Bahasa Indonesia natively and I live
-            under EU rules, so I read Indonesian AI policy in the language it is announced in and set it beside the rules I live with.
-          </p>
-          <p>
-            I studied Creative Business at Hogeschool Utrecht. In 2025 I worked as a multimedia content creator at ACAPS, and in 2026 I
-            work as a marketing content specialist at Rush Send. Monsoon Ledger is an independent project. It is not legal advice.
-          </p>
 
-          <h2>Why Indonesia</h2>
-          <p>
-            Indonesia is writing its AI rules right now. The announcements, deadlines and consultations happen in Bahasa Indonesia, and
-            little of that detail reaches readers outside the country. I can read it in the original, so I start here. Other ASEAN
-            countries come later, once the Indonesian ledger has twelve entries.
-          </p>
+  <div class="doc doc--prose">
+    <article class="doc-body prose about">
+      <section class="abstract panel" aria-labelledby={h(0).id} data-reveal>
+        <h2 id={h(0).id}>{h(0).text}</h2>
+        {
+          lang === 'en' ? (
+            <p>
+              Indonesia has been announcing binding AI rules since January 2025. Monsoon Ledger follows those announcements in the language
+              they are made in and checks each one against the record. It holds {entries.length} sourced entries, {instruments.length} tracked{' '}
+              instruments and {deadlines.length} public deadlines, of which {counts.missed} were missed and {counts.open} are still open.{' '}
+              {`${idShare} percent`} of the sources behind the entries were published in Bahasa Indonesia. Every claim is graded by the strength of its
+              evidence, compared with the EU AI Act and frontier AI safety practice, and published as open data.
+            </p>
+          ) : (
+            <p>
+              Sejak Januari 2025 Indonesia terus mengumumkan aturan AI yang mengikat. Monsoon Ledger mengikuti pengumuman itu dalam bahasa
+              aslinya dan mencocokkan setiap janji dengan catatan yang ada. Isinya {entries.length} catatan bersumber, {instruments.length} instrumen{' '}
+              yang dilacak, dan {deadlines.length} tenggat publik. Dari tenggat itu, {counts.missed} terlewat dan {counts.open} masih terbuka.{' '}
+              Sebanyak {`${idShare} persen`} sumber di balik catatan terbit dalam bahasa Indonesia. Setiap klaim dinilai menurut kekuatan buktinya,
+              dibandingkan dengan EU AI Act dan praktik keselamatan AI terdepan, lalu diterbitkan sebagai data terbuka.
+            </p>
+          )
+        }
+        <dl class="abstract-figures">
+          <div><dt>{t.metrics.entries}</dt><dd data-count-up>{entries.length}</dd></div>
+          <div><dt>{lang === 'en' ? 'Public deadlines' : 'Tenggat publik'}</dt><dd data-count-up>{deadlines.length}</dd></div>
+          <div class="is-alert"><dt>{t.outcome.missed}</dt><dd data-count-up>{counts.missed}</dd></div>
+          <div><dt>{lang === 'en' ? 'Sources in Bahasa Indonesia' : 'Sumber berbahasa Indonesia'}</dt><dd><span data-count-up>{idShare}</span>%</dd></div>
+        </dl>
+        <p class="keywords">
+          <span class="label">{lang === 'en' ? 'Keywords' : 'Kata kunci'}</span>
+          {(lang === 'en'
+            ? ['AI governance', 'Indonesia', 'policy tracking', 'document analysis', 'EU AI Act', 'open data']
+            : ['tata kelola AI', 'Indonesia', 'pelacakan kebijakan', 'analisis dokumen', 'EU AI Act', 'data terbuka']
+          ).map((k) => <span class="kw">{k}</span>)}
+        </p>
+      </section>
 
-          <h2>Why Bahasa first</h2>
+      <h2 id={h(1).id}>{h(1).text}</h2>
+      {
+        lang === 'en' ? (
+          <>
+            <p>
+              Indonesia is writing its AI rules right now. The announcements, deadlines and consultations happen in Bahasa Indonesia, and
+              little of that detail reaches readers outside the country.
+            </p>
+            <p>
+              The first public deadline in the ledger dates from <a href={href(lang, 'ledger/')}>{firstPromise.date_said}</a>, when {`${firstPromise.who} promised`}{' '}
+              "{firstPromise.promised_en.toLowerCase()}". Two presidential regulations, a national AI roadmap and an AI ethics rule, have
+              been described as nearly finished many times since. Meanwhile the only AI-specific instrument in force is a 2023 ministerial{' '}
+              <a href={`${href(lang, 'instruments/')}#${circular?.id}`}>circular letter</a>, which is guidance, not law.
+            </p>
+          </>
+        ) : (
+          <>
+            <p>
+              Indonesia sedang menyusun aturan AI-nya sekarang. Pengumuman, tenggat, dan konsultasinya berlangsung dalam bahasa Indonesia, dan
+              rinciannya jarang sampai ke pembaca di luar negeri.
+            </p>
+            <p>
+              Tenggat publik pertama dalam catatan ini berasal dari <a href={href(lang, 'ledger/')}>{firstPromise.date_said}</a>, ketika {`${firstPromise.who} menjanjikan`}{' '}
+              "{firstPromise.promised_id.toLowerCase()}". Sejak itu dua rancangan Peraturan Presiden, yaitu peta jalan nasional AI dan
+              aturan etika AI, berkali-kali disebut hampir rampung. Sementara itu, satu-satunya instrumen khusus AI yang berlaku adalah{' '}
+              <a href={`${href(lang, 'instruments/')}#${circular?.id}`}>surat edaran menteri</a> dari 2023, yang isinya panduan dan tidak mengikat.
+            </p>
+          </>
+        )
+      }
+
+      <figure class="pipeline-fig panel" data-reveal>
+        <figcaption>
+          <span class="label">{lang === 'en' ? 'Figure 1' : 'Gambar 1'}</span>
+          {lang === 'en' ? 'Where each tracked instrument stands, from announced to in force.' : 'Posisi setiap instrumen yang dilacak, dari diumumkan sampai berlaku.'}
+        </figcaption>
+        <ol class="pipe">
+          {
+            stages.map(({ s, list }, i) => (
+              <li class={`pipe-stage ps-${s}`} style={`--i:${i}`}>
+                <span class="pipe-head">
+                  <b>{list.length}</b>
+                  {t.status[s]}
+                </span>
+                <ul>
+                  {list.map((ins) => (
+                    <li class={ins.binding ? 'is-binding' : ''}>
+                      <a href={`${href(lang, 'instruments/')}#${ins.id}`}>{pick(lang, ins.name_en, ins.name_id)}</a>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))
+          }
+        </ol>
+        <p class="pipe-key">
+          <span class="pk-binding"></span>{lang === 'en' ? 'Binding, or binding once in force' : 'Mengikat, atau mengikat setelah berlaku'}
+          <span class="pk-soft"></span>{lang === 'en' ? 'Not binding' : 'Tidak mengikat'}
+        </p>
+      </figure>
+
+      <h2 id={h(2).id}>{h(2).text}</h2>
+      {
+        lang === 'en' ? (
+          <p>
+            From outside, an announced rule, a drafted rule, a signed rule and a rule in force can look like the same thing. Often the
+            difference sits in a single Indonesian word in a ministry statement or a news report. Without a record that dates every promise
+            and links every source, it is hard to tell how far Indonesia's AI governance has actually moved, and easy to report a promise as
+            if it were law.
+          </p>
+        ) : (
+          <p>
+            Dari luar, aturan yang diumumkan, dirancang, ditandatangani, dan yang sudah berlaku bisa terlihat sama. Bedanya sering hanya satu
+            kata dalam pernyataan kementerian atau laporan berita. Tanpa catatan yang memberi tanggal pada setiap janji dan menautkan setiap
+            sumber, sulit melihat seberapa jauh tata kelola AI Indonesia benar-benar bergerak, dan mudah melaporkan janji seolah-olah sudah
+            menjadi hukum.
+          </p>
+        )
+      }
+
+      <figure class="lang-fig panel" data-reveal>
+        <figcaption>
+          <span class="label">{lang === 'en' ? 'Figure 2' : 'Gambar 2'}</span>
+          {lang === 'en' ? 'The language gap. Sources behind the entries, by the language they were published in.' : 'Kesenjangan bahasa. Sumber di balik catatan, menurut bahasa terbitnya.'}
+        </figcaption>
+        <div class="lang-grid" role="img" aria-label={`${idSources} / ${sources.length}`}>
+          {sources.map((s, i) => <span class={s.language === 'id' ? 'lg-id' : 'lg-en'} style={`--i:${i}`} title={`${s.outlet}: ${s.title}`}></span>)}
+        </div>
+        <p class="lang-key">
+          <span><i class="lg-id"></i>Bahasa Indonesia <b>{idSources}</b></span>
+          <span><i class="lg-en"></i>{lang === 'en' ? 'English' : 'Bahasa Inggris'} <b>{sources.length - idSources}</b></span>
+        </p>
+      </figure>
+
+      <h2 id={h(3).id}>{h(3).text}</h2>
+      <ol class="objectives">
+        {
+          (lang === 'en'
+            ? [
+                ['Record', 'Every public promise about Indonesia’s AI rules, with the date, the person who made it and a link to the report.'],
+                ['Grade', 'Every claim by the strength of its evidence: the legal text itself, an official statement, or a press report.'],
+                ['Compare', 'Each instrument with the EU AI Act and with frontier AI safety practice, so readers can see what is and is not covered.'],
+                ['Open', 'All of it as open data and open code, so anyone can check the reading, reuse it or correct it.'],
+              ]
+            : [
+                ['Mencatat', 'Setiap janji publik tentang aturan AI Indonesia, lengkap dengan tanggal, siapa yang mengucapkannya, dan tautan ke laporannya.'],
+                ['Menilai', 'Setiap klaim menurut kekuatan buktinya: naskah hukumnya, pernyataan resmi, atau laporan pers.'],
+                ['Membandingkan', 'Setiap instrumen dengan EU AI Act dan praktik keselamatan AI terdepan, supaya pembaca tahu apa yang sudah dan belum diatur.'],
+                ['Membuka', 'Semuanya sebagai data dan kode terbuka, supaya siapa pun bisa memeriksa, memakai ulang, atau mengoreksinya.'],
+              ]
+          ).map(([k, v], i) => (
+            <li style={`--i:${i}`}>
+              <b>{k}</b>
+              <span>{v}</span>
+            </li>
+          ))
+        }
+      </ol>
+
+      <h2 id={h(4).id}>{h(4).text}</h2>
+      {
+        lang === 'en' ? (
+          <ul>
+            <li>Indonesia only, until the Indonesian ledger has twelve entries. Other ASEAN countries come after that. The Radar already watches them.</li>
+            <li>Data protection appears only where it shapes AI governance, such as breach reporting and the regulator.</li>
+            <li>Desk research only. No interviews and no information requests so far. Every piece of evidence is published and linkable.</li>
+            <li>An independent project, not legal advice. The method and its limits are set out on the <a href={href(lang, 'method/')}>Method</a> page.</li>
+          </ul>
+        ) : (
+          <ul>
+            <li>Hanya Indonesia, sampai catatan Indonesia mencapai dua belas. Negara ASEAN lain menyusul sesudahnya. Radar sudah memantau mereka.</li>
+            <li>Pelindungan data pribadi hanya dibahas jika memengaruhi tata kelola AI, misalnya pelaporan kebocoran dan lembaga pengawas.</li>
+            <li>Hanya riset dokumen. Sejauh ini tanpa wawancara dan tanpa permintaan informasi. Semua bukti sudah terbit dan bisa ditautkan.</li>
+            <li>Proyek independen, bukan nasihat hukum. Metode dan batasannya dijelaskan di halaman <a href={href(lang, 'method/')}>Metode</a>.</li>
+          </ul>
+        )
+      }
+
+      <h2 id={h(5).id}>{h(5).text}</h2>
+      {
+        lang === 'en' ? (
+          <p>
+            The ledger keeps the original Indonesian wording next to an English reading, so a reader abroad can see exactly what was said.
+            It shows the evidence level on every claim, keeps a public log of corrections, and connects entries, instruments, promises,
+            officials and documents in one <a href={href(lang, 'ontology/')}>ontology</a>. A scanner checks the news twice a week, but only the
+            author can publish a claim. The whole build is recorded on the <a href={href(lang, 'method/system/')}>Technical system</a> page.
+          </p>
+        ) : (
+          <p>
+            Catatan ini menyimpan kata-kata asli dalam bahasa Indonesia di samping terjemahan bahasa Inggris, supaya pembaca di luar negeri tahu
+            persis apa yang diucapkan. Setiap klaim menampilkan tingkat buktinya, koreksi dicatat terbuka, dan catatan, instrumen, janji,
+            pejabat, serta dokumen dihubungkan dalam satu <a href={href(lang, 'ontology/')}>ontologi</a>. Pemindai memeriksa berita dua kali
+            seminggu, tetapi hanya penulis yang boleh menerbitkan klaim. Seluruh proses pembangunannya dicatat di halaman{' '}
+            <a href={href(lang, 'method/system/')}>Sistem teknis</a>.
+          </p>
+        )
+      }
+
+      <h2 id={h(6).id}>{h(6).text}</h2>
+      {
+        lang === 'en' ? (
+          <>
+            <p>
+              I'm Stephen Behren Tanjung, an Indonesian living in Deventer, the Netherlands. I read Bahasa Indonesia natively and I live
+              under EU rules, so I read Indonesian AI policy in the language it is announced in and set it beside the rules I live with.
+            </p>
+            <p>
+              I hold a Bachelor of Arts in Creative Business from Hogeschool Utrecht (2020 to 2024), with a minor in Big Data and Design.
+              The programme covered data storytelling, human-centred design, and AI and creativity. In 2022 my team won first place at
+              the Big Data and Design Hackathon at Hogeschool Utrecht, redesigning the Water Point Data Exchange platform with Akvo so
+              that people deciding on rural water access could find the data faster.
+            </p>
+            <p>
+              My work sits where visual design, multimedia and data meet. In 2025 I was a multimedia content creator at ACAPS in The Hague,
+              making graphics, short videos and infographics that reached donors and humanitarian responders. Since January 2026 I have
+              been a content marketing specialist at Rush Send. Before that I edited video as a volunteer in Sukabumi, Indonesia, from
+              2015 to 2019, and made content for the Indonesian Student Association in Deventer.
+            </p>
+            <p>
+              In 2026 I completed a certificate course in Dutch law at the University of Groningen and Anthropic's AI Fluency course. That
+              is the background I bring to reading legal texts and AI policy. Monsoon Ledger is an independent project. It is not legal advice.
+            </p>
+          </>
+        ) : (
+          <>
+            <p>
+              Saya Stephen Behren Tanjung, orang Indonesia yang tinggal di Deventer, Belanda. Bahasa Indonesia adalah bahasa ibu saya, dan
+              sehari-hari saya hidup di bawah aturan Uni Eropa. Jadi saya membaca kebijakan AI Indonesia dalam bahasa aslinya, lalu
+              menyandingkannya dengan aturan yang saya jalani.
+            </p>
+            <p>
+              Saya meraih gelar Bachelor of Arts di bidang Creative Business dari Hogeschool Utrecht (2020 sampai 2024), dengan minor Big
+              Data and Design. Programnya mencakup data storytelling, desain yang berpusat pada manusia, serta AI dan kreativitas. Pada 2022
+              tim saya menjadi juara pertama Big Data and Design Hackathon di Hogeschool Utrecht. Kami mendesain ulang platform Water Point
+              Data Exchange bersama Akvo, supaya pengambil keputusan soal akses air di pedesaan bisa menemukan datanya lebih cepat.
+            </p>
+            <p>
+              Pekerjaan saya ada di pertemuan desain visual, multimedia, dan data. Pada 2025 saya menjadi multimedia content creator di ACAPS
+              di Den Haag, membuat grafis, video pendek, dan infografis yang menjangkau donor dan pekerja kemanusiaan. Sejak Januari 2026 saya
+              menjadi content marketing specialist di Rush Send. Sebelumnya, dari 2015 sampai 2019, saya menjadi relawan penyunting video di
+              Sukabumi, dan kemudian membuat konten untuk Indonesian Student Association di Deventer.
+            </p>
+            <p>
+              Pada 2026 saya menyelesaikan kursus sertifikat hukum Belanda di University of Groningen dan kursus AI Fluency dari Anthropic.
+              Itulah bekal saya dalam membaca naskah hukum dan kebijakan AI. Monsoon Ledger adalah proyek independen dan bukan nasihat hukum.
+            </p>
+          </>
+        )
+      }
+
+      <div class="bio" data-reveal>
+        <div class="bio-places" aria-label={lang === 'en' ? 'Two places' : 'Dua tempat'}>
+          <div class="place">
+            <span class="label">{lang === 'en' ? 'Reads' : 'Membaca'}</span>
+            <b>Indonesia</b>
+            <span>{lang === 'en' ? 'Policy in Bahasa Indonesia' : 'Kebijakan dalam bahasa Indonesia'}</span>
+          </div>
+          <svg class="bridge" viewBox="0 0 120 40" aria-hidden="true">
+            <path d="M4 30 C 40 2, 80 2, 116 30" />
+            <circle cx="4" cy="30" r="3" />
+            <circle cx="116" cy="30" r="3" />
+          </svg>
+          <div class="place">
+            <span class="label">{lang === 'en' ? 'Lives under' : 'Hidup di bawah'}</span>
+            <b>{lang === 'en' ? 'EU rules' : 'Aturan Uni Eropa'}</b>
+            <span>Deventer, {lang === 'en' ? 'the Netherlands' : 'Belanda'}</span>
+          </div>
+        </div>
+        <ul class="bio-langs" aria-label={lang === 'en' ? 'Languages' : 'Bahasa'}>
+          {languages.map((l) => (
+            <li>
+              <span class="bl-name">{pick(lang, l.en, l.id)}</span>
+              <span class="meter" data-strength={l.level} aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="bl-level">{pick(lang, l.en_l, l.id_l)}</span>
+            </li>
+          ))}
+        </ul>
+        <ol class="bio-timeline">
+          {
+            timeline.map((r, i) => (
+              <li class={`bt-${r.kind}${r.kind === 'here' ? ' is-here' : ''}`} style={`--i:${i}`}>
+                <span class="bt-when">{r.when}</span>
+                <span class="bt-kind">{kindLabel[r.kind as keyof typeof kindLabel]}</span>
+                <span class="bt-what">{pick(lang, r.en, r.id)}</span>
+              </li>
+            ))
+          }
+        </ol>
+        <p class="bio-links">
+          <a href="https://sbt-portfolio.vercel.app">{lang === 'en' ? 'Portfolio' : 'Portofolio'} <span aria-hidden="true">&#8599;</span></a>
+          <a href="https://www.linkedin.com/in/stephen-behren">LinkedIn <span aria-hidden="true">&#8599;</span></a>
+        </p>
+      </div>
+
+      <h2 id={h(7).id}>{h(7).text}</h2>
+      {
+        lang === 'en' ? (
           <p>
             Policy is announced in Bahasa Indonesia, and the exact words matter. A draft, a signature and a rule in force are different
             things, and the difference often sits in a single word. So key quotes stay in the original, with an English line under them,
             and every source is linked so you can check my reading.
           </p>
-
-          <h2>Why the name</h2>
-          <p>
-            The monsoon is forecast and announced long before it arrives. Indonesia's AI rules have worked the same way: announced, given
-            a date, and announced again. The ledger records what was promised and what actually showed up.
-          </p>
-        </>
-      ) : (
-        <>
-          <p class="lede">
-            Saya Stephen Behren Tanjung, orang Indonesia yang tinggal di Deventer, Belanda. Bahasa Indonesia adalah bahasa ibu saya, dan
-            sehari-hari saya hidup di bawah aturan Uni Eropa. Jadi saya membaca kebijakan AI Indonesia dalam bahasa aslinya, lalu
-            menyandingkannya dengan aturan yang saya jalani.
-          </p>
-          <p>
-            Saya lulusan Creative Business di Hogeschool Utrecht. Pada 2025 saya bekerja sebagai multimedia content creator di ACAPS, dan
-            pada 2026 sebagai marketing content specialist di Rush Send. Monsoon Ledger adalah proyek independen dan bukan nasihat hukum.
-          </p>
-
-          <h2>Kenapa Indonesia</h2>
-          <p>
-            Indonesia sedang menyusun aturan AI-nya sekarang. Pengumuman, tenggat, dan konsultasinya berlangsung dalam bahasa Indonesia,
-            dan rinciannya jarang sampai ke pembaca di luar negeri. Saya bisa membacanya langsung, jadi saya mulai dari sini. Negara ASEAN
-            lain menyusul setelah catatan Indonesia mencapai dua belas.
-          </p>
-
-          <h2>Kenapa bahasa Indonesia lebih dulu</h2>
+        ) : (
           <p>
             Kebijakan diumumkan dalam bahasa Indonesia, dan pilihan katanya penting. Rancangan, tanda tangan, dan aturan yang berlaku
             adalah tiga hal berbeda, dan bedanya sering cuma ada di satu kata. Karena itu kutipan penting tetap dalam bahasa aslinya,
             dengan terjemahan bahasa Inggris di bawahnya, dan setiap sumber ditautkan supaya Anda bisa memeriksa cara saya membacanya.
           </p>
+        )
+      }
 
-          <h2>Kenapa namanya Monsoon Ledger</h2>
+      <h2 id={h(8).id}>{h(8).text}</h2>
+      {
+        lang === 'en' ? (
+          <p>
+            The monsoon is forecast and announced long before it arrives. Indonesia's AI rules have worked the same way: announced, given
+            a date, and announced again. The ledger records what was promised and what actually showed up.
+          </p>
+        ) : (
           <p>
             Musim hujan sudah diramalkan dan diumumkan jauh sebelum datang. Aturan AI di Indonesia juga begitu: diumumkan, diberi tanggal,
             lalu diumumkan lagi. Buku catatan ini merekam apa yang dijanjikan dan apa yang benar-benar terjadi.
           </p>
-        </>
-      )
-    }
+        )
+      }
 
-    <ul class="link-list">
-      <li><a class="btn" href={SITE.repo}>{lang === 'en' ? 'Monsoon Ledger on GitHub' : 'Monsoon Ledger di GitHub'} <span aria-hidden="true">&#8599;</span></a></li>
-      <li><a class="btn" href={SITE.github}>{lang === 'en' ? 'My GitHub profile' : 'Profil GitHub saya'} <span aria-hidden="true">&#8599;</span></a></li>
-    </ul>
-  </article>
+      <ul class="link-list">
+        <li><a class="btn" href={SITE.repo}>{lang === 'en' ? 'Monsoon Ledger on GitHub' : 'Monsoon Ledger di GitHub'} <span aria-hidden="true">&#8599;</span></a></li>
+        <li><a class="btn" href={SITE.github}>{lang === 'en' ? 'My GitHub profile' : 'Profil GitHub saya'} <span aria-hidden="true">&#8599;</span></a></li>
+      </ul>
+    </article>
+    <PageRail lang={lang} sections />
+  </div>
 </Base>
+
+<script>
+  // Abstract figures count up once, like the metric tiles.
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const els = document.querySelectorAll<HTMLElement>('[data-count-up]');
+  if (!still) {
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        io.unobserve(e.target);
+        const el = e.target as HTMLElement;
+        const target = Number(el.textContent);
+        const t0 = performance.now();
+        const step = (now: number) => {
+          const p = Math.min(1, (now - t0) / 1000);
+          el.textContent = String(Math.round(target * (1 - Math.pow(1 - p, 3))));
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }
+    });
+    els.forEach((el) => io.observe(el));
+  }
+</script>

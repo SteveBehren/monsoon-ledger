@@ -1,0 +1,874 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getOntology, OBJECT_TYPES, RELATIONS, type ObjectType } from '../../lib/ontology';
+import { ui, href, LANGS, type Lang } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const t = ui[lang];
+const { nodes, links } = getOntology();
+const byId = new Map(nodes.map((n) => [n.id, n]));
+const types = Object.keys(OBJECT_TYPES) as ObjectType[];
+const relKeys = Object.keys(RELATIONS) as (keyof typeof RELATIONS)[];
+const count = (type: ObjectType) => nodes.filter((n) => n.type === type).length;
+const curated = links.filter((l) => l.basis === 'curated');
+
+const copy = {
+  en: {
+    title: 'Ontology',
+    kicker: 'Fusion layer',
+    lede: 'The ledger as one connected model. Entries, instruments, promises, officials, institutions and the documents behind every claim are typed objects, joined by named links. Most links are read straight from the data files. The rest were added by hand, and each of those carries the source it rests on.',
+    objects: 'Objects',
+    links: 'Links',
+    curated: 'Curated links, each sourced',
+    typesCount: 'Object types',
+    explorer: 'Explorer',
+    explorerNote: 'Drag to rearrange, click an object to inspect it, follow its links to move through the ledger.',
+    search: 'Find an object',
+    searchPlaceholder: 'Type a name, a law, an outlet',
+    show: 'Show',
+    basis: 'Link basis',
+    basisNames: { data: 'From data files', curated: 'Curated, sourced', machine: 'Machine hint' },
+    inspectorEmpty: 'Select an object to see its properties and every link in and out of it, with the source for each.',
+    noJs: 'The interactive explorer needs JavaScript. Every object and link is listed in the tables below.',
+    typesTitle: 'Object types',
+    typesIntro: 'What each kind of object is, and which file it comes from.',
+    relTitle: 'Link types',
+    relIntro: 'Each link type allows only certain object types at each end. The validator rejects a link that breaks those rules, points at something missing, or rests on a source the ledger does not already cite. Where a public standard defines the same relation, it is named, so the graph can be read by other tools.',
+    colType: 'Type',
+    colCount: 'Count',
+    colWhat: 'What it is',
+    colFrom: 'Comes from',
+    colRel: 'Link',
+    colEnds: 'From and to',
+    colBasis: 'Basis',
+    colStandard: 'Standard',
+    registerTitle: 'Every link',
+    registerIntro: 'The full register, for readers who prefer a table to a graph.',
+    registerOpen: (n: number) => `Show all ${n} links`,
+    colSubject: 'From',
+    colObject: 'To',
+    colSource: 'Source',
+    sourceLink: 'source',
+    rulesTitle: 'Rules this layer keeps',
+    rules: [
+      'Nothing is inferred. A link exists only when a data file states it, or when a curated row in data/ontology.yml names the source that states it.',
+      'Curated links can only cite sources the ledger already cites, so the graph never introduces an unvetted document.',
+      'Officials are listed exactly as the Promise vs Reality page lists them. Titles and roles are not added.',
+      'Promises are not tied to an instrument by guesswork. They connect to the rest of the ledger through the documents they share with entries.',
+      'Radar leads appear only as machine hints, never as facts, and dismissed leads are left out.',
+    ],
+    download: 'Download the graph as JSON',
+    types: {
+      instrument: ['A law, regulation, draft, guide or initiative the ledger tracks.', 'data/instruments.yml'],
+      entry: ['A dated, sourced record of something that happened.', 'data/entries/'],
+      promise: ['A public deadline an official gave, and what happened to it.', 'data/deadlines.yml'],
+      person: ['An official who made a promise, named as the ledger names them.', 'data/deadlines.yml, who'],
+      institution: ['A body that passes, drafts or speaks for an instrument.', 'data/ontology.yml'],
+      document: ['A source document, keyed by its url. Shared documents are where the ledger fuses.', 'Every source url'],
+      outlet: ['The publisher of a source document.', 'Entry sources, outlet'],
+      reference: ['A law, framework or study in the bibliography.', 'site/src/lib/references.ts'],
+      lead: ['An unreviewed scanner hit that may concern an instrument.', 'data/radar.yml'],
+    } as Record<ObjectType, [string, string]>,
+    props: {
+      status: 'Status',
+      binding: 'Binding',
+      type: 'Kind',
+      issued: 'Issued',
+      read_in_full: 'Read in full',
+      date: 'Date',
+      evidence: 'Evidence',
+      date_said: 'Said on',
+      outcome: 'Outcome',
+      said_by: 'Said by',
+      as_listed: 'Listed as',
+      country: 'Country',
+      host: 'Website',
+      language: 'Language',
+      key: 'Bibliography key',
+      found: 'Found',
+    },
+    yes: 'yes',
+    no: 'no',
+    out: 'Links out',
+    in: 'Links in',
+    open: 'Open in the ledger',
+    openSource: 'Open the source',
+    none: 'None',
+    matches: (n: number) => `${n} match${n === 1 ? '' : 'es'}`,
+  },
+  id: {
+    title: 'Ontologi',
+    kicker: 'Lapisan fusi',
+    lede: 'Seluruh catatan sebagai satu model yang saling terhubung. Catatan, instrumen, janji, pejabat, lembaga, dan dokumen di balik setiap klaim menjadi objek bertipe yang dihubungkan oleh tautan bernama. Sebagian besar tautan dibaca langsung dari berkas data. Sisanya ditambahkan secara manual, dan setiap tautan manual menyertakan sumbernya.',
+    objects: 'Objek',
+    links: 'Tautan',
+    curated: 'Tautan kurasi, semuanya bersumber',
+    typesCount: 'Tipe objek',
+    explorer: 'Penjelajah',
+    explorerNote: 'Geser untuk menata ulang, klik objek untuk melihat isinya, ikuti tautannya untuk menelusuri catatan.',
+    search: 'Cari objek',
+    searchPlaceholder: 'Ketik nama, aturan, atau media',
+    show: 'Tampilkan',
+    basis: 'Dasar tautan',
+    basisNames: { data: 'Dari berkas data', curated: 'Kurasi, bersumber', machine: 'Petunjuk mesin' },
+    inspectorEmpty: 'Pilih objek untuk melihat propertinya serta semua tautan masuk dan keluar, lengkap dengan sumber masing-masing.',
+    noJs: 'Penjelajah interaktif memerlukan JavaScript. Semua objek dan tautan tercantum di tabel di bawah.',
+    typesTitle: 'Tipe objek',
+    typesIntro: 'Apa arti setiap jenis objek, dan dari berkas mana asalnya.',
+    relTitle: 'Tipe tautan',
+    relIntro: 'Setiap tipe tautan hanya mengizinkan tipe objek tertentu di kedua ujungnya. Validator menolak tautan yang melanggar aturan itu, menunjuk objek yang tidak ada, atau bersandar pada sumber yang belum dikutip di catatan ini. Jika ada standar publik dengan relasi yang sama, standar itu disebutkan agar grafik bisa dibaca alat lain.',
+    colType: 'Tipe',
+    colCount: 'Jumlah',
+    colWhat: 'Artinya',
+    colFrom: 'Asal data',
+    colRel: 'Tautan',
+    colEnds: 'Dari dan ke',
+    colBasis: 'Dasar',
+    colStandard: 'Standar',
+    registerTitle: 'Semua tautan',
+    registerIntro: 'Daftar lengkap, bagi pembaca yang lebih suka tabel daripada grafik.',
+    registerOpen: (n: number) => `Tampilkan semua ${n} tautan`,
+    colSubject: 'Dari',
+    colObject: 'Ke',
+    colSource: 'Sumber',
+    sourceLink: 'sumber',
+    rulesTitle: 'Aturan lapisan ini',
+    rules: [
+      'Tidak ada yang disimpulkan. Tautan hanya ada jika berkas data menyatakannya, atau jika baris kurasi di data/ontology.yml menyebut sumber yang menyatakannya.',
+      'Tautan kurasi hanya boleh memakai sumber yang sudah dikutip di catatan ini, sehingga grafik tidak pernah memasukkan dokumen yang belum diperiksa.',
+      'Pejabat dicantumkan persis seperti di halaman Janji vs Kenyataan. Jabatan dan peran tidak ditambahkan.',
+      'Janji tidak dikaitkan ke instrumen dengan tebakan. Janji terhubung ke bagian lain lewat dokumen yang juga dikutip catatan.',
+      'Petunjuk Radar hanya tampil sebagai petunjuk mesin, bukan fakta, dan petunjuk yang ditolak tidak dimasukkan.',
+    ],
+    download: 'Unduh grafik dalam format JSON',
+    types: {
+      instrument: ['Undang-undang, peraturan, rancangan, panduan, atau inisiatif yang dilacak.', 'data/instruments.yml'],
+      entry: ['Catatan bertanggal dan bersumber tentang suatu peristiwa.', 'data/entries/'],
+      promise: ['Tenggat publik dari pejabat, dan apa yang terjadi kemudian.', 'data/deadlines.yml'],
+      person: ['Pejabat yang menyampaikan janji, dinamai seperti di catatan.', 'data/deadlines.yml, who'],
+      institution: ['Lembaga yang menetapkan, menyusun, atau mewakili instrumen.', 'data/ontology.yml'],
+      document: ['Dokumen sumber, dikenali dari url-nya. Dokumen bersama adalah titik fusi catatan.', 'Semua url sumber'],
+      outlet: ['Penerbit dokumen sumber.', 'Sumber catatan, outlet'],
+      reference: ['Aturan, kerangka, atau kajian dalam daftar pustaka.', 'site/src/lib/references.ts'],
+      lead: ['Temuan pemindai yang belum ditinjau dan mungkin terkait suatu instrumen.', 'data/radar.yml'],
+    } as Record<ObjectType, [string, string]>,
+    props: {
+      status: 'Status',
+      binding: 'Mengikat',
+      type: 'Jenis',
+      issued: 'Terbit',
+      read_in_full: 'Dibaca utuh',
+      date: 'Tanggal',
+      evidence: 'Bukti',
+      date_said: 'Disampaikan',
+      outcome: 'Hasil',
+      said_by: 'Disampaikan oleh',
+      as_listed: 'Tercantum sebagai',
+      country: 'Negara',
+      host: 'Situs',
+      language: 'Bahasa',
+      key: 'Kunci pustaka',
+      found: 'Ditemukan',
+    },
+    yes: 'ya',
+    no: 'tidak',
+    out: 'Tautan keluar',
+    in: 'Tautan masuk',
+    open: 'Buka di catatan',
+    openSource: 'Buka sumber',
+    none: 'Tidak ada',
+    matches: (n: number) => `${n} cocok`,
+  },
+}[lang];
+
+const typeName = (type: ObjectType) => OBJECT_TYPES[type][lang];
+const relName = (rel: keyof typeof RELATIONS) => RELATIONS[rel][lang];
+const labelOf = (id: string) => byId.get(id)?.label[lang] ?? id;
+
+// Compact payload for the explorer script.
+const payload = {
+  nodes: nodes.map((n) => ({
+    id: n.id,
+    type: n.type,
+    label: n.label[lang],
+    href: n.href ? href(lang, n.href) : undefined,
+    url: n.url,
+    props: n.props,
+    degree: n.degree,
+  })),
+  links: links.map((l) => ({ s: l.from, t: l.to, rel: l.rel, basis: l.basis, src: l.source_url, ev: l.evidence })),
+  types: Object.fromEntries(types.map((ty) => [ty, typeName(ty)])),
+  rels: Object.fromEntries(relKeys.map((r) => [r, relName(r)])),
+  basis: copy.basisNames,
+  props: copy.props,
+  words: { yes: copy.yes, no: copy.no, out: copy.out, in: copy.in, open: copy.open, openSource: copy.openSource, none: copy.none, source: copy.sourceLink },
+  matches: [copy.matches(0), copy.matches(1), copy.matches(2)],
+};
+---
+<Base lang={lang} path="ontology/" title={copy.title} description={copy.lede} nav="ontology">
+  <header class="page-head">
+    <p class="kicker">{copy.kicker}</p>
+    <h1>{copy.title}</h1>
+    <p class="lede">{copy.lede}</p>
+  </header>
+
+  <div class="metrics">
+    <div class="metric"><p class="label">{copy.objects}</p><span class="figure" data-count={nodes.length}>{nodes.length}</span></div>
+    <div class="metric"><p class="label">{copy.links}</p><span class="figure" data-count={links.length}>{links.length}</span></div>
+    <div class="metric"><p class="label">{copy.curated}</p><span class="figure" data-count={curated.length}>{curated.length}</span></div>
+    <div class="metric"><p class="label">{copy.typesCount}</p><span class="figure">{types.filter((ty) => count(ty) > 0).length}</span></div>
+  </div>
+
+  <section class="section" aria-labelledby="explorer-h">
+    <div class="section-head">
+      <div>
+        <h2 id="explorer-h">{copy.explorer}</h2>
+        <p>{copy.explorerNote}</p>
+      </div>
+      <a class="section-link" href="/ontology.json" download>{copy.download} <span aria-hidden="true">&darr;</span></a>
+    </div>
+
+    <p class="panel empty-state onto-nojs">{copy.noJs}</p>
+
+    <div class="onto" data-onto hidden>
+      <div class="onto-tools panel">
+        <label class="onto-search">
+          <span class="label">{copy.search}</span>
+          <input type="search" placeholder={copy.searchPlaceholder} autocomplete="off" data-onto-search />
+          <span class="onto-matches" data-onto-matches aria-live="polite"></span>
+        </label>
+        <fieldset class="chips">
+          <legend>{copy.show}</legend>
+          {
+            types
+              .filter((ty) => count(ty) > 0)
+              .map((ty) => (
+                <label class="chip">
+                  <input type="checkbox" value={ty} checked data-onto-type />
+                  <span><i class={`onto-swatch onto-t-${ty}`} aria-hidden="true" />{typeName(ty)} <span class="count">{count(ty)}</span></span>
+                </label>
+              ))
+          }
+        </fieldset>
+        <fieldset class="chips">
+          <legend>{copy.basis}</legend>
+          {
+            (['data', 'curated', 'machine'] as const)
+              .filter((b) => links.some((l) => l.basis === b))
+              .map((b) => (
+                <label class="chip">
+                  <input type="checkbox" value={b} checked data-onto-basis />
+                  <span><i class={`onto-line onto-b-${b}`} aria-hidden="true" />{copy.basisNames[b]} <span class="count">{links.filter((l) => l.basis === b).length}</span></span>
+                </label>
+              ))
+          }
+        </fieldset>
+      </div>
+
+      <div class="onto-stage">
+        <div class="onto-canvas panel">
+          <svg data-onto-svg role="group" aria-label={copy.explorer}></svg>
+        </div>
+        <aside class="onto-inspector panel" data-onto-inspector aria-live="polite">
+          <p class="onto-empty">{copy.inspectorEmpty}</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="types-h">
+    <div class="section-head">
+      <div>
+        <h2 id="types-h">{copy.typesTitle}</h2>
+        <p>{copy.typesIntro}</p>
+      </div>
+    </div>
+    <div class="panel table-panel">
+      <table class="ruled stack">
+        <thead><tr><th>{copy.colType}</th><th>{copy.colCount}</th><th>{copy.colWhat}</th><th>{copy.colFrom}</th></tr></thead>
+        <tbody>
+          {
+            types.map((ty) => (
+              <tr>
+                <td data-label={copy.colType}><i class={`onto-swatch onto-t-${ty}`} aria-hidden="true" /> {typeName(ty)}</td>
+                <td data-label={copy.colCount} class="num">{count(ty)}</td>
+                <td data-label={copy.colWhat}>{copy.types[ty][0]}</td>
+                <td data-label={copy.colFrom}><code>{copy.types[ty][1]}</code></td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="rels-h">
+    <div class="section-head">
+      <div>
+        <h2 id="rels-h">{copy.relTitle}</h2>
+        <p>{copy.relIntro}</p>
+      </div>
+    </div>
+    <div class="panel table-panel">
+      <table class="ruled stack">
+        <thead><tr><th>{copy.colRel}</th><th>{copy.colEnds}</th><th>{copy.colBasis}</th><th>{copy.colStandard}</th><th>{copy.colCount}</th></tr></thead>
+        <tbody>
+          {
+            relKeys.map((r) => {
+              const def = RELATIONS[r];
+              return (
+                <tr>
+                  <td data-label={copy.colRel}><b>{relName(r)}</b> <code>{r}</code></td>
+                  <td data-label={copy.colEnds}>{def.from.map((x: ObjectType) => typeName(x)).join(', ')} &rarr; {def.to.map((x: ObjectType) => typeName(x)).join(', ')}</td>
+                  <td data-label={copy.colBasis}><i class={`onto-line onto-b-${def.basis}`} aria-hidden="true" /> {copy.basisNames[def.basis as 'data' | 'curated' | 'machine']}</td>
+                  <td data-label={copy.colStandard}>{'standard' in def ? <code>{def.standard}</code> : '·'}</td>
+                  <td data-label={copy.colCount} class="num">{links.filter((l) => l.rel === r).length}</td>
+                </tr>
+              );
+            })
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="rules-h">
+    <div class="section-head"><h2 id="rules-h">{copy.rulesTitle}</h2></div>
+    <ol class="onto-rules">
+      {copy.rules.map((r) => <li>{r}</li>)}
+    </ol>
+  </section>
+
+  <section class="section" aria-labelledby="register-h">
+    <div class="section-head">
+      <div>
+        <h2 id="register-h">{copy.registerTitle}</h2>
+        <p>{copy.registerIntro}</p>
+      </div>
+    </div>
+    <details class="onto-register panel">
+      <summary>{copy.registerOpen(links.length)}</summary>
+      <div class="table-panel">
+        <table class="ruled stack">
+          <thead><tr><th>{copy.colSubject}</th><th>{copy.colRel}</th><th>{copy.colObject}</th><th>{copy.colBasis}</th><th>{copy.colSource}</th></tr></thead>
+          <tbody>
+            {
+              links.map((l) => (
+                <tr>
+                  <td data-label={copy.colSubject}><i class={`onto-swatch onto-t-${byId.get(l.from)?.type}`} aria-hidden="true" /> {labelOf(l.from)}</td>
+                  <td data-label={copy.colRel}>{relName(l.rel)}</td>
+                  <td data-label={copy.colObject}><i class={`onto-swatch onto-t-${byId.get(l.to)?.type}`} aria-hidden="true" /> {labelOf(l.to)}</td>
+                  <td data-label={copy.colBasis}>{copy.basisNames[l.basis]}{l.evidence ? ` (${t.evidence[l.evidence as keyof typeof t.evidence] ?? l.evidence})` : ''}</td>
+                  <td data-label={copy.colSource}>{l.source_url ? <a href={l.source_url} rel="noopener">{copy.sourceLink}</a> : '·'}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <script type="application/json" id="onto-data" set:html={JSON.stringify(payload).replace(/</g, '\\u003c')} />
+</Base>
+
+<script>
+  type N = {
+    id: string;
+    type: string;
+    label: string;
+    href?: string;
+    url?: string;
+    props: Record<string, string | number | boolean>;
+    degree: number;
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    r: number;
+    phase: number;
+    fixed: boolean;
+    el?: SVGGElement;
+    visible: boolean;
+  };
+  type L = { s: string; t: string; rel: string; basis: string; src?: string; ev?: string; a: N; b: N; el?: SVGLineElement; visible: boolean };
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const root = document.querySelector<HTMLElement>('[data-onto]');
+  const raw = document.getElementById('onto-data');
+
+  if (root && raw) {
+    const data = JSON.parse(raw.textContent!);
+    root.hidden = false;
+    document.querySelector<HTMLElement>('.onto-nojs')!.hidden = true;
+
+    const svg = root.querySelector<SVGSVGElement>('[data-onto-svg]')!;
+    const inspector = root.querySelector<HTMLElement>('[data-onto-inspector]')!;
+    const emptyHtml = inspector.innerHTML;
+    const search = root.querySelector<HTMLInputElement>('[data-onto-search]')!;
+    const matches = root.querySelector<HTMLElement>('[data-onto-matches]')!;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Where each type gathers, as fractions of the canvas. Instruments sit in the middle,
+    // the evidence trail (documents, outlets) to the right, the people side to the left.
+    const ANCHOR: Record<string, [number, number]> = {
+      instrument: [0.5, 0.5],
+      entry: [0.36, 0.26],
+      promise: [0.24, 0.6],
+      person: [0.12, 0.82],
+      institution: [0.5, 0.86],
+      document: [0.72, 0.42],
+      outlet: [0.9, 0.3],
+      reference: [0.72, 0.84],
+      lead: [0.5, 0.1],
+    };
+
+    let W = 900;
+    let H = 600;
+    const nodes: N[] = data.nodes.map((n: N, i: number) => ({
+      ...n,
+      x: 0,
+      y: 0,
+      vx: 0,
+      vy: 0,
+      r: Math.min(15, 4.5 + Math.sqrt(n.degree) * 2.1),
+      phase: i * 1.7,
+      fixed: false,
+      visible: true,
+    }));
+    const byId = new Map(nodes.map((n) => [n.id, n]));
+    const links: L[] = data.links.map((l: L) => ({ ...l, a: byId.get(l.s)!, b: byId.get(l.t)!, visible: true }));
+    const neighbours = new Map<string, Set<string>>(nodes.map((n) => [n.id, new Set()]));
+    for (const l of links) {
+      neighbours.get(l.s)!.add(l.t);
+      neighbours.get(l.t)!.add(l.s);
+    }
+
+    const size = () => {
+      const box = svg.parentElement!.getBoundingClientRect();
+      W = Math.max(320, box.width);
+      H = Math.round(Math.min(680, Math.max(440, W * (W < 600 ? 1.15 : 0.62))));
+      svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+      svg.style.height = `${H}px`;
+    };
+    size();
+
+    // Seed positions around each type's anchor so the first frames already read as clusters.
+    nodes.forEach((n, i) => {
+      const [ax, ay] = ANCHOR[n.type] ?? [0.5, 0.5];
+      const angle = i * 2.399;
+      const spread = 30 + (i % 7) * 9;
+      n.x = ax * W + Math.cos(angle) * spread;
+      n.y = ay * H + Math.sin(angle) * spread;
+    });
+
+    // Build the SVG once. Each frame only moves things.
+    const gLinks = document.createElementNS(NS, 'g');
+    gLinks.setAttribute('class', 'onto-links');
+    const gPulses = document.createElementNS(NS, 'g');
+    gPulses.setAttribute('class', 'onto-pulses');
+    const gNodes = document.createElementNS(NS, 'g');
+    gNodes.setAttribute('class', 'onto-nodes');
+    svg.append(gLinks, gPulses, gNodes);
+
+    for (const l of links) {
+      const line = document.createElementNS(NS, 'line');
+      line.setAttribute('class', `onto-link onto-b-${l.basis}`);
+      gLinks.append(line);
+      l.el = line;
+    }
+
+    const short = (s: string, n = 30) => (s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s);
+    for (const n of nodes) {
+      const g = document.createElementNS(NS, 'g');
+      g.setAttribute('class', `onto-node onto-t-${n.type}${n.type === 'instrument' || n.type === 'institution' ? ' is-labelled' : ''}`);
+      g.setAttribute('tabindex', '0');
+      g.setAttribute('role', 'button');
+      g.setAttribute('aria-label', `${data.types[n.type]}: ${n.label}`);
+      const halo = document.createElementNS(NS, 'circle');
+      halo.setAttribute('class', 'onto-halo');
+      halo.setAttribute('r', String(n.r + 6));
+      const dot = document.createElementNS(NS, 'circle');
+      dot.setAttribute('class', 'onto-dot');
+      dot.setAttribute('r', String(n.r));
+      const text = document.createElementNS(NS, 'text');
+      text.setAttribute('x', String(n.r + 5));
+      text.setAttribute('y', '4');
+      text.textContent = short(n.label);
+      g.append(halo, dot, text);
+      gNodes.append(g);
+      n.el = g;
+    }
+
+    // Pulses travel along links to show the direction of each relation.
+    const PULSES = reduce ? 0 : 26;
+    const pulses = Array.from({ length: PULSES }, (_, i) => {
+      const c = document.createElementNS(NS, 'circle');
+      c.setAttribute('r', '2.2');
+      c.setAttribute('class', 'onto-pulse');
+      gPulses.append(c);
+      return { el: c, link: links[(i * 7) % links.length], t: (i * 0.37) % 1, speed: 0.004 + (i % 5) * 0.0012 };
+    });
+
+    let selected: N | null = null;
+    let hovered: N | null = null;
+    let alpha = 1;
+    let time = 0;
+
+    const tick = () => {
+      const active = nodes.filter((n) => n.visible);
+      // Repulsion between every pair of visible objects.
+      for (let i = 0; i < active.length; i++) {
+        const a = active[i];
+        for (let j = i + 1; j < active.length; j++) {
+          const b = active[j];
+          let dx = b.x - a.x;
+          let dy = b.y - a.y;
+          let d2 = dx * dx + dy * dy;
+          if (d2 < 0.01) {
+            dx = Math.random() - 0.5;
+            dy = Math.random() - 0.5;
+            d2 = 0.5;
+          }
+          const minD = a.r + b.r + 14;
+          const f = (2600 / d2 + (d2 < minD * minD ? 0.6 : 0)) * alpha;
+          const d = Math.sqrt(d2);
+          const fx = (dx / d) * f;
+          const fy = (dy / d) * f;
+          a.vx -= fx;
+          a.vy -= fy;
+          b.vx += fx;
+          b.vy += fy;
+        }
+      }
+      // Springs along links.
+      for (const l of links) {
+        if (!l.visible) continue;
+        const dx = l.b.x - l.a.x;
+        const dy = l.b.y - l.a.y;
+        const d = Math.sqrt(dx * dx + dy * dy) || 1;
+        const k = ((d - 78) / d) * 0.035 * alpha;
+        l.a.vx += dx * k;
+        l.a.vy += dy * k;
+        l.b.vx -= dx * k;
+        l.b.vy -= dy * k;
+      }
+      for (const n of active) {
+        const [ax, ay] = ANCHOR[n.type] ?? [0.5, 0.5];
+        n.vx += (ax * W - n.x) * 0.009 * alpha;
+        n.vy += (ay * H - n.y) * 0.009 * alpha;
+        if (!reduce) {
+          // A slow drift keeps the model breathing after it settles.
+          n.vx += Math.cos(time * 0.0009 + n.phase) * 0.018;
+          n.vy += Math.sin(time * 0.0011 + n.phase) * 0.018;
+        }
+        if (n.fixed) {
+          n.vx = 0;
+          n.vy = 0;
+          continue;
+        }
+        n.vx *= 0.82;
+        n.vy *= 0.82;
+        n.x = Math.max(n.r + 4, Math.min(W - n.r - 4, n.x + n.vx));
+        n.y = Math.max(n.r + 4, Math.min(H - n.r - 4, n.y + n.vy));
+      }
+      alpha = Math.max(0.06, alpha * 0.985);
+    };
+
+    const render = () => {
+      for (const l of links) {
+        if (!l.visible) continue;
+        l.el!.setAttribute('x1', l.a.x.toFixed(1));
+        l.el!.setAttribute('y1', l.a.y.toFixed(1));
+        l.el!.setAttribute('x2', l.b.x.toFixed(1));
+        l.el!.setAttribute('y2', l.b.y.toFixed(1));
+      }
+      for (const n of nodes) {
+        if (!n.visible) continue;
+        n.el!.setAttribute('transform', `translate(${n.x.toFixed(1)} ${n.y.toFixed(1)})`);
+        // Labels on the right edge flip to the left so they stay inside the canvas.
+        const text = n.el!.lastChild as SVGTextElement;
+        const flip = n.x > W - 190;
+        text.setAttribute('text-anchor', flip ? 'end' : 'start');
+        text.setAttribute('x', String(flip ? -(n.r + 5) : n.r + 5));
+      }
+      for (const p of pulses) {
+        let l = p.link;
+        if (!l.visible) {
+          p.el.style.display = 'none';
+          continue;
+        }
+        p.t += p.speed;
+        if (p.t >= 1) {
+          p.t = 0;
+          // Prefer the selected object's links so its relations visibly flow.
+          const pool = selected ? links.filter((x) => x.visible && (x.a === selected || x.b === selected)) : [];
+          const from = pool.length && Math.random() < 0.75 ? pool : links.filter((x) => x.visible);
+          l = p.link = from[Math.floor(Math.random() * from.length)] ?? l;
+        }
+        p.el.style.display = '';
+        p.el.setAttribute('class', `onto-pulse onto-b-${l.basis}`);
+        p.el.setAttribute('cx', (l.a.x + (l.b.x - l.a.x) * p.t).toFixed(1));
+        p.el.setAttribute('cy', (l.a.y + (l.b.y - l.a.y) * p.t).toFixed(1));
+      }
+    };
+
+    // Highlight the focus object and its neighbours, dim the rest.
+    const paint = () => {
+      const focus = hovered ?? selected;
+      const near = focus ? neighbours.get(focus.id)! : null;
+      const q = search.value.trim().toLowerCase();
+      let found = 0;
+      for (const n of nodes) {
+        const hit = q.length > 1 && n.visible && n.label.toLowerCase().includes(q);
+        if (hit) found += 1;
+        const on = !focus || n === focus || near!.has(n.id);
+        n.el!.classList.toggle('is-dim', (focus !== null && !on) || (q.length > 1 && !hit && !focus));
+        n.el!.classList.toggle('is-near', focus !== null && on && n !== focus);
+        n.el!.classList.toggle('is-focus', n === focus);
+        n.el!.classList.toggle('is-selected', n === selected);
+        n.el!.classList.toggle('is-hit', hit);
+      }
+      for (const l of links) {
+        const on = focus !== null && (l.a === focus || l.b === focus);
+        l.el!.classList.toggle('is-on', on);
+        l.el!.classList.toggle('is-dim', focus !== null && !on);
+      }
+      matches.textContent = q.length > 1 ? data.matches[Math.min(found, 2)].replace(/\d+/, String(found)) : '';
+    };
+
+    const el = (tag: string, cls?: string, text?: string) => {
+      const e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text !== undefined) e.textContent = text;
+      return e;
+    };
+
+    const value = (v: string | number | boolean) => (v === true ? data.words.yes : v === false ? data.words.no : String(v));
+
+    const inspect = (n: N | null) => {
+      if (!n) {
+        inspector.innerHTML = emptyHtml;
+        return;
+      }
+      inspector.replaceChildren();
+      const head = el('p', 'onto-kind');
+      head.append(el('i', `onto-swatch onto-t-${n.type}`), document.createTextNode(data.types[n.type]));
+      inspector.append(head, el('h3', 'onto-title', n.label));
+
+      const props = Object.entries(n.props).filter(([, v]) => v !== '' && v !== undefined);
+      if (props.length) {
+        const dl = el('dl', 'onto-props');
+        for (const [k, v] of props) dl.append(el('dt', '', data.props[k] ?? k), el('dd', '', value(v)));
+        inspector.append(dl);
+      }
+
+      const actions = el('p', 'onto-actions');
+      if (n.href) {
+        const a = el('a', 'btn btn--primary', data.words.open) as HTMLAnchorElement;
+        a.href = n.href;
+        actions.append(a);
+      }
+      if (n.url) {
+        const a = el('a', 'btn', data.words.openSource) as HTMLAnchorElement;
+        a.href = n.url;
+        a.rel = 'noopener';
+        actions.append(a);
+      }
+      if (actions.childElementCount) inspector.append(actions);
+
+      for (const [title, list, other] of [
+        [data.words.out, links.filter((l) => l.a === n), (l: L) => l.b],
+        [data.words.in, links.filter((l) => l.b === n), (l: L) => l.a],
+      ] as [string, L[], (l: L) => N][]) {
+        inspector.append(el('p', 'label onto-group', `${title} · ${list.length}`));
+        if (!list.length) {
+          inspector.append(el('p', 'onto-none', data.words.none));
+          continue;
+        }
+        const ul = el('ul', 'onto-rels');
+        for (const l of list) {
+          const li = el('li', `onto-b-${l.basis}`);
+          li.append(el('span', 'onto-rel', data.rels[l.rel]));
+          const target = other(l);
+          const b = el('button', 'onto-jump') as HTMLButtonElement;
+          b.type = 'button';
+          b.append(el('i', `onto-swatch onto-t-${target.type}`), document.createTextNode(target.label));
+          b.addEventListener('click', () => select(target, true));
+          li.append(b);
+          const meta = el('span', 'onto-meta', data.basis[l.basis]);
+          if (l.src) {
+            const a = el('a', '', data.words.source) as HTMLAnchorElement;
+            a.href = l.src;
+            a.rel = 'noopener';
+            meta.append(document.createTextNode(' · '), a);
+          }
+          li.append(meta);
+          ul.append(li);
+        }
+        inspector.append(ul);
+      }
+      inspector.classList.remove('detail-in');
+      void inspector.offsetWidth;
+      inspector.classList.add('detail-in');
+    };
+
+    const select = (n: N | null, nudge = false) => {
+      selected = n;
+      inspect(n);
+      paint();
+      history.replaceState(null, '', n ? `#${encodeURIComponent(n.id)}` : location.pathname);
+      if (nudge) alpha = Math.max(alpha, 0.35);
+      if (reduce) render();
+    };
+
+    // Pointer: click selects, drag pins an object while held.
+    let drag: N | null = null;
+    let moved = false;
+    const point = (ev: PointerEvent) => {
+      const box = svg.getBoundingClientRect();
+      return [((ev.clientX - box.left) / box.width) * W, ((ev.clientY - box.top) / box.height) * H];
+    };
+    for (const n of nodes) {
+      const g = n.el!;
+      g.addEventListener('pointerdown', (ev) => {
+        drag = n;
+        moved = false;
+        n.fixed = true;
+        g.setPointerCapture(ev.pointerId);
+      });
+      g.addEventListener('pointermove', (ev) => {
+        if (drag !== n) return;
+        const [x, y] = point(ev);
+        if (Math.abs(x - n.x) + Math.abs(y - n.y) > 2) moved = true;
+        n.x = x;
+        n.y = y;
+        alpha = Math.max(alpha, 0.3);
+        if (reduce) {
+          for (let i = 0; i < 3; i++) tick();
+          render();
+        }
+      });
+      g.addEventListener('pointerup', () => {
+        if (drag === n && !moved) select(selected === n ? null : n);
+        drag = null;
+        n.fixed = false;
+      });
+      g.addEventListener('pointerenter', () => {
+        hovered = n;
+        paint();
+      });
+      g.addEventListener('pointerleave', () => {
+        hovered = null;
+        paint();
+      });
+      g.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault();
+          select(selected === n ? null : n);
+        }
+      });
+      g.addEventListener('focus', () => {
+        hovered = n;
+        paint();
+      });
+      g.addEventListener('blur', () => {
+        hovered = null;
+        paint();
+      });
+    }
+    svg.addEventListener('pointerdown', (ev) => {
+      if (ev.target === svg) select(null);
+    });
+    root.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape' && selected) select(null);
+    });
+
+    search.addEventListener('input', paint);
+    search.addEventListener('keydown', (ev) => {
+      if (ev.key !== 'Enter') return;
+      ev.preventDefault();
+      const q = search.value.trim().toLowerCase();
+      const hit = nodes.find((n) => n.visible && n.label.toLowerCase().includes(q));
+      if (hit) select(hit, true);
+    });
+
+    const applyFilters = () => {
+      const types = new Set([...root.querySelectorAll<HTMLInputElement>('[data-onto-type]')].filter((i) => i.checked).map((i) => i.value));
+      const bases = new Set([...root.querySelectorAll<HTMLInputElement>('[data-onto-basis]')].filter((i) => i.checked).map((i) => i.value));
+      for (const n of nodes) {
+        n.visible = types.has(n.type);
+        n.el!.style.display = n.visible ? '' : 'none';
+      }
+      for (const l of links) {
+        l.visible = l.a.visible && l.b.visible && bases.has(l.basis);
+        l.el!.style.display = l.visible ? '' : 'none';
+      }
+      if (selected && !selected.visible) select(null);
+      alpha = Math.max(alpha, 0.5);
+      if (reduce) {
+        for (let i = 0; i < 200; i++) tick();
+        render();
+      }
+      paint();
+    };
+    root.addEventListener('change', (ev) => {
+      if ((ev.target as HTMLElement).matches('[data-onto-type], [data-onto-basis]')) applyFilters();
+    });
+
+    // Animation loop, paused when the canvas is off screen or the tab is hidden.
+    let running = false;
+    let onScreen = true;
+    let last = 0;
+    const frame = (now: number) => {
+      if (!running) return;
+      time += last ? now - last : 16;
+      last = now;
+      tick();
+      render();
+      requestAnimationFrame(frame);
+    };
+    const start = () => {
+      if (running || reduce || !onScreen || document.hidden) return;
+      running = true;
+      last = 0;
+      requestAnimationFrame(frame);
+    };
+    const stop = () => {
+      running = false;
+    };
+    new IntersectionObserver(([e]) => {
+      onScreen = e.isIntersecting;
+      onScreen ? start() : stop();
+    }).observe(svg);
+    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+    new ResizeObserver(() => {
+      const oldW = W;
+      const oldH = H;
+      size();
+      if (oldW !== W || oldH !== H) {
+        for (const n of nodes) {
+          n.x *= W / oldW;
+          n.y *= H / oldH;
+        }
+        alpha = Math.max(alpha, 0.3);
+        if (reduce) render();
+      }
+    }).observe(svg.parentElement!);
+
+    if (reduce) {
+      for (let i = 0; i < 400; i++) tick();
+      render();
+    } else {
+      start();
+    }
+
+    const fromHash = decodeURIComponent(location.hash.slice(1));
+    if (byId.has(fromHash)) select(byId.get(fromHash)!);
+    paint();
+  }
+</script>

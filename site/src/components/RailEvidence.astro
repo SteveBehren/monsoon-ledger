@@ -1,0 +1,42 @@
+---
+// Rail visual for the Method page: the evidence ladder as it stands in the data today.
+import { getEntries, getInstruments, EVIDENCE_STRENGTH, type Evidence } from '../lib/data';
+import { ui, type Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = ui[lang];
+const entries = getEntries();
+const instruments = getInstruments();
+const levels = (Object.keys(EVIDENCE_STRENGTH) as Evidence[]).sort((a, b) => EVIDENCE_STRENGTH[b] - EVIDENCE_STRENGTH[a]);
+const max = Math.max(1, ...levels.map((l) => entries.filter((e) => e.evidence === l).length));
+const read = instruments.filter((i) => i.read_in_full).length;
+const words =
+  lang === 'en'
+    ? { title: 'The ladder today', entries: 'entries', read: 'instruments read in full', of: 'of' }
+    : { title: 'Tangga bukti hari ini', entries: 'catatan', read: 'instrumen dibaca utuh', of: 'dari' };
+---
+<div class="rail-card rail-ladder">
+  <p class="label">{words.title}</p>
+  <ol>
+    {
+      levels.map((l, i) => {
+        const n = entries.filter((e) => e.evidence === l).length;
+        return (
+          <li class={`ev-${l}`} style={`--i:${i}`}>
+            <span class="rl-step" style={`--w:${(n / max) * 100}%`}><i></i></span>
+            <span class="rl-text">{t.evidence[l]}</span>
+            <b>{n}</b>
+          </li>
+        );
+      })
+    }
+  </ol>
+  <p class="rl-read"><b>{read}</b> {words.of} {instruments.length} {words.read}</p>
+  <div class="rl-dots" aria-hidden="true">
+    {instruments.map((i) => <span class={i.read_in_full ? 'is-read' : ''} title={i.name_en}></span>)}
+  </div>
+</div>

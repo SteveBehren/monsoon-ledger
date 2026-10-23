@@ -1,0 +1,48 @@
+---
+// Icons and link preview tags shared by every page, including the root redirect page,
+// which is the url most people paste into chat apps. Images come from
+// scripts/make-share-images.mjs. Preview images must be absolute urls.
+import { SITE, type Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+  url: string;
+  ogType?: 'website' | 'article';
+  locale: string;
+  altLocale: string;
+}
+
+const { lang, title, description, url, ogType = 'website', locale, altLocale } = Astro.props;
+const image = new URL(`/og-${lang}.jpg`, SITE.url).href;
+const imageAlt =
+  lang === 'en'
+    ? 'Monsoon Ledger. AI governance from the archipelago, promises checked against the record.'
+    : 'Monsoon Ledger. Catatan janji dan kenyataan tata kelola AI di Nusantara.';
+---
+<link rel="icon" href="/favicon.ico" sizes="48x48" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<meta name="apple-mobile-web-app-title" content={SITE.name} />
+<meta name="application-name" content={SITE.name} />
+
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:type" content={ogType} />
+<meta property="og:url" content={url} />
+<meta property="og:locale" content={locale} />
+<meta property="og:locale:alternate" content={altLocale} />
+<meta property="og:image" content={image} />
+<meta property="og:image:secure_url" content={image} />
+<meta property="og:image:type" content="image/jpeg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={imageAlt} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={image} />
+<meta name="twitter:image:alt" content={imageAlt} />

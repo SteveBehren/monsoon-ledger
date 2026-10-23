@@ -1,6 +1,7 @@
 ---
 import Base from '../../../layouts/Base.astro';
 import EntryItem from '../../../components/EntryItem.astro';
+import EntriesOverview from '../../../components/EntriesOverview.astro';
 import { getEntries, STATUSES, TOPICS, EVIDENCE_STRENGTH, type Evidence } from '../../../lib/data';
 import { ui, LANGS, type Lang } from '../../../lib/i18n';
 
@@ -40,6 +41,8 @@ const copy = {
     <h1>{t.nav.entries}</h1>
     <p class="lede">{copy.intro}</p>
   </header>
+
+  <EntriesOverview entries={entries} lang={lang} />
 
   <form class="filters panel" id="filters" hidden aria-describedby="topic-hint">
     <fieldset class="chips">

@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import PageRail from '../../components/PageRail.astro';
 import { ui, href, SITE, LANGS, type Lang } from '../../lib/i18n';
 
 export function getStaticPaths() {
@@ -26,6 +27,7 @@ const description =
     <p class="kicker">{kicker}</p>
     <h1>{title}</h1>
   </header>
+  <div class="doc doc--prose">
   <article class="doc-body prose">
     {
       lang === 'en' ? (
@@ -99,7 +101,7 @@ const description =
           <p><strong>What it shows.</strong> If the screenshot is genuine, some software connected to an Anthropic API key posted the error to that account instead of a written message.</p>
           <p>
             <strong>What it does not show.</strong> Who runs the account, whether anyone paid for it, whether it belongs to a network, or any link
-            to a government body. The original post has not been authenticated, and a screenshot can be edited. Under the
+            to a government body. The original post has not been authenticated, and a screenshot can be edited. Under the{' '}
             <a href={href(lang, 'method/#verification')}>verification protocol</a>, content like this is a lead, never evidence.
           </p>
           <p>
@@ -319,4 +321,6 @@ const description =
       )
     }
   </article>
+  <PageRail lang={lang} sections />
+  </div>
 </Base>

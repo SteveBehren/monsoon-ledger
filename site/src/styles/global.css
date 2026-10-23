@@ -2869,11 +2869,14 @@ button.chip {
 }
 
 .unverified {
-  display: inline-block;
+  display: inline;
   margin-right: 0.35rem;
   padding: 0.05rem 0.45rem;
   border: 1px solid var(--accent);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
+  line-height: 1.9;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
   color: var(--accent);
   font-weight: 600;
 }

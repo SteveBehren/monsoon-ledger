@@ -1,7 +1,7 @@
 {
   "name": "monsoon-ledger",
   "private": true,
-  "description": "AI governance from the archipelago, read in the original Bahasa.",
+  "description": "AI governance from the archipelago, promises checked against the record.",
   "license": "MIT",
   "type": "module",
   "scripts": {

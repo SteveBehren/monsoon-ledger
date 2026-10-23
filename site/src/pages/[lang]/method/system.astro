@@ -4,7 +4,9 @@ import path from 'node:path';
 import yaml from 'js-yaml';
 import Base from '../../../layouts/Base.astro';
 import MethodTabs from '../../../components/MethodTabs.astro';
-import { getWatchSources, getScanLog } from '../../../lib/data';
+import PageRail from '../../../components/PageRail.astro';
+import NextScan from '../../../components/NextScan.astro';
+import { getWatchSources, getScanLog, getBuildLog, BUILD_KINDS } from '../../../lib/data';
 import { ui, href, SITE, LANGS, type Lang } from '../../../lib/i18n';
 
 export function getStaticPaths() {
@@ -81,15 +83,13 @@ const pipeline = {
   ],
 }[lang];
 
-const timeline = [
-  { date: '2026-10-22', hashes: ['12614ad', '996aa5d', '26c2dfd', '4518e71'], en: 'Repository layout, licences, CI, the entry schema, the validator, instruments, deadlines and the first four entries.', id: 'Struktur repositori, lisensi, CI, skema catatan, validator, instrumen, tenggat, dan empat catatan pertama.' },
-  { date: '2026-10-22', hashes: ['bf20b7e', '29a95ea', '422f381'], en: 'The bilingual Astro site, the README, the project rules in CLAUDE.md and the changelog.', id: 'Situs Astro dua bahasa, README, aturan proyek di CLAUDE.md, dan catatan perubahan.' },
-  { date: '2026-10-22', hashes: ['51ea1f5', 'f49efd7'], en: 'First deployment on Vercel, the live address, and redirects so only one address serves the site.', id: 'Penerbitan pertama di Vercel, alamat situs, dan pengalihan agar hanya satu alamat yang melayani situs.' },
-  { date: '2026-10-22', hashes: ['63a28ac'], en: 'Redesign as a bilingual analytical console, with the Safety lens matrix and the instrument map.', id: 'Desain ulang menjadi konsol analitis dua bahasa, dengan matriks Lensa keselamatan dan peta instrumen.' },
-  { date: '2026-10-22', hashes: ['2106df6', 'e01a8a7'], en: 'The legal brief on silencing by automation, ported onto the redesign.', id: 'Catatan hukum tentang pembungkaman lewat otomatisasi, dipindahkan ke desain baru.' },
-  { date: '2026-10-23', hashes: ['309286a'], en: 'The research protocol on the Method page and the instrument dossiers, with verified references.', id: 'Protokol penelitian di halaman Metode dan berkas instrumen, dengan rujukan yang sudah diverifikasi.' },
-  { date: '2026-10-23', hashes: [], en: 'This monitoring layer: the scanner, its tests, the scheduled workflow, the Radar and this page.', id: 'Lapisan pemantauan ini: pemindai, pengujiannya, alur kerja terjadwal, Radar, dan halaman ini.' },
-];
+const buildLog = getBuildLog();
+const kindsUsed = BUILD_KINDS.filter((k) => buildLog.some((r) => r.kind === k));
+const pr = (n: number) => `${SITE.repo}/pull/${n}`;
+const kindLabel = {
+  en: { feature: 'Feature', fix: 'Fix', content: 'Content', revert: 'Revert', rollback: 'Rollback' },
+  id: { feature: 'Fitur', fix: 'Perbaikan', content: 'Konten', revert: 'Pembatalan', rollback: 'Pengembalian versi' },
+}[lang];
 
 const lede = {
   en: 'How Monsoon Ledger is built, how it collects and checks data, how it watches for new developments by itself, and how a lead becomes an entry. Everything described here is in the public repository.',
@@ -101,6 +101,8 @@ const repoMap = `data/
   instruments.yml      laws, drafts and guidance, with dossier fields
   deadlines.yml        public promises, newest first
   schema.json          JSON Schema for entries
+  ontology.yml         institutions and curated, sourced links
+  build-log.yml        every change asked for, shown below
   radar.yml            scanner output: unreviewed leads
   scan-log.yml         one row per scan
   watch/sources.yml    what the scanner reads
@@ -108,6 +110,9 @@ const repoMap = `data/
   watch/seen.json      ids already seen, so leads never return
 scripts/
   validate.mjs         schema and project rules, run before every build
+  ontology.mjs         fuses all data into one graph of objects and links
+  ontology.test.mjs    tests for the graph and its link rules
+  make-share-images.mjs  icons and link preview cards
   scan.mjs             the monitoring layer
   scan/parse.mjs       RSS, Atom and HTML link parsing
   scan/score.mjs       scoring, deduplication, dash rule
@@ -127,7 +132,7 @@ site/                  Astro static site, no client framework
     <p class="lede">{lede}</p>
     <MethodTabs lang={lang} current="system" />
   </header>
-  <div class="doc">
+  <div class="doc doc--rail">
     <nav class="toc" aria-label={t.onThisPage}>
       <p class="label">{t.onThisPage}</p>
       <ol>
@@ -304,7 +309,11 @@ site/                  Astro static site, no client framework
               <li><strong>Claude</strong> writes code and configuration, drafts and translates text for the author to review, checks URLs and legal citations against databases before they are used, and runs the tests, validator and build before each push.</li>
               <li><strong>The rules</strong> live in <a href={file('CLAUDE.md')}>CLAUDE.md</a>, which Claude reads at the start of every session: never invent a fact, quote, date or URL, leave a marked TODO instead, never rewrite the author's own words, and pass the validator. The validator enforces the parts a machine can check.</li>
             </ul>
-            <p>The build so far, in public commits:</p>
+            <p id="build">
+              <strong>Build so far.</strong> Every update the author asks for gets a row in{' '}
+              <a href={file('data/build-log.yml')}>data/build-log.yml</a>, including fixes, reverts and rollbacks, so the history of the
+              site stays visible. Newest first, each with its pull request and commits.
+            </p>
           </>
         ) : (
           <>
@@ -317,26 +326,43 @@ site/                  Astro static site, no client framework
               <li><strong>Claude</strong> menulis kode dan konfigurasi, membuat draf dan terjemahan untuk ditinjau penulis, mengecek URL dan kutipan hukum terhadap basis data sebelum dipakai, serta menjalankan pengujian, validator, dan build sebelum setiap push.</li>
               <li><strong>Aturannya</strong> ada di <a href={file('CLAUDE.md')}>CLAUDE.md</a>, yang dibaca Claude di awal setiap sesi: jangan pernah mengarang fakta, kutipan, tanggal, atau URL, tinggalkan TODO yang ditandai, jangan menulis ulang kata-kata penulis, dan lolos validator. Validator menegakkan bagian yang bisa diperiksa mesin.</li>
             </ul>
-            <p>Proses pembangunan sejauh ini, dalam commit publik:</p>
+            <p id="build">
+              <strong>Pembangunan sejauh ini.</strong> Setiap pembaruan yang diminta penulis dicatat di{' '}
+              <a href={file('data/build-log.yml')}>data/build-log.yml</a>, termasuk perbaikan, pembatalan, dan pengembalian versi, supaya
+              riwayat situs tetap terlihat. Terbaru di atas, masing-masing dengan pull request dan commit-nya.
+            </p>
           </>
         )
       }
-      <div class="panel table-panel">
-        <table class="ruled stack">
-          <caption class="visually-hidden">{toc[8][1]}</caption>
-          <thead><tr><th scope="col">{t.date}</th><th scope="col">{lang === 'en' ? 'What was built' : 'Yang dibangun'}</th><th scope="col">Commits</th></tr></thead>
-          <tbody>
-            {timeline.map((row) => (
-              <tr>
-                <td data-label={t.date}><span class="mono">{row.date}</span></td>
-                <td data-label={lang === 'en' ? 'What was built' : 'Yang dibangun'}>{lang === 'en' ? row.en : row.id}</td>
-                <td data-label="Commits">
-                  {row.hashes.length ? row.hashes.map((h, i) => <>{i > 0 && ' '}<a class="mono" href={commit(h)}>{h}</a></>) : <span class="lead-terms">{lang === 'en' ? 'this release' : 'rilis ini'}</span>}
-                </td>
-              </tr>
+      <div class="build-log" data-build-log>
+        <form class="filters panel" hidden data-build-filter>
+          <fieldset class="chips">
+            <legend>{lang === 'en' ? 'Kind' : 'Jenis'}</legend>
+            <label class="chip"><input type="radio" name="kind" value="" checked /><span>{t.all} <span class="count">{buildLog.length}</span></span></label>
+            {kindsUsed.map((k) => (
+              <label class="chip"><input type="radio" name="kind" value={k} /><span><i class={`bk-dot bk-${k}`} aria-hidden="true" />{kindLabel[k]} <span class="count">{buildLog.filter((r) => r.kind === k).length}</span></span></label>
             ))}
-          </tbody>
-        </table>
+          </fieldset>
+        </form>
+        <ol class="build-rows">
+          {buildLog.map((row, i) => (
+            <li class={`build-row bk-${row.kind}`} data-kind={row.kind} style={`--i:${i}`}>
+              <span class="br-date mono">{row.date}</span>
+              <span class="br-dot" aria-hidden="true" />
+              <div class="br-card panel">
+                <p class="br-head">
+                  <span class={`br-kind bk-${row.kind}`}>{kindLabel[row.kind]}</span>
+                  {row.pr && <a class="mono" href={pr(row.pr)}>PR #{row.pr}</a>}
+                </p>
+                <h3>{lang === 'en' ? row.title_en : row.title_id}</h3>
+                <p>{lang === 'en' ? row.detail_en : row.detail_id}</p>
+                <p class="br-commits">
+                  {row.commits.map((h, j) => <>{j > 0 && ' '}<a class="mono" href={commit(h)}>{h}</a></>)}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ol>
       </div>
 
       <h2 id="maintenance">10. {toc[9][1]}</h2>
@@ -416,5 +442,18 @@ npm run dev            # local site at http://localhost:4321`}</code></pre>
         {' '}<a href={href(lang, 'radar/')}>{t.nav.radar} <span class="arrow" aria-hidden="true">&rarr;</span></a>
       </p>
     </article>
+    <script>
+      const form = document.querySelector<HTMLFormElement>('[data-build-filter]');
+      const rows = document.querySelectorAll<HTMLElement>('.build-row');
+      if (form) {
+        form.hidden = false;
+        form.addEventListener('change', () => {
+          const v = (form.querySelector('input:checked') as HTMLInputElement).value;
+          rows.forEach((r) => (r.hidden = v !== '' && r.dataset.kind !== v));
+        });
+        form.addEventListener('submit', (e) => e.preventDefault());
+      }
+    </script>
+    <PageRail lang={lang}><NextScan lang={lang} lastScan={log[0]?.at} sources={sources.length} /></PageRail>
   </div>
 </Base>

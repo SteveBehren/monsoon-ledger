@@ -1,6 +1,8 @@
 ---
 import '../styles/global.css';
+import '../styles/visual.css';
 import BrandMark from '../components/BrandMark.astro';
+import SiteHead from '../components/SiteHead.astro';
 import { ui, other, href, SITE, type Lang } from '../lib/i18n';
 
 interface Props {
@@ -10,23 +12,25 @@ interface Props {
   title?: string;
   description?: string;
   ogType?: 'website' | 'article';
-  nav?: 'home' | 'entries' | 'ledger' | 'instruments' | 'radar' | 'method' | 'about';
+  nav?: 'home' | 'entries' | 'ledger' | 'instruments' | 'ontology' | 'radar' | 'method' | 'about';
 }
 
 const { lang, path, title, description, ogType = 'website', nav } = Astro.props;
 const t = ui[lang];
 const alt = other(lang);
-const fullTitle = title ? `${title} | ${SITE.name}` : `${SITE.name} | ${t.tagline}`;
+// Tabs show the page name first and the site name after it. Home shows the site name only.
+const fullTitle = title ? `${title} | ${SITE.name}` : SITE.name;
 const desc = description ?? t.tagline;
 const canonical = new URL(href(lang, path), SITE.url).href;
 const enUrl = new URL(href('en', path), SITE.url).href;
 const idUrl = new URL(href('id', path), SITE.url).href;
 
+// The brand links home, so Home is not repeated in the navigation.
 const links = [
-  { key: 'home', path: '' },
   { key: 'entries', path: 'entries/' },
   { key: 'ledger', path: 'ledger/' },
   { key: 'instruments', path: 'instruments/' },
+  { key: 'ontology', path: 'ontology/' },
   { key: 'radar', path: 'radar/' },
   { key: 'method', path: 'method/' },
   { key: 'about', path: 'about/' },
@@ -59,19 +63,16 @@ const links = [
     <link rel="alternate" hreflang="id" href={idUrl} />
     <link rel="alternate" hreflang="x-default" href={enUrl} />
     <link rel="alternate" type="application/rss+xml" title={`${SITE.name} (${t.langName})`} href={href(lang, 'feed.xml')} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap.xml" />
-
-    <meta property="og:site_name" content={SITE.name} />
-    <meta property="og:title" content={title ?? SITE.name} />
-    <meta property="og:description" content={desc} />
-    <meta property="og:type" content={ogType} />
-    <meta property="og:url" content={canonical} />
-    <meta property="og:locale" content={t.ogLocale} />
-    <meta property="og:locale:alternate" content={ui[alt].ogLocale} />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content={title ?? SITE.name} />
-    <meta name="twitter:description" content={desc} />
+    <SiteHead
+      lang={lang}
+      title={title ?? SITE.name}
+      description={desc}
+      url={canonical}
+      ogType={ogType}
+      locale={t.ogLocale}
+      altLocale={ui[alt].ogLocale}
+    />
   </head>
   <body>
     <a class="skip-link" href="#main">{t.skip}</a>
@@ -171,7 +172,7 @@ const links = [
           <div>
             <h2>{t.footerExplore}</h2>
             <ul>
-              {links.slice(1).map((l) => <li><a href={href(lang, l.path)}>{t.nav[l.key]}</a></li>)}
+              {links.map((l) => <li><a href={href(lang, l.path)}>{t.nav[l.key]}</a></li>)}
             </ul>
           </div>
           <div>
@@ -233,6 +234,30 @@ const links = [
         items.forEach((el) => io.observe(el));
       } else {
         items.forEach((el) => el.classList.add('is-in'));
+      }
+
+      // Whole numbers in metric tiles count up the first time they come into view.
+      const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const figures = [...document.querySelectorAll<HTMLElement>('.metric .figure, .balance-legend .figure')].filter((el) =>
+        /^\d+$/.test(el.firstChild?.textContent?.trim() ?? ''),
+      );
+      if (!still && 'IntersectionObserver' in window) {
+        const counter = new IntersectionObserver((entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            counter.unobserve(e.target);
+            const node = e.target.firstChild!;
+            const target = Number(node.textContent!.trim());
+            const t0 = performance.now();
+            const step = (now: number) => {
+              const p = Math.min(1, (now - t0) / 900);
+              node.textContent = String(Math.round(target * (1 - Math.pow(1 - p, 3))));
+              if (p < 1) requestAnimationFrame(step);
+            };
+            requestAnimationFrame(step);
+          }
+        });
+        figures.forEach((el) => counter.observe(el));
       }
     </script>
   </body>

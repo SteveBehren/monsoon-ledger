@@ -10,7 +10,11 @@ export const GET: APIRoute = () => {
     { path: 'entries/', lastmod: newest },
     { path: 'ledger/' },
     { path: 'instruments/' },
+    { path: 'ontology/' },
+    { path: 'radar/' },
     { path: 'method/' },
+    { path: 'method/system/' },
+    { path: 'silencing/' },
     { path: 'about/' },
     ...entries.map((e) => ({ path: `entries/${e.id}/`, lastmod: e.last_checked })),
   ];

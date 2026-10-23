@@ -1,0 +1,100 @@
+---
+// The right-hand rail on long pages. It fills the empty column on wide screens with a reading
+// progress ring, the section being read, an optional list of sections, and a page-specific
+// visual passed in the default slot. It only adds to the page: nothing here is the only place
+// a fact appears. Hidden on narrower screens.
+import type { Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+  /** List the page sections (for pages without a table of contents on the left). */
+  sections?: boolean;
+}
+
+const { lang, sections = false } = Astro.props;
+const words =
+  lang === 'en'
+    ? { read: 'read', left: 'min left', now: 'Now reading', sections: 'Sections', top: 'Back to top' }
+    : { read: 'dibaca', left: 'menit lagi', now: 'Sedang dibaca', sections: 'Bagian', top: 'Kembali ke atas' };
+---
+<aside class="rail" data-rail data-sections={sections ? '' : undefined} aria-label={lang === 'en' ? 'Reading aids' : 'Bantuan membaca'}>
+  <div class="rail-card">
+    <div class="rail-progress">
+      <svg viewBox="0 0 44 44" aria-hidden="true">
+        <circle class="rp-track" cx="22" cy="22" r="19" />
+        <circle class="rp-fill" cx="22" cy="22" r="19" pathLength="100" data-rail-ring />
+      </svg>
+      <p><b data-rail-pct>0%</b> {words.read}<br /><span data-rail-left></span> {words.left}</p>
+    </div>
+    <p class="label">{words.now}</p>
+    <p class="rail-now" data-rail-now aria-live="off"></p>
+    {sections && <p class="label rail-sec-label">{words.sections}</p>}
+    {sections && <ol class="rail-sections" data-rail-list></ol>}
+    <a class="rail-top" href="#main">{words.top} <span aria-hidden="true">&uarr;</span></a>
+  </div>
+  <slot />
+</aside>
+
+<script>
+  for (const rail of document.querySelectorAll<HTMLElement>('[data-rail]')) {
+    const doc = rail.closest('.doc');
+    const article = doc?.querySelector<HTMLElement>('.doc-body');
+    if (!article) continue;
+    const ring = rail.querySelector<SVGCircleElement>('[data-rail-ring]')!;
+    const pct = rail.querySelector<HTMLElement>('[data-rail-pct]')!;
+    const left = rail.querySelector<HTMLElement>('[data-rail-left]')!;
+    const now = rail.querySelector<HTMLElement>('[data-rail-now]')!;
+    const list = rail.querySelector<HTMLOListElement>('[data-rail-list]');
+    const tocLinks = [...(doc!.querySelectorAll<HTMLAnchorElement>('.toc a') ?? [])];
+    // Headings without an id get one from their text, so every section can be linked.
+    const heads = [...article.querySelectorAll<HTMLHeadingElement>('h2')].filter((h) => !h.closest('[hidden]'));
+    for (const h of heads) {
+      if (!h.id) h.id = (h.textContent ?? '').toLowerCase().normalize('NFKD').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '');
+    }
+    const minutes = (article.innerText.split(/\s+/).length || 1) / 220;
+
+    const items = list
+      ? heads.map((h) => {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = `#${h.id}`;
+          a.textContent = h.textContent;
+          li.append(a);
+          list.append(li);
+          return a;
+        })
+      : [];
+
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const box = article.getBoundingClientRect();
+      const span = box.height - innerHeight * 0.6;
+      const p = Math.min(1, Math.max(0, (innerHeight * 0.25 - box.top) / Math.max(1, span)));
+      ring.style.strokeDashoffset = String(100 - p * 100);
+      pct.textContent = `${Math.round(p * 100)}%`;
+      left.textContent = String(Math.max(0, Math.ceil(minutes * (1 - p))));
+      let current = heads[0];
+      for (const h of heads) if (h.getBoundingClientRect().top < innerHeight * 0.3) current = h;
+      if (current && now.textContent !== current.textContent) {
+        now.textContent = current.textContent;
+        now.classList.remove('detail-in');
+        void now.offsetWidth;
+        now.classList.add('detail-in');
+      }
+      const id = current?.id;
+      for (const a of [...items, ...tocLinks]) {
+        if (a.getAttribute('href') === `#${id}`) a.setAttribute('aria-current', 'location');
+        else a.removeAttribute('aria-current');
+      }
+    };
+    addEventListener('scroll', () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    }, { passive: true });
+    addEventListener('resize', update);
+    update();
+  }
+</script>

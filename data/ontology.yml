@@ -1,0 +1,133 @@
+# The ontology layer: typed objects and the links between them.
+#
+# Most of the graph is derived from the other data files at build time, with nothing added:
+# entries, instruments, promises (data/deadlines.yml), the people who made them, the documents
+# every claim rests on, the outlets that published them and the radar leads. This file holds
+# only what cannot be derived: the institutions, and the links between objects that need a
+# human reading of a source.
+#
+# Rules, enforced by npm run validate:
+#   - every relation has a source_url that the ledger already cites (an entry source, a
+#     deadline, an instrument or the bibliography in site/src/lib/references.ts);
+#   - "from" and "to" must resolve to objects of the types the relation allows;
+#   - no duplicates. Never add a link the source does not state.
+
+# Institutions. "aliases" are the exact names used after the comma in deadlines.yml "who"
+# (for example "Edwin Hidayat Abdullah, Komdigi"), so membership is read from the ledger itself.
+institutions:
+  - id: president
+    name_en: President of the Republic of Indonesia
+    name_id: Presiden Republik Indonesia
+    country: ID
+  - id: dpr
+    name_en: House of Representatives (DPR)
+    name_id: Dewan Perwakilan Rakyat (DPR)
+    country: ID
+  - id: komdigi
+    name_en: Ministry of Communication and Digital Affairs (Komdigi)
+    name_id: Kementerian Komunikasi dan Digital (Komdigi)
+    country: ID
+    aliases: [Komdigi, Kemkomdigi]
+  # TODO: link kominfo to komdigi (the ministry was renamed) once a source for the change is
+  # cited in the ledger. Until then the two stay separate objects.
+  - id: kominfo
+    name_en: Ministry of Communication and Informatics (Kominfo)
+    name_id: Kementerian Komunikasi dan Informatika (Kominfo)
+    country: ID
+    aliases: [Kominfo]
+  - id: asean-digital-ministers
+    name_en: ASEAN Digital Ministers
+    name_id: Para Menteri Digital ASEAN
+    country: ASEAN
+  - id: korika
+    name_en: Korika
+    name_id: Korika
+    country: ID
+  - id: ai-singapore
+    name_en: AI Singapore
+    name_id: AI Singapore
+    country: SG
+
+# Bibliography keys (site/src/lib/references.ts) that an instrument is compared with, and the
+# key for the law that ranks Indonesian instruments. Any other key in an instrument's "refs"
+# becomes a "documented in" link.
+references:
+  compared_with: [ai-act, gdpr, omnibus, oecd]
+  ranked_under: [uu-12-2011]
+
+# Curated links. "rel" must be one of the relation types in scripts/ontology.mjs.
+# evidence follows the same levels as entries: legal-text, official-statement, press-report.
+relations:
+  - from: instrument:se-menkominfo-9-2023
+    rel: passed_by
+    to: institution:kominfo
+    evidence: legal-text
+    source_url: https://web.kominfo.go.id/sites/default/files/kominfo-Surat-Edaran-Kecerdasan-Artifisial.pdf
+
+  - from: instrument:draft-perpres-ai-roadmap
+    rel: responsibility_of
+    to: institution:komdigi
+    evidence: official-statement
+    source_url: https://www.antaranews.com/berita/5802305/pemerintah-siapkan-gugus-tugas-kawal-implementasi-regulasi-ai
+  - from: instrument:draft-perpres-ai-roadmap
+    rel: awaits_signature_of
+    to: institution:president
+    evidence: official-statement
+    source_url: https://selular.id/2026/09/dua-perpres-ai-tunggu-tanda-tangan-presiden-prabowo/
+
+  - from: instrument:draft-perpres-ai-ethics
+    rel: responsibility_of
+    to: institution:komdigi
+    evidence: official-statement
+    source_url: https://www.antaranews.com/berita/5802433/kemkomdigi-terapkan-pendekatan-berbasis-risiko-dalam-aturan-etika-ai
+  - from: instrument:draft-perpres-ai-ethics
+    rel: awaits_signature_of
+    to: institution:president
+    evidence: official-statement
+    source_url: https://selular.id/2026/09/dua-perpres-ai-tunggu-tanda-tangan-presiden-prabowo/
+
+  - from: instrument:asean-genai-guide-2025
+    rel: passed_by
+    to: institution:asean-digital-ministers
+    evidence: press-report
+    source_url: https://asean.org/wp-content/uploads/2025/01/Expanded-ASEAN-Guide-on-AI-Governance-and-Ethics-Generative-AI.pdf
+
+  - from: instrument:project-nusa
+    rel: led_by
+    to: institution:korika
+    evidence: press-report
+    source_url: https://www.antaranews.com/berita/5802593/indonesia-singapura-luncurkan-project-nusa-tata-kelola-ai
+  - from: instrument:project-nusa
+    rel: led_by
+    to: institution:ai-singapore
+    evidence: press-report
+    source_url: https://www.antaranews.com/berita/5802593/indonesia-singapura-luncurkan-project-nusa-tata-kelola-ai
+
+  - from: instrument:uu-pdp-27-2022
+    rel: passed_by
+    to: institution:dpr
+    evidence: legal-text
+    source_url: https://peraturan.bpk.go.id/Details/229798
+  - from: instrument:uu-pdp-27-2022
+    rel: passed_by
+    to: institution:president
+    evidence: legal-text
+    source_url: https://peraturan.bpk.go.id/Details/229798
+
+  - from: instrument:gr-33-2026
+    rel: passed_by
+    to: institution:president
+    evidence: press-report
+    source_url: https://www.nusantaradfdl.com/insights/indonesia-personal-data-protection-law-gr-33-2026/
+  - from: instrument:gr-33-2026
+    rel: implements
+    to: instrument:uu-pdp-27-2022
+    evidence: press-report
+    source_url: https://www.nusantaradfdl.com/insights/indonesia-personal-data-protection-law-gr-33-2026/
+
+  # deadlines.yml lists her as "Minister". The cited headline names her office (Menkomdigi).
+  - from: person:meutya-hafid
+    rel: member_of
+    to: institution:komdigi
+    evidence: press-report
+    source_url: https://www.cnnindonesia.com/teknologi/20260126203143-185-1321329/menkomdigi-sebut-perpres-ai-segera-disahkan-presiden-awal-tahun-ini

@@ -1,0 +1,127 @@
+# Build log: every change the author asked for, newest first, shown under "Build so far" on the
+# Technical system page. Every update gets a row, including fixes, reverts and rollbacks.
+#
+# kind:     feature | fix | content | revert | rollback
+# pr:       the pull request number, once it exists
+# commits:  short hashes of the commits that did the work (merge commits left out), in quotes
+#           so YAML never reads a hash such as 4518e71 as a number
+# Rows are checked by npm run validate: real dates, newest first, known kind, short hashes.
+
+- date: 2026-10-23
+  kind: feature
+  title_en: Visual layer, ontology, About abstract, icons and link previews
+  title_id: Lapisan visual, ontologi, abstrak Tentang, ikon, dan pratinjau tautan
+  detail_en: >
+    A live weather map on the home page whose markers are the seven public deadlines, a running clock since the first promise,
+    a replay slider on Promise vs Reality, charts on Entries and Radar, a reading rail on long pages and motion across the site.
+    An ontology layer joins entries, instruments, promises, officials, institutions and documents, with a graph explorer and a
+    JSON export. The About page became a research abstract, with the author's background taken from the CV and diploma the
+    author shared (professional facts only, the files are not published). New icons and preview cards so links show a proper card in chat apps.
+    The tagline now reads "promises checked against the record". This build log replaced the hand-written timeline.
+  detail_id: >
+    Peta cuaca hidup di beranda dengan penanda untuk tujuh tenggat publik, jam berjalan sejak janji pertama, penggeser putar ulang
+    di Janji vs Kenyataan, grafik di Catatan dan Radar, panel baca di halaman panjang, dan gerak di seluruh situs. Lapisan ontologi
+    menghubungkan catatan, instrumen, janji, pejabat, lembaga, dan dokumen, lengkap dengan penjelajah grafik dan ekspor JSON.
+    Halaman Tentang menjadi abstrak riset, dengan latar belakang penulis dari CV dan ijazah yang dibagikan penulis (hanya fakta
+    profesional, berkasnya tidak diterbitkan). Ikon dan kartu pratinjau baru agar tautan tampil rapi di aplikasi obrolan. Slogan kini
+    berbunyi "janji dicocokkan dengan catatan". Log pembangunan ini menggantikan linimasa yang ditulis manual.
+  pr: 5
+  commits: ["dd028b3", "6135efb", "b7f7fd4", "4d8ec6d", "b6306ab"]
+
+- date: 2026-10-23
+  kind: fix
+  title_en: Scanner scoring tightened after the first live run
+  title_id: Penilaian pemindai diperketat setelah uji langsung pertama
+  detail_en: >
+    The first live run let through headlines that only named an institution, tagged some leads with the wrong country and
+    repeated stories already in the ledger. Core terms, country hints and slug matching fixed all three.
+  detail_id: >
+    Uji langsung pertama meloloskan judul yang hanya menyebut nama lembaga, memberi negara yang salah pada sebagian petunjuk, dan
+    mengulang berita yang sudah ada di catatan. Istilah inti, petunjuk negara, dan pencocokan slug memperbaiki ketiganya.
+  pr: 4
+  commits: ["91c6855"]
+
+- date: 2026-10-23
+  kind: feature
+  title_en: Monitoring layer, the Radar and the Technical system page
+  title_id: Lapisan pemantauan, Radar, dan halaman Sistem teknis
+  detail_en: >
+    A scanner that reads watched sources twice a week and lists unreviewed leads on a new Radar page, with tests, a scheduled
+    workflow and this page documenting the whole system. Duplicate tables and repeated headings were removed.
+  detail_id: >
+    Pemindai yang membaca sumber pantauan dua kali seminggu dan mencantumkan petunjuk yang belum ditinjau di halaman Radar baru,
+    lengkap dengan pengujian, alur kerja terjadwal, dan halaman ini yang mendokumentasikan seluruh sistem. Tabel ganda dan judul
+    berulang dihapus.
+  pr: 4
+  commits: ["95c8430"]
+
+- date: 2026-10-23
+  kind: content
+  title_en: Method and Instruments expanded into a cited research protocol
+  title_id: Metode dan Instrumen diperluas menjadi protokol riset bersumber
+  detail_en: The research protocol on the Method page and per-instrument dossiers, with numbered references that were opened before they were added.
+  detail_id: Protokol riset di halaman Metode dan berkas tiap instrumen, dengan rujukan bernomor yang dibuka dulu sebelum ditambahkan.
+  pr: 3
+  commits: ["309286a"]
+
+- date: 2026-10-22
+  kind: fix
+  title_en: Redesign restored after a deploy from an older branch
+  title_id: Desain baru dipulihkan setelah penerbitan dari cabang lama
+  detail_en: >
+    A production deploy was made from a branch cut before the redesign, so the live site showed the old design. The redesign was
+    merged back in, the legal brief was ported onto it, and the site was deployed again. The lesson: check main before every deploy.
+  detail_id: >
+    Situs produksi sempat diterbitkan dari cabang yang dibuat sebelum desain ulang, sehingga situs menampilkan desain lama. Desain
+    baru digabungkan kembali, catatan hukum dipindahkan ke desain itu, lalu situs diterbitkan ulang. Pelajarannya: cek main
+    sebelum setiap penerbitan.
+  pr: 3
+  commits: ["e01a8a7"]
+
+- date: 2026-10-22
+  kind: content
+  title_en: Legal brief on silencing by automation
+  title_id: Catatan hukum tentang pembungkaman lewat otomatisasi
+  detail_en: A working-draft legal brief in English and Bahasa Indonesia, with a home page link to it.
+  detail_id: Draf kerja catatan hukum dalam bahasa Inggris dan Indonesia, dengan tautan dari beranda.
+  pr: 3
+  commits: ["2106df6"]
+
+- date: 2026-10-22
+  kind: fix
+  title_en: One address for the site
+  title_id: Satu alamat untuk situs
+  detail_en: The extra Vercel addresses now redirect to monsoonledger.vercel.app, so only one address serves the site.
+  detail_id: Alamat Vercel tambahan kini dialihkan ke monsoonledger.vercel.app, sehingga hanya satu alamat yang melayani situs.
+  pr: 3
+  commits: ["f49efd7"]
+
+- date: 2026-10-22
+  kind: feature
+  title_en: Redesign as a bilingual analytical console
+  title_id: Desain ulang menjadi konsol analitis dua bahasa
+  detail_en: A dark console design with a light theme, the Safety lens matrix and the instrument map. No data changed.
+  detail_id: Desain konsol gelap dengan tema terang, matriks Lensa keselamatan, dan peta instrumen. Tidak ada data yang berubah.
+  pr: 2
+  commits: ["63a28ac"]
+
+- date: 2026-10-22
+  kind: feature
+  title_en: First deployment on Vercel
+  title_id: Penerbitan pertama di Vercel
+  detail_en: The site went live and was pointed at its public address.
+  detail_id: Situs mulai tayang dan diarahkan ke alamat publiknya.
+  pr: 1
+  commits: ["51ea1f5"]
+
+- date: 2026-10-22
+  kind: feature
+  title_en: Repository, data model, first entries and the bilingual site
+  title_id: Repositori, model data, catatan pertama, dan situs dua bahasa
+  detail_en: >
+    Repository layout, licences and CI, the entry schema and validator, instruments, the Janji vs Kenyataan deadlines, the first four
+    entries, the bilingual Astro site, the README, the project rules in CLAUDE.md and the changelog.
+  detail_id: >
+    Struktur repositori, lisensi dan CI, skema catatan dan validator, instrumen, tenggat Janji vs Kenyataan, empat catatan pertama,
+    situs Astro dua bahasa, README, aturan proyek di CLAUDE.md, dan catatan perubahan.
+  commits: ["12614ad", "996aa5d", "26c2dfd", "4518e71", "bf20b7e", "29a95ea", "422f381"]

@@ -4,6 +4,8 @@ import Evidence from '../../components/Evidence.astro';
 import Cite from '../../components/Cite.astro';
 import References from '../../components/References.astro';
 import MethodTabs from '../../components/MethodTabs.astro';
+import PageRail from '../../components/PageRail.astro';
+import RailEvidence from '../../components/RailEvidence.astro';
 import { ui, href, SITE, LANGS, type Lang } from '../../lib/i18n';
 import type { RefKey } from '../../lib/references';
 
@@ -99,7 +101,7 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
     <p class="lede">{lede}</p>
     <MethodTabs lang={lang} current="research" />
   </header>
-  <div class="doc">
+  <div class="doc doc--rail">
     <nav class="toc" aria-label={t.onThisPage}>
       <p class="label">{t.onThisPage}</p>
       <ol>
@@ -128,7 +130,7 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
           </ol>
           <p>
             <strong>Unit of analysis.</strong> The primary unit is the entry: one dated governance event tied to exactly one
-            instrument. The secondary unit is the deadline: a public, dated promise by a named official, recorded in the
+            instrument. The secondary unit is the deadline: a public, dated promise by a named official, recorded in the{' '}
             <a href={href(lang, 'ledger/')}>Promise vs Reality</a> ledger.
           </p>
           <p>
@@ -831,5 +833,6 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
 
     <References keys={R} title={lang === 'en' ? 'References' : 'Daftar pustaka'} />
   </article>
+  <PageRail lang={lang}><RailEvidence lang={lang} /></PageRail>
   </div>
 </Base>

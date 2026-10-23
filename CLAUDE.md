@@ -37,6 +37,17 @@ git add data && git commit -m "Add entry: ..." && git push
 
 When a deadline outcome changes, update `data/deadlines.yml` (newest first) and add a dated line to `CHANGELOG.md`. Update `last_checked` on an entry only when its sources were actually re-opened.
 
+## Build log
+
+- Every update the author asks for gets a row in `data/build-log.yml` (newest first), in the same pull request as the change. That includes fixes, reverts and rollbacks, and changes that went wrong. The rows are shown under "Build so far" on Method, Technical system.
+- Fields: `date`, `kind` (feature, fix, content, revert, rollback), `title_en`, `title_id`, `detail_en`, `detail_id`, `pr` once the pull request exists, and `commits` as quoted short hashes.
+- Describe what changed and why, plainly. Never leave a mistake out of the log.
+
+## Ontology layer
+
+- `scripts/ontology.mjs` builds the graph from the data files. The validator and the site share it.
+- Curated links go in `data/ontology.yml`. Each needs `from`, `rel`, `to`, `evidence` and a `source_url` the ledger already cites. Never add a link the source does not state, never infer an official's title or role, and never tie a promise to an instrument by guesswork.
+
 ## Monitoring layer (the Radar)
 
 - `.github/workflows/scan.yml` runs `npm run scan` every Monday and Thursday at 06:17 WIB and commits `data/radar.yml`, `data/scan-log.yml` and `data/watch/seen.json` to main.
@@ -49,6 +60,7 @@ When a deadline outcome changes, update `data/deadlines.yml` (newest first) and 
 
 - `data/schema.json`: the entry schema. `scripts/validate.mjs` adds checks the schema cannot express (id equals file name, instrument exists, quote rules, deadlines fields, no dashes).
 - `data/instruments.yml`, `data/deadlines.yml`: shared data.
+- `data/ontology.yml`, `scripts/ontology.mjs` (tests in `scripts/ontology.test.mjs`): the ontology layer. `data/build-log.yml`: the build log.
 - `data/radar.yml`, `data/scan-log.yml`, `data/watch/`: the monitoring layer. `scripts/scan.mjs` and `scripts/scan/` (tests in `scripts/scan/scan.test.mjs`, run with `npm test`).
 - `site/`: Astro static site, no runtime server, no client framework. UI strings in `site/src/lib/i18n.ts`, data loading in `site/src/lib/data.ts`.
 - Dependencies are installed in `site/node_modules` (`npm run setup`). Scripts resolve them from there.
@@ -57,4 +69,5 @@ When a deadline outcome changes, update `data/deadlines.yml` (newest first) and 
 ## Do not
 
 - Add analytics, trackers, external fonts or a client framework.
+- Add motion that ignores `prefers-reduced-motion`, or animation that keeps running off screen.
 - Publish anything about the author beyond what is already on the About page.

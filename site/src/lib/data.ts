@@ -74,6 +74,18 @@ export interface Instrument {
   note_en: string;
   note_id: string;
   source_url: string;
+  issuer_en?: string;
+  issuer_id?: string;
+  level_en?: string;
+  level_id?: string;
+  /** True only when the author has read the full text of the instrument. */
+  read_in_full?: boolean;
+  points_en?: string[];
+  points_id?: string[];
+  eu_en?: string;
+  eu_id?: string;
+  /** Keys into REFERENCES in src/lib/references.ts. */
+  refs?: string[];
 }
 
 function read<T>(file: string): T {

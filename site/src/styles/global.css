@@ -2708,3 +2708,171 @@ button.chip {
 .callout p:last-child {
   margin-bottom: 0;
 }
+
+/* Citations and reference lists */
+
+.cite {
+  font-size: 0.72em;
+  line-height: 0;
+  margin-left: 0.1em;
+  white-space: nowrap;
+}
+
+.cite a {
+  text-decoration: none;
+}
+
+.refs {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.refs ol {
+  padding-left: 1.6rem;
+  font-size: 0.86rem;
+  color: var(--text-soft);
+}
+
+.refs li {
+  margin-bottom: 0.6rem;
+  scroll-margin-top: 5rem;
+}
+
+.refs li:target {
+  color: var(--text);
+}
+
+.refs a {
+  overflow-wrap: anywhere;
+}
+
+.doc-body h3 {
+  margin: 1.75rem 0 0.6rem;
+  font-size: 1.05rem;
+}
+
+.doc-body .table-panel {
+  margin: 1.25rem 0 1.5rem;
+}
+
+.glossary dt {
+  font-weight: 600;
+  margin-top: 0.75rem;
+}
+
+.glossary dd {
+  margin: 0.15rem 0 0;
+  color: var(--text-soft);
+}
+
+/* Instruments: hierarchy and dossiers */
+
+.hierarchy {
+  list-style: none;
+  padding: 0;
+  margin: 1.25rem 0;
+  border-left: 2px solid var(--accent);
+}
+
+.hierarchy li {
+  padding: 0.35rem 0 0.35rem 1rem;
+}
+
+.hierarchy .mono {
+  display: inline-block;
+  width: 1.5rem;
+  color: var(--text-faint);
+}
+
+.dossiers {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr));
+}
+
+.dossier {
+  padding: 1.25rem;
+  scroll-margin-top: 5rem;
+}
+
+.dossier h3 {
+  margin: 0 0 0.6rem;
+  font-size: 1.05rem;
+}
+
+.dossier-stamps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  margin-bottom: 0.9rem;
+}
+
+.read-flag {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px dashed var(--line);
+  border-radius: 999px;
+  color: var(--text-faint);
+}
+
+.read-flag.is-read {
+  border-style: solid;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.dossier dl {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.dossier dt {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-top: 0.75rem;
+}
+
+.dossier dd {
+  margin: 0.2rem 0 0;
+  color: var(--text-soft);
+}
+
+.dossier ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+/* Legal brief: redacted screenshot */
+
+.screenshot {
+  margin: 1.5rem 0;
+  max-width: 26rem;
+}
+
+.screenshot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.screenshot figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.84rem;
+  color: var(--text-faint);
+}
+
+.unverified {
+  display: inline-block;
+  margin-right: 0.35rem;
+  padding: 0.05rem 0.45rem;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  color: var(--accent);
+  font-weight: 600;
+}

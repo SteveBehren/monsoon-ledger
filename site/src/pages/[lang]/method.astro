@@ -1,7 +1,10 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Evidence from '../../components/Evidence.astro';
+import Cite from '../../components/Cite.astro';
+import References from '../../components/References.astro';
 import { ui, href, SITE, LANGS, type Lang } from '../../lib/i18n';
+import type { RefKey } from '../../lib/references';
 
 export function getStaticPaths() {
   return LANGS.map((lang) => ({ params: { lang } }));
@@ -9,28 +12,88 @@ export function getStaticPaths() {
 
 const lang = Astro.params.lang as Lang;
 const t = ui[lang];
+
+// Reference order on this page. <Cite> numbers follow this list.
+const R = [
+  'bowen',
+  'db-komdigi',
+  'db-peraturan',
+  'db-jdihn',
+  'db-bpk',
+  'uu-kip',
+  'berkeley',
+  'spj',
+  'ifcn',
+  'uu-12-2011',
+  'pasal-8-note',
+  'se-9-2023',
+  'ai-act',
+  'omnibus',
+  'uu-pdp',
+  'uu-pdp-46',
+  'gdpr',
+  'pdp-deadline',
+  'coe',
+  'oecd',
+  'unesco',
+  'asean-2024',
+  'asean-2025',
+  'seoul',
+  'rsp',
+  'aisi',
+] as const satisfies readonly RefKey[];
+
 const toc = {
   en: [
-    ['levels', 'Evidence levels'],
-    ['sourcing', 'How entries are sourced'],
-    ['corrections', 'Corrections'],
+    ['design', 'Research design'],
+    ['questions', 'Research questions'],
+    ['scope', 'Scope and case selection'],
+    ['collection', 'Data collection'],
+    ['levels', 'Source hierarchy and evidence levels'],
+    ['verification', 'Verification protocol'],
+    ['coding', 'Coding scheme'],
+    ['legal-force', 'Assessing legal force'],
+    ['comparison', 'Comparative frame'],
+    ['limits', 'Validity and limitations'],
+    ['data', 'Reproducibility and data management'],
+    ['ethics', 'Research ethics'],
     ['ai', 'Use of AI'],
+    ['corrections', 'Corrections'],
+    ['glossary', 'Glossary'],
+    ['refs-h', 'References'],
   ],
   id: [
-    ['levels', 'Tingkat bukti'],
-    ['sourcing', 'Cara sumber dikumpulkan'],
-    ['corrections', 'Koreksi'],
+    ['design', 'Desain penelitian'],
+    ['questions', 'Pertanyaan penelitian'],
+    ['scope', 'Cakupan dan pemilihan kasus'],
+    ['collection', 'Pengumpulan data'],
+    ['levels', 'Hierarki sumber dan tingkat bukti'],
+    ['verification', 'Protokol verifikasi'],
+    ['coding', 'Skema pengodean'],
+    ['legal-force', 'Menilai kekuatan hukum'],
+    ['comparison', 'Kerangka perbandingan'],
+    ['limits', 'Validitas dan keterbatasan'],
+    ['data', 'Reprodusibilitas dan pengelolaan data'],
+    ['ethics', 'Etika penelitian'],
     ['ai', 'Penggunaan AI'],
+    ['corrections', 'Koreksi'],
+    ['glossary', 'Glosarium'],
+    ['refs-h', 'Daftar pustaka'],
   ],
 }[lang];
+
 const lede = {
-  en: 'Every entry says how strong its evidence is and when its sources were last checked. This page explains what those labels mean and how mistakes get fixed.',
-  id: 'Setiap catatan menunjukkan seberapa kuat buktinya dan kapan sumbernya terakhir dicek. Halaman ini menjelaskan arti label tersebut dan bagaimana kesalahan diperbaiki.',
+  en: 'Monsoon Ledger is a longitudinal, document-based study of how Indonesia governs artificial intelligence. This page sets out the research design, how sources are found and graded, how every claim is verified and coded, what the ledger can and cannot show, and how anyone can reproduce or correct it.',
+  id: 'Monsoon Ledger adalah kajian longitudinal berbasis dokumen tentang cara Indonesia mengatur kecerdasan artifisial. Halaman ini memaparkan desain penelitian, cara sumber ditemukan dan dinilai, cara setiap klaim diverifikasi dan dikodekan, apa yang bisa dan tidak bisa ditunjukkan catatan ini, dan bagaimana siapa pun bisa mengulang atau mengoreksinya.',
 }[lang];
+
+const perpresEntry = href(lang, 'entries/2026-10-21-id-perpres-ai-keep-almost-arriving/');
+const tiersEntry = href(lang, 'entries/2026-10-21-id-ethics-risk-tiers/');
+const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
 ---
 <Base lang={lang} path="method/" title={t.nav.method} nav="method">
   <header class="page-head">
-    <p class="kicker">{t.nav.method}</p>
+    <p class="kicker">{lang === 'en' ? 'Research protocol' : 'Protokol penelitian'}</p>
     <h1>{t.nav.method}</h1>
     <p class="lede">{lede}</p>
   </header>
@@ -45,122 +108,724 @@ const lede = {
     {
       lang === 'en' ? (
         <>
+          <h2 id="design">1. Research design</h2>
+          <p>
+            The ledger uses qualitative document analysis: the systematic review and interpretation of printed and electronic
+            documents to produce empirical knowledge about a subject <Cite k="bowen" keys={R} />. Here the documents are
+            Indonesia's legal instruments, the official statements made about them, and the reporting and analysis that describe them.
+          </p>
+          <p>
+            The design is longitudinal. Each instrument and each public promise is followed over time, every observation is dated,
+            and sources are re-opened to check whether anything has changed. The analysis works in three layers that are kept
+            visibly separate on every entry:
+          </p>
+          <ol>
+            <li><strong>Descriptive layer.</strong> What happened, when, who said it, and in which instrument. This is the summary and the source list.</li>
+            <li><strong>Coded layer.</strong> A fixed codebook applied to every entry: instrument status, evidence level and the four-question Safety lens.</li>
+            <li><strong>Evaluative layer.</strong> The comparison with EU law and frontier AI safety practice, and the author's own view, labelled "My take".</li>
+          </ol>
+          <p>
+            <strong>Unit of analysis.</strong> The primary unit is the entry: one dated governance event tied to exactly one
+            instrument. The secondary unit is the deadline: a public, dated promise by a named official, recorded in the
+            <a href={href(lang, 'ledger/')}>Promise vs Reality</a> ledger.
+          </p>
+          <p>
+            <strong>Research mode.</strong> Desk research only. The ledger has not conducted interviews or filed information requests.
+            Every piece of evidence is published and linkable, so any reader can retrace each step.
+          </p>
 
-          <h2 id="levels">Evidence levels</h2>
+          <h2 id="questions">2. Research questions</h2>
+          <ol>
+            <li><strong>RQ1.</strong> Which instruments govern artificial intelligence in Indonesia, and what is the legal force of each?</li>
+            <li><strong>RQ2.</strong> What have officials publicly promised about those instruments, and did the promised act happen by the stated date?</li>
+            <li><strong>RQ3.</strong> Do the instruments address four safety questions: incident reporting, unacceptable uses, general-purpose models and enforcement?</li>
+            <li><strong>RQ4.</strong> How does each instrument compare with EU law and with the safety frameworks published by frontier AI developers?</li>
+          </ol>
+
+          <h2 id="scope">3. Scope and case selection</h2>
+          <p><strong>Jurisdiction.</strong> Indonesia only, until the ledger holds twelve Indonesian entries. Other ASEAN member states follow after that.</p>
+          <p><strong>Inclusion criteria.</strong> An event is recorded when it does at least one of the following:</p>
+          <ul>
+            <li>creates, amends, signs, delays or withdraws an instrument that governs AI;</li>
+            <li>sets or restates a public deadline for such an instrument;</li>
+            <li>changes a data protection rule that shapes AI governance, such as breach reporting or the supervisory authority.</li>
+          </ul>
+          <p><strong>Exclusion criteria.</strong></p>
+          <ul>
+            <li>commentary or opinion that reports no new governance event;</li>
+            <li>corporate product announcements without a regulatory element;</li>
+            <li>claims that cannot be tied to a linkable source;</li>
+            <li>conduct of private individuals.</li>
+          </ul>
+          <p>
+            <strong>Time frame.</strong> From the Ministerial Circular Letter on AI ethics of 19 December 2023
+            <Cite k="se-9-2023" keys={R} />, the first AI-specific instrument in force, to the present. Deadlines are recorded from
+            January 2025, the earliest public deadline the ledger has found.
+          </p>
+
+          <h2 id="collection">4. Data collection</h2>
+          <p>Sources are discovered through four streams. Each stream has a defined role in the evidence chain.</p>
+          <div class="panel table-panel">
+            <table class="ruled stack">
+              <caption class="visually-hidden">Discovery streams and their role</caption>
+              <thead>
+                <tr><th scope="col">Stream</th><th scope="col">What is monitored</th><th scope="col">Role in the evidence</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-label="Stream"><strong>Official channels</strong></td>
+                  <td data-label="What is monitored">
+                    Komdigi press releases and its legal documentation network <Cite k="db-komdigi" keys={R} />; the national
+                    legislation databases peraturan.go.id <Cite k="db-peraturan" keys={R} /> and JDIHN <Cite k="db-jdihn" keys={R} />;
+                    the BPK legal database <Cite k="db-bpk" keys={R} />.
+                  </td>
+                  <td data-label="Role in the evidence">Primary legal text and on-the-record statements. The strongest evidence available.</td>
+                </tr>
+                <tr>
+                  <td data-label="Stream"><strong>National news</strong></td>
+                  <td data-label="What is monitored">Indonesian outlets including ANTARA (the state news agency), Kompas, Bisnis Indonesia, CNN Indonesia, detikInet and Selular.</td>
+                  <td data-label="Role in the evidence">The record of who said what, and when. Used to grade official statements.</td>
+                </tr>
+                <tr>
+                  <td data-label="Stream"><strong>Social media</strong></td>
+                  <td data-label="What is monitored">Officials, journalists and researchers on X, Threads and Instagram.</td>
+                  <td data-label="Role in the evidence">Leads only. A post is never cited as the sole evidence for a claim. It points to a source that is then found and read.</td>
+                </tr>
+                <tr>
+                  <td data-label="Stream"><strong>Legal and policy analysis</strong></td>
+                  <td data-label="What is monitored">Law firm client briefings and think tank research on Indonesian technology law.</td>
+                  <td data-label="Role in the evidence">Secondary analysis. Graded as a press report until the primary text is read.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            <strong>Search strategy.</strong> Searches run in Bahasa Indonesia first, using the terms officials actually use:
+            <span lang="id">kecerdasan artifisial, Perpres AI, rancangan, peta jalan, etika AI, tanda tangan Presiden, pelindungan data pribadi</span>.
+            English searches follow, mainly to find foreign coverage and law firm analysis.
+          </p>
+          <p>
+            <strong>Capture.</strong> For every source the ledger records the title, outlet, language and URL in the entry's data
+            file, and keeps the source in its original language.
+          </p>
+          <p>
+            <strong>Access to information.</strong> The Public Information Disclosure Law gives everyone the right to request public
+            information from public bodies through their information officers (PPID) <Cite k="uu-kip" keys={R} />. The ledger has not
+            yet used this route. When it does, each request and its outcome will be logged.
+          </p>
+
+          <h2 id="levels">5. Source hierarchy and evidence levels</h2>
+          <p>
+            Every entry carries one evidence level. It describes the strongest source the author has actually read for that entry,
+            not the strongest source that exists.
+          </p>
           <dl class="levels">
             <div class="level panel">
               <dt><Evidence level="legal-text" lang={lang} text={false} />{t.evidence['legal-text']}</dt>
-              <dd>I have read the signed or published text of the instrument itself. This is the strongest level.</dd>
+              <dd>
+                Tier 1. The author has read the signed or published text of the instrument itself, from the issuing agency or an
+                official legal database. This is the only level that can support a claim about what the law says.
+              </dd>
             </div>
             <div class="level panel">
               <dt><Evidence level="official-statement" lang={lang} text={false} />{t.evidence['official-statement']}</dt>
               <dd>
-              A minister, ministry official or government body said it on the record, as reported by a named outlet or an official
-              channel. It tells you what the government says it intends, not what the law says.
-            </dd>
+                Tier 2. A minister, ministry official or government body said it on the record, through an official channel or as
+                reported by a named outlet with the speaker named. It shows what the government says it intends, not what the law
+                says.
+              </dd>
             </div>
             <div class="level panel">
               <dt><Evidence level="press-report" lang={lang} text={false} />{t.evidence['press-report']}</dt>
               <dd>
-              The claim rests on journalism or secondary analysis, such as a law firm summary, without the primary text. Treat it as
-              provisional until the primary text is read.
-            </dd>
+                Tier 3. Journalism or secondary analysis, such as a law firm summary, without the primary text. Treated as
+                provisional until the primary text is read.
+              </dd>
             </div>
           </dl>
-
-          <h2 id="sourcing">How entries are sourced</h2>
           <ul>
-            <li>Every claim links to a source. Indonesian-language sources come first, because that is where the policy is announced.</li>
-            <li>Primary text beats reporting. When the legal text becomes available, I read it and upgrade the evidence level.</li>
-            <li>Quotes stay in the original language, are kept under 15 words, and each source is quoted at most once. An English line sits under each quote.</li>
-            <li>The last checked date is the last day I re-opened the sources for that entry.</li>
-            <li id="lens">
-              The Safety lens asks the same four questions of every entry: incident reporting, unacceptable uses, general-purpose models
-              and enforcement. Unclear means public sources do not answer the question yet. It does not mean no.
-            </li>
+            <li><strong>Upgrade rule.</strong> A level is raised only after the author has read the stronger source. It is never raised on the strength of someone else's reading.</li>
             <li>
-              The EU comparison sets each entry beside the EU AI Act or the GDPR. It is a reference point, not a claim that Indonesia
-              should copy Europe.
+              <strong>Copy rule.</strong> Aggregating databases such as BPK's state that their documents come from the issuing agencies
+              and should be checked against them <Cite k="db-bpk" keys={R} />. Where copies differ, the issuing agency's copy prevails.
             </li>
-            <li>For now the scope is Indonesia only. Data protection is covered where it shapes AI governance, for example breach reporting and regulators.</li>
+            <li><strong>Not evidence.</strong> Screenshots, anonymous claims and unattributed social media posts are not admitted as evidence at any level.</li>
           </ul>
 
-          <h2 id="corrections">Corrections</h2>
+          <h2 id="verification">6. Verification protocol</h2>
+          <p>Every claim goes through the same steps before it is published.</p>
+          <ol>
+            <li><strong>Provenance.</strong> Trace the claim to its earliest publication by a named outlet or official channel. Reposts and aggregators are replaced with the original.</li>
+            <li><strong>Primacy.</strong> Look for the primary text in the official legal databases before relying on any summary of it.</li>
+            <li><strong>Attribution.</strong> Tie every statement to a named person and their role, or to a named body. An unnamed "source at the ministry" is not recorded as an official statement.</li>
+            <li><strong>Temporal integrity.</strong> Keep three dates apart: when something was said, when it was published, and when the ledger last checked it. Deadlines use the date said.</li>
+            <li><strong>Corroboration.</strong> Every additional independent report the author reads is added as a source. A claim that rests on one report is shown with that report's evidence level.</li>
+            <li><strong>Quotation integrity.</strong> Quotes stay in the original language, stay under 15 words, appear at most once per source, and carry an English line. The validator enforces all four rules.</li>
+            <li>
+              <strong>Digital content.</strong> Posts, images and screenshots are assessed against the Berkeley Protocol on Digital
+              Open Source Investigations, which looks at where content came from, its technical properties and what it shows
+              <Cite k="berkeley" keys={R} />. Content that cannot be authenticated is shown only as an unverified lead, with personal
+              data redacted, and never as evidence.
+            </li>
+            <li><strong>Re-verification.</strong> The "last checked" date changes only when the sources were actually re-opened. A link checker flags sources that stop responding.</li>
+          </ol>
           <p>
-            Anyone can <a href={SITE.issues}>report an error on GitHub</a> with a source. Errors are fixed in the open, as public commits,
-            and every correction is logged with its date in the <a href={SITE.changelog}>changelog</a>.
+            These steps follow two professional standards. The SPJ Code of Ethics asks journalists to verify information before
+            publishing it and to use original sources whenever possible <Cite k="spj" keys={R} />. The IFCN Code of Principles asks for
+            transparency of sources, methodology and corrections <Cite k="ifcn" keys={R} />. Monsoon Ledger is not an IFCN signatory. It
+            uses the code as a benchmark.
           </p>
 
-          <h2 id="ai">Use of AI</h2>
+          <h2 id="coding">7. Coding scheme</h2>
+          <h3 id="lens">7.1 The Safety lens</h3>
+          <p>The same four questions are asked of every entry. The codes and decision rules are fixed.</p>
+          <div class="panel table-panel">
+            <table class="ruled stack">
+              <caption class="visually-hidden">Safety lens codebook</caption>
+              <thead>
+                <tr><th scope="col">Question</th><th scope="col">Codes</th><th scope="col">Decision rule</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-label="Question"><strong>Incident reporting.</strong> Does it require incidents to be reported?</td>
+                  <td data-label="Codes">Yes, No, Unclear</td>
+                  <td data-label="Decision rule">Yes if the instrument, or an official description of it, requires AI incidents or failures to be reported to an authority or to affected people.</td>
+                </tr>
+                <tr>
+                  <td data-label="Question"><strong>Unacceptable uses.</strong> Does it name uses that are not acceptable?</td>
+                  <td data-label="Codes">Yes, No, Unclear</td>
+                  <td data-label="Decision rule">Yes if it names specific uses or risk categories as prohibited or not acceptable.</td>
+                </tr>
+                <tr>
+                  <td data-label="Question"><strong>General-purpose models.</strong> Does it address them?</td>
+                  <td data-label="Codes">Yes, No, Unclear</td>
+                  <td data-label="Decision rule">Yes if it contains duties or provisions aimed specifically at general-purpose or foundation models, not only at AI applications.</td>
+                </tr>
+                <tr>
+                  <td data-label="Question"><strong>Enforcement.</strong> How strongly is it enforced?</td>
+                  <td data-label="Codes">Binding, Soft, None, Unclear</td>
+                  <td data-label="Decision rule">Binding: legally binding duties with consequences for breach. Soft: guidance, voluntary commitments or self-assessment. None: no enforcement mechanism. Unclear: sources do not say.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            <strong>Unclear is not No.</strong> Unclear means public sources do not yet answer the question. A draft whose text has
+            not been published is usually Unclear on most questions. Coding uses only the sources listed on the entry, at the
+            evidence level shown.
+          </p>
+          <h3>7.2 Instrument status</h3>
+          <ul>
+            <li><strong>Announced:</strong> publicly said to be coming, with no draft text seen.</li>
+            <li><strong>Draft:</strong> a draft exists or is described by officials, but it is not signed.</li>
+            <li><strong>Signed:</strong> signed and promulgated, but not yet in effect.</li>
+            <li><strong>In force:</strong> legally in effect.</li>
+            <li><strong>Withdrawn:</strong> officially abandoned or revoked.</li>
+          </ul>
+          <h3>7.3 Promise vs Reality outcomes</h3>
+          <ul>
+            <li><strong>Open:</strong> the stated deadline has not passed, or no hard date was given and the promised act has not happened.</li>
+            <li><strong>Missed:</strong> the stated deadline passed without the promised act.</li>
+            <li><strong>Met:</strong> the promised act happened by the stated deadline, confirmed in a primary or official source.</li>
+          </ul>
+          <p>When an outcome changes, the row is updated and the change is logged with its date in the <a href={SITE.changelog}>changelog</a>.</p>
+
+          <h2 id="legal-force">8. Assessing legal force</h2>
+          <p>
+            Whether an instrument binds anyone is decided by Indonesia's law on lawmaking. Article 7(1) of Law 12 of 2011 sets the
+            hierarchy: the 1945 Constitution, decrees of the People's Consultative Assembly, laws and government regulations in lieu
+            of law, government regulations (PP), presidential regulations (Perpres), provincial regulations and district or city
+            regulations <Cite k="uu-12-2011" keys={R} />. Under Article 8, regulations issued by ministers and other bodies are
+            recognised and binding only when a higher regulation orders them or when they are made within the issuer's authority
+            <Cite k="pasal-8-note" keys={R} />.
+          </p>
+          <p>
+            A circular letter (surat edaran) sits outside both lists. It is administrative guidance. That is why the AI ethics circular
+            of 2023, which describes itself as ethical guidance <Cite k="se-9-2023" keys={R} />, is coded Not binding even though it is in
+            force. A presidential regulation is coded binding, because it will have legal force once it is signed, while its status
+            stays Draft until then. The full assessment for each instrument is on the <a href={href(lang, 'instruments/')}>Instruments</a> page.
+          </p>
+
+          <h2 id="comparison">9. Comparative frame</h2>
+          <p>
+            The EU is the reference point because it has the most complete binding AI law in force, the AI Act
+            <Cite k="ai-act" keys={R} />, and because the author lives under it. The comparison is a reference point, not a claim that
+            Indonesia should copy Europe. Legal rules work differently in different legal and political systems.
+          </p>
+          <div class="panel table-panel">
+            <table class="ruled stack">
+              <caption class="visually-hidden">Indonesia and the EU on six governance questions</caption>
+              <thead>
+                <tr><th scope="col">Question</th><th scope="col">Indonesia</th><th scope="col">European Union</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-label="Question"><strong>Risk classification</strong></td>
+                  <td data-label="Indonesia">The draft ethics regulation is described by officials as having three tiers: low, high and unacceptable risk (<a href={tiersEntry}>entry</a>). Official statement only, text unpublished.</td>
+                  <td data-label="European Union">Prohibited practices (Article 5), high-risk systems (Article 6 and Annex III) and transparency duties (Article 50) <Cite k="ai-act" keys={R} />.</td>
+                </tr>
+                <tr>
+                  <td data-label="Question"><strong>Prohibited uses</strong></td>
+                  <td data-label="Indonesia">None in force.</td>
+                  <td data-label="European Union">Article 5 prohibitions have applied since 2 February 2025 (Article 113(a)), including manipulative or deceptive techniques that cause significant harm <Cite k="ai-act" keys={R} />.</td>
+                </tr>
+                <tr>
+                  <td data-label="Question"><strong>Incident reporting</strong></td>
+                  <td data-label="Indonesia">The draft ethics regulation is said to require incident reporting channels. For personal data, Article 46 of Law 27 of 2022 requires written notice within 3 x 24 hours to data subjects and the agency <Cite k={['uu-pdp', 'uu-pdp-46']} keys={R} />.</td>
+                  <td data-label="European Union">Article 73 of the AI Act: serious incidents reported within 15 days, within 2 days for widespread infringements or critical infrastructure, and within 10 days in case of death <Cite k="ai-act" keys={R} />. Article 33 of the GDPR: personal data breaches within 72 hours <Cite k="gdpr" keys={R} />.</td>
+                </tr>
+                <tr>
+                  <td data-label="Question"><strong>Regulator</strong></td>
+                  <td data-label="Indonesia">Article 58 of Law 27 of 2022 provides for an agency set up by, and answerable to, the President <Cite k="uu-pdp" keys={R} />. The deadline to form it was 17 October 2024 <Cite k="pdp-deadline" keys={R} />, and it was still not established as of an August 2026 report (<a href={pdpEntry}>entry</a>).</td>
+                  <td data-label="European Union">Article 51 of the GDPR requires one or more independent public supervisory authorities in each member state <Cite k="gdpr" keys={R} />.</td>
+                </tr>
+                <tr>
+                  <td data-label="Question"><strong>Penalties</strong></td>
+                  <td data-label="Indonesia">The draft ethics regulation is described as carrying no criminal sanctions and relying on self-assessment (<a href={tiersEntry}>entry</a>).</td>
+                  <td data-label="European Union">Breaching Article 5 can cost up to EUR 35 million or 7 percent of worldwide annual turnover, whichever is higher (Article 99(3)) <Cite k="ai-act" keys={R} />.</td>
+                </tr>
+                <tr>
+                  <td data-label="Question"><strong>Timeline</strong></td>
+                  <td data-label="Indonesia">Both AI presidential regulations remain unsigned despite repeated deadlines (<a href={perpresEntry}>entry</a>).</td>
+                  <td data-label="European Union">Phased application under Article 113, with general-purpose model rules from 2 August 2025 <Cite k="ai-act" keys={R} />. The Digital Omnibus, Regulation (EU) 2026/1744, moved stand-alone high-risk duties to 2 December 2027 and product-embedded ones to 2 August 2028 <Cite k="omnibus" keys={R} />.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            <strong>Other reference points.</strong> The Council of Europe Framework Convention on AI is the first binding
+            international treaty on AI, and the EU ratified it in May 2026 <Cite k="coe" keys={R} />. The OECD AI Principles
+            <Cite k="oecd" keys={R} /> and the UNESCO Recommendation on the Ethics of AI <Cite k="unesco" keys={R} /> are soft law. The
+            ASEAN guides of 2024 and 2025 are regional and non-binding <Cite k={['asean-2024', 'asean-2025']} keys={R} />.
+          </p>
+          <p>
+            <strong>Frontier AI safety practice.</strong> At the AI Seoul Summit in 2024, frontier AI developers committed to publish
+            safety frameworks that set thresholds for severe risk <Cite k="seoul" keys={R} />. Anthropic's Responsible Scaling Policy is
+            one such framework <Cite k="rsp" keys={R} />, and the UK AI Security Institute has reviewed emerging practice across them
+            <Cite k="aisi" keys={R} />. The Safety lens asks whether Indonesian instruments reach the risks these frameworks are built for,
+            such as capable general-purpose models, which often involve no personal data at all.
+          </p>
+
+          <h2 id="limits">10. Validity and limitations</h2>
+          <ul>
+            <li><strong>Single coder.</strong> One person codes every entry, so inter-coder reliability cannot be measured. The mitigation is a published codebook, coding tied to listed sources, and open corrections.</li>
+            <li><strong>Desk research only.</strong> No interviews or information requests yet. The ledger sees what is published, not what is decided behind closed doors.</li>
+            <li><strong>Unpublished drafts.</strong> Neither AI presidential regulation has a published draft text. Claims about their content rest on official statements and are graded as such.</li>
+            <li><strong>Selection bias.</strong> Events that the media does not report are less likely to be found. Monitoring official channels directly reduces this, but does not remove it.</li>
+            <li><strong>Translation.</strong> Every English rendering is an interpretation. Original quotes and links stay on the page so readers can check.</li>
+            <li><strong>Link decay.</strong> News pages move or disappear. The link checker finds broken links, and entries record outlet and title so a source can still be found.</li>
+            <li><strong>Recency.</strong> Each entry is accurate as of its last checked date, which is shown on the entry.</li>
+          </ul>
+
+          <h2 id="data">11. Reproducibility and data management</h2>
+          <ul>
+            <li><strong>Open data.</strong> Every entry, instrument and deadline is a plain YAML file in the <a href={SITE.repo}>public repository</a>, under CC BY 4.0. The code is under MIT.</li>
+            <li>
+              <strong>Schema.</strong> Entries are validated against a JSON Schema (draft 2020-12). A validator adds checks the schema
+              cannot express: each id matches its file name and date, each instrument exists, dates are real, no source appears twice,
+              quotes follow the four rules, deadlines are complete and newest first, and no text anywhere contains an em dash or en dash.
+            </li>
+            <li><strong>Continuous integration.</strong> Every push runs the validator and a full site build. The build refuses to publish data that fails validation.</li>
+            <li><strong>Audit trail.</strong> The full history of every change is public in git, so anyone can see what changed, when and why.</li>
+          </ul>
+
+          <h2 id="ethics">12. Research ethics</h2>
+          <ul>
+            <li><strong>Public officials, not private people.</strong> The ledger records what officials and public bodies say and do in their public roles. It does not identify private individuals.</li>
+            <li><strong>Redaction.</strong> Where unverified social media content is shown for context, faces and account names are redacted and the image is re-encoded to strip metadata.</li>
+            <li><strong>Proportionate quotation.</strong> Quotes are short and attributed, so the original reporting keeps its value and its audience.</li>
+            <li><strong>Independence.</strong> Monsoon Ledger is an independent project. It is not legal advice.</li>
+          </ul>
+
+          <h2 id="ai">13. Use of AI</h2>
           <p>
             I research the sources, write and edit every entry and every My take myself, and use Claude to help draft, translate and build
             the site. Translated text is reviewed by me, and the original source is always linked so you can check it.
           </p>
+
+          <h2 id="corrections">14. Corrections</h2>
           <p>
-            See <a href={href(lang, 'about/')}>About</a> for who writes this.
+            Anyone can <a href={SITE.issues}>report an error on GitHub</a> with a source. Errors are fixed in the open, as public commits,
+            and every correction is logged with its date in the <a href={SITE.changelog}>changelog</a>. See <a href={href(lang, 'about/')}>About</a> for who writes this.
           </p>
+
+          <h2 id="glossary">15. Glossary</h2>
+          <dl class="glossary">
+            <dt lang="id">UU (Undang-Undang)</dt><dd>A law passed by the House of Representatives and the President.</dd>
+            <dt lang="id">PP (Peraturan Pemerintah)</dt><dd>A government regulation that implements a law.</dd>
+            <dt lang="id">Perpres (Peraturan Presiden)</dt><dd>A presidential regulation. Both planned AI rules take this form.</dd>
+            <dt lang="id">SE (Surat Edaran)</dt><dd>A circular letter. Administrative guidance, outside the hierarchy of legislation.</dd>
+            <dt lang="id">Rancangan</dt><dd>A draft. An instrument that has not been signed.</dd>
+            <dt>Komdigi</dt><dd>Kementerian Komunikasi dan Digital, the Ministry of Communication and Digital Affairs, formerly Kominfo.</dd>
+            <dt>JDIH</dt><dd>Jaringan Dokumentasi dan Informasi Hukum, the government's legal documentation network.</dd>
+            <dt>PPID</dt><dd>Pejabat Pengelola Informasi dan Dokumentasi, the officer who handles public information requests in each public body.</dd>
+            <dt lang="id">Pendengung (buzzer)</dt><dd>An account or person paid or organised to amplify a message online.</dd>
+          </dl>
         </>
       ) : (
         <>
+          <h2 id="design">1. Desain penelitian</h2>
+          <p>
+            Catatan ini memakai analisis dokumen kualitatif, yaitu penelaahan dan penafsiran dokumen cetak dan elektronik secara
+            sistematis untuk menghasilkan pengetahuan empiris tentang suatu pokok <Cite k="bowen" keys={R} />. Dokumen yang dimaksud
+            adalah instrumen hukum Indonesia, pernyataan resmi tentang instrumen itu, serta liputan dan analisis yang membahasnya.
+          </p>
+          <p>
+            Desainnya longitudinal. Setiap instrumen dan setiap janji publik diikuti dari waktu ke waktu, setiap pengamatan diberi
+            tanggal, dan sumbernya dibuka ulang untuk memeriksa apakah ada yang berubah. Analisisnya berlapis tiga, dan ketiganya
+            dipisahkan dengan jelas di setiap catatan:
+          </p>
+          <ol>
+            <li><strong>Lapisan deskriptif.</strong> Apa yang terjadi, kapan, siapa yang mengatakannya, dan di instrumen mana. Ini ringkasan dan daftar sumber.</li>
+            <li><strong>Lapisan kode.</strong> Buku kode tetap yang diterapkan ke setiap catatan: status instrumen, tingkat bukti, dan empat pertanyaan Lensa keselamatan.</li>
+            <li><strong>Lapisan evaluatif.</strong> Perbandingan dengan hukum Uni Eropa dan praktik keselamatan AI terdepan, serta pandangan penulis sendiri dengan label "Pendapat saya".</li>
+          </ol>
+          <p>
+            <strong>Unit analisis.</strong> Unit utamanya adalah catatan: satu peristiwa tata kelola bertanggal yang terkait dengan tepat
+            satu instrumen. Unit keduanya adalah tenggat: janji publik bertanggal dari pejabat yang disebut namanya, dicatat di
+            <a href={href(lang, 'ledger/')}> Janji vs Kenyataan</a>.
+          </p>
+          <p>
+            <strong>Mode penelitian.</strong> Hanya riset dokumen. Catatan ini belum melakukan wawancara atau mengajukan permohonan
+            informasi. Semua bukti sudah dipublikasikan dan bisa ditautkan, jadi siapa pun bisa menelusuri ulang setiap langkahnya.
+          </p>
 
-          <h2 id="levels">Tingkat bukti</h2>
+          <h2 id="questions">2. Pertanyaan penelitian</h2>
+          <ol>
+            <li><strong>PP1.</strong> Instrumen apa saja yang mengatur kecerdasan artifisial di Indonesia, dan seberapa kuat kekuatan hukum masing-masing?</li>
+            <li><strong>PP2.</strong> Apa yang pernah dijanjikan pejabat secara terbuka tentang instrumen itu, dan apakah janji itu terlaksana sesuai tanggalnya?</li>
+            <li><strong>PP3.</strong> Apakah instrumen itu menjawab empat pertanyaan keselamatan: pelaporan insiden, penggunaan yang tidak dapat diterima, model serba guna, dan penegakan?</li>
+            <li><strong>PP4.</strong> Bagaimana setiap instrumen jika dibandingkan dengan hukum Uni Eropa dan kerangka keselamatan yang diterbitkan pengembang AI terdepan?</li>
+          </ol>
+
+          <h2 id="scope">3. Cakupan dan pemilihan kasus</h2>
+          <p><strong>Wilayah.</strong> Hanya Indonesia, sampai catatan Indonesia berjumlah dua belas. Negara anggota ASEAN lain menyusul sesudahnya.</p>
+          <p><strong>Kriteria inklusi.</strong> Sebuah peristiwa dicatat bila memenuhi paling sedikit satu hal berikut:</p>
+          <ul>
+            <li>membuat, mengubah, menandatangani, menunda, atau mencabut instrumen yang mengatur AI;</li>
+            <li>menetapkan atau menegaskan ulang tenggat publik untuk instrumen semacam itu;</li>
+            <li>mengubah aturan pelindungan data yang memengaruhi tata kelola AI, misalnya kewajiban lapor kebocoran atau lembaga pengawas.</li>
+          </ul>
+          <p><strong>Kriteria eksklusi.</strong></p>
+          <ul>
+            <li>komentar atau opini yang tidak melaporkan peristiwa tata kelola baru;</li>
+            <li>pengumuman produk perusahaan tanpa unsur regulasi;</li>
+            <li>klaim yang tidak bisa dikaitkan dengan sumber yang bisa ditautkan;</li>
+            <li>perilaku orang perseorangan.</li>
+          </ul>
+          <p>
+            <strong>Rentang waktu.</strong> Sejak Surat Edaran Menteri tentang etika AI tanggal 19 Desember 2023
+            <Cite k="se-9-2023" keys={R} />, instrumen khusus AI pertama yang berlaku, sampai sekarang. Tenggat dicatat mulai Januari
+            2025, tenggat publik paling awal yang ditemukan.
+          </p>
+
+          <h2 id="collection">4. Pengumpulan data</h2>
+          <p>Sumber ditemukan lewat empat jalur. Setiap jalur punya peran yang jelas dalam rantai bukti.</p>
+          <div class="panel table-panel">
+            <table class="ruled stack">
+              <caption class="visually-hidden">Jalur penemuan sumber dan perannya</caption>
+              <thead>
+                <tr><th scope="col">Jalur</th><th scope="col">Yang dipantau</th><th scope="col">Peran dalam bukti</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-label="Jalur"><strong>Kanal resmi</strong></td>
+                  <td data-label="Yang dipantau">
+                    Siaran pers Komdigi dan jaringan dokumentasi hukumnya <Cite k="db-komdigi" keys={R} />; basis data peraturan nasional
+                    peraturan.go.id <Cite k="db-peraturan" keys={R} /> dan JDIHN <Cite k="db-jdihn" keys={R} />; basis data hukum BPK
+                    <Cite k="db-bpk" keys={R} />.
+                  </td>
+                  <td data-label="Peran dalam bukti">Naskah hukum asli dan pernyataan resmi. Bukti terkuat yang tersedia.</td>
+                </tr>
+                <tr>
+                  <td data-label="Jalur"><strong>Media nasional</strong></td>
+                  <td data-label="Yang dipantau">Media Indonesia, antara lain ANTARA (kantor berita negara), Kompas, Bisnis Indonesia, CNN Indonesia, detikInet, dan Selular.</td>
+                  <td data-label="Peran dalam bukti">Catatan siapa mengatakan apa, dan kapan. Dipakai untuk menilai pernyataan resmi.</td>
+                </tr>
+                <tr>
+                  <td data-label="Jalur"><strong>Media sosial</strong></td>
+                  <td data-label="Yang dipantau">Pejabat, jurnalis, dan peneliti di X, Threads, dan Instagram.</td>
+                  <td data-label="Peran dalam bukti">Hanya petunjuk. Unggahan tidak pernah menjadi satu-satunya bukti sebuah klaim. Unggahan menunjuk ke sumber yang kemudian dicari dan dibaca.</td>
+                </tr>
+                <tr>
+                  <td data-label="Jalur"><strong>Analisis hukum dan kebijakan</strong></td>
+                  <td data-label="Yang dipantau">Ringkasan dari firma hukum dan riset lembaga kajian tentang hukum teknologi Indonesia.</td>
+                  <td data-label="Peran dalam bukti">Analisis sekunder. Dinilai sebagai laporan pers sampai naskah aslinya dibaca.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            <strong>Strategi pencarian.</strong> Pencarian dimulai dalam bahasa Indonesia, memakai istilah yang memang dipakai pejabat:
+            kecerdasan artifisial, Perpres AI, rancangan, peta jalan, etika AI, tanda tangan Presiden, pelindungan data pribadi. Pencarian
+            berbahasa Inggris menyusul, terutama untuk menemukan liputan luar negeri dan analisis firma hukum.
+          </p>
+          <p>
+            <strong>Pencatatan.</strong> Untuk setiap sumber, catatan ini menyimpan judul, nama media, bahasa, dan URL di berkas data
+            catatan itu, dan sumbernya tetap dalam bahasa aslinya.
+          </p>
+          <p>
+            <strong>Akses informasi.</strong> Undang-Undang Keterbukaan Informasi Publik memberi setiap orang hak meminta informasi
+            publik dari badan publik melalui PPID <Cite k="uu-kip" keys={R} />. Jalur ini belum dipakai. Bila nanti dipakai, setiap
+            permohonan dan hasilnya akan dicatat.
+          </p>
+
+          <h2 id="levels">5. Hierarki sumber dan tingkat bukti</h2>
+          <p>
+            Setiap catatan punya satu tingkat bukti. Tingkat itu menggambarkan sumber terkuat yang benar-benar sudah dibaca penulis
+            untuk catatan tersebut, bukan sumber terkuat yang ada.
+          </p>
           <dl class="levels">
             <div class="level panel">
               <dt><Evidence level="legal-text" lang={lang} text={false} />{t.evidence['legal-text']}</dt>
-              <dd>Saya sudah membaca naskah resmi instrumen itu sendiri, yang sudah ditandatangani atau diterbitkan. Ini tingkat bukti paling kuat.</dd>
+              <dd>
+                Tingkat 1. Penulis sudah membaca naskah resmi instrumen itu sendiri, yang sudah ditandatangani atau diterbitkan, dari
+                instansi penerbit atau basis data hukum resmi. Hanya tingkat ini yang bisa menopang klaim tentang isi hukum.
+              </dd>
             </div>
             <div class="level panel">
               <dt><Evidence level="official-statement" lang={lang} text={false} />{t.evidence['official-statement']}</dt>
               <dd>
-              Menteri, pejabat kementerian, atau lembaga pemerintah menyampaikannya secara terbuka, seperti dilaporkan media yang
-              disebutkan namanya atau kanal resmi. Ini menunjukkan apa yang diniatkan pemerintah, bukan isi hukumnya.
-            </dd>
+                Tingkat 2. Menteri, pejabat kementerian, atau lembaga pemerintah menyampaikannya secara terbuka, lewat kanal resmi
+                atau dilaporkan media yang disebut namanya dengan nama pembicaranya. Ini menunjukkan apa yang diniatkan pemerintah,
+                bukan isi hukumnya.
+              </dd>
             </div>
             <div class="level panel">
               <dt><Evidence level="press-report" lang={lang} text={false} />{t.evidence['press-report']}</dt>
               <dd>
-              Klaimnya bersandar pada liputan media atau analisis sekunder, misalnya ringkasan dari firma hukum, tanpa naskah aslinya.
-              Anggap sementara sampai naskah aslinya dibaca.
-            </dd>
+                Tingkat 3. Liputan media atau analisis sekunder, misalnya ringkasan firma hukum, tanpa naskah aslinya. Dianggap sementara
+                sampai naskah aslinya dibaca.
+              </dd>
             </div>
           </dl>
-
-          <h2 id="sourcing">Cara sumber dikumpulkan</h2>
           <ul>
-            <li>Setiap klaim menautkan ke sumbernya. Sumber berbahasa Indonesia didahulukan, karena di sanalah kebijakan diumumkan.</li>
-            <li>Naskah asli lebih kuat daripada liputan. Begitu naskah hukumnya tersedia, saya membacanya dan menaikkan tingkat buktinya.</li>
-            <li>Kutipan tetap dalam bahasa aslinya, kurang dari 15 kata, dan satu sumber paling banyak dikutip sekali. Di bawah setiap kutipan ada terjemahan bahasa Inggris.</li>
-            <li>Tanggal terakhir dicek adalah hari terakhir saya membuka ulang sumber untuk catatan itu.</li>
-            <li id="lens">
-              Lensa keselamatan mengajukan empat pertanyaan yang sama untuk setiap catatan: pelaporan insiden, penggunaan yang tidak dapat
-              diterima, model serba guna, dan penegakan. Belum jelas berarti sumber publik belum menjawab pertanyaan itu. Bukan berarti
-              tidak.
-            </li>
+            <li><strong>Aturan menaikkan tingkat.</strong> Tingkat bukti hanya dinaikkan setelah penulis membaca sumber yang lebih kuat, tidak pernah berdasarkan bacaan orang lain.</li>
             <li>
-              Perbandingan dengan Uni Eropa menyandingkan setiap catatan dengan EU AI Act atau GDPR. Ini titik acuan, bukan anjuran agar
-              Indonesia meniru Eropa.
+              <strong>Aturan salinan.</strong> Basis data penghimpun seperti milik BPK menyatakan bahwa dokumennya berasal dari instansi
+              penerbit dan perlu dicocokkan dengan instansi itu <Cite k="db-bpk" keys={R} />. Bila salinannya berbeda, salinan instansi
+              penerbit yang berlaku.
             </li>
-            <li>Untuk saat ini cakupannya hanya Indonesia. Pelindungan data pribadi dibahas sejauh berpengaruh pada tata kelola AI, misalnya kewajiban lapor kebocoran dan lembaga pengawas.</li>
+            <li><strong>Bukan bukti.</strong> Tangkapan layar, klaim anonim, dan unggahan media sosial tanpa atribusi tidak diterima sebagai bukti di tingkat mana pun.</li>
           </ul>
 
-          <h2 id="corrections">Koreksi</h2>
+          <h2 id="verification">6. Protokol verifikasi</h2>
+          <p>Setiap klaim melewati langkah yang sama sebelum diterbitkan.</p>
+          <ol>
+            <li><strong>Asal-usul.</strong> Telusuri klaim sampai ke publikasi paling awal oleh media atau kanal resmi yang disebut namanya. Unggahan ulang dan agregator diganti dengan sumber aslinya.</li>
+            <li><strong>Keutamaan naskah asli.</strong> Cari naskah aslinya di basis data hukum resmi sebelum mengandalkan ringkasan apa pun.</li>
+            <li><strong>Atribusi.</strong> Kaitkan setiap pernyataan dengan orang yang disebut namanya beserta jabatannya, atau dengan lembaga yang disebut namanya. "Sumber di kementerian" tanpa nama tidak dicatat sebagai pernyataan resmi.</li>
+            <li><strong>Ketepatan waktu.</strong> Bedakan tiga tanggal: kapan sesuatu diucapkan, kapan diterbitkan, dan kapan terakhir dicek. Tenggat memakai tanggal diucapkan.</li>
+            <li><strong>Penguatan.</strong> Setiap laporan independen tambahan yang dibaca penulis ditambahkan sebagai sumber. Klaim yang hanya bersandar pada satu laporan ditampilkan dengan tingkat bukti laporan itu.</li>
+            <li><strong>Keutuhan kutipan.</strong> Kutipan tetap dalam bahasa aslinya, kurang dari 15 kata, paling banyak sekali per sumber, dan disertai terjemahan bahasa Inggris. Keempat aturan ini dicek otomatis oleh validator.</li>
+            <li>
+              <strong>Konten digital.</strong> Unggahan, gambar, dan tangkapan layar dinilai dengan Berkeley Protocol on Digital Open
+              Source Investigations, yang menelaah dari mana konten berasal, sifat teknisnya, dan apa yang ditunjukkannya
+              <Cite k="berkeley" keys={R} />. Konten yang tidak bisa diautentikasi hanya ditampilkan sebagai petunjuk yang belum
+              terverifikasi, dengan data pribadi disamarkan, dan tidak pernah sebagai bukti.
+            </li>
+            <li><strong>Verifikasi ulang.</strong> Tanggal "terakhir dicek" hanya diubah bila sumbernya benar-benar dibuka ulang. Pemeriksa tautan menandai sumber yang tidak lagi bisa diakses.</li>
+          </ol>
           <p>
-            Siapa pun bisa <a href={SITE.issues}>melaporkan kesalahan lewat GitHub</a> dengan menyertakan sumber. Kesalahan diperbaiki secara
-            terbuka dan tercatat di riwayat publik, dan setiap koreksi dicatat beserta tanggalnya di <a href={SITE.changelog}>catatan perubahan</a>.
+            Langkah-langkah ini mengikuti dua standar profesi. Kode Etik SPJ meminta jurnalis memverifikasi informasi sebelum
+            menerbitkannya dan memakai sumber asli bila memungkinkan <Cite k="spj" keys={R} />. Kode Prinsip IFCN meminta keterbukaan
+            tentang sumber, metodologi, dan koreksi <Cite k="ifcn" keys={R} />. Monsoon Ledger bukan penanda tangan IFCN, tetapi memakai
+            kode itu sebagai tolok ukur.
           </p>
 
-          <h2 id="ai">Penggunaan AI</h2>
+          <h2 id="coding">7. Skema pengodean</h2>
+          <h3 id="lens">7.1 Lensa keselamatan</h3>
+          <p>Empat pertanyaan yang sama diajukan untuk setiap catatan. Kode dan aturan keputusannya tetap.</p>
+          <div class="panel table-panel">
+            <table class="ruled stack">
+              <caption class="visually-hidden">Buku kode Lensa keselamatan</caption>
+              <thead>
+                <tr><th scope="col">Pertanyaan</th><th scope="col">Kode</th><th scope="col">Aturan keputusan</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-label="Pertanyaan"><strong>Pelaporan insiden.</strong> Apakah insiden wajib dilaporkan?</td>
+                  <td data-label="Kode">Ya, Tidak, Belum jelas</td>
+                  <td data-label="Aturan keputusan">Ya bila instrumen itu, atau penjelasan resmi tentangnya, mewajibkan insiden atau kegagalan AI dilaporkan ke otoritas atau ke pihak yang terdampak.</td>
+                </tr>
+                <tr>
+                  <td data-label="Pertanyaan"><strong>Penggunaan yang tidak dapat diterima.</strong> Apakah ada penggunaan yang disebut tidak boleh?</td>
+                  <td data-label="Kode">Ya, Tidak, Belum jelas</td>
+                  <td data-label="Aturan keputusan">Ya bila instrumen itu menyebut penggunaan atau kategori risiko tertentu sebagai terlarang atau tidak dapat diterima.</td>
+                </tr>
+                <tr>
+                  <td data-label="Pertanyaan"><strong>Model serba guna.</strong> Apakah diatur?</td>
+                  <td data-label="Kode">Ya, Tidak, Belum jelas</td>
+                  <td data-label="Aturan keputusan">Ya bila ada kewajiban atau ketentuan yang khusus ditujukan pada model serba guna atau model dasar, bukan hanya pada aplikasi AI.</td>
+                </tr>
+                <tr>
+                  <td data-label="Pertanyaan"><strong>Penegakan.</strong> Seberapa kuat penegakannya?</td>
+                  <td data-label="Kode">Mengikat, Lunak, Tidak ada, Belum jelas</td>
+                  <td data-label="Aturan keputusan">Mengikat: kewajiban hukum dengan konsekuensi bila dilanggar. Lunak: panduan, komitmen sukarela, atau penilaian mandiri. Tidak ada: tanpa mekanisme penegakan. Belum jelas: sumber tidak menyebutkannya.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            <strong>Belum jelas bukan berarti Tidak.</strong> Belum jelas berarti sumber publik belum menjawab pertanyaan itu. Rancangan
+            yang naskahnya belum dipublikasikan biasanya Belum jelas untuk sebagian besar pertanyaan. Pengodean hanya memakai sumber yang
+            tercantum di catatan, pada tingkat bukti yang ditampilkan.
+          </p>
+          <h3>7.2 Status instrumen</h3>
+          <ul>
+            <li><strong>Diumumkan:</strong> disebut akan terbit, tetapi naskah rancangannya belum terlihat.</li>
+            <li><strong>Rancangan:</strong> rancangan sudah ada atau dijelaskan pejabat, tetapi belum ditandatangani.</li>
+            <li><strong>Ditandatangani:</strong> sudah ditandatangani dan diundangkan, tetapi belum berlaku.</li>
+            <li><strong>Berlaku:</strong> sudah berlaku secara hukum.</li>
+            <li><strong>Dicabut:</strong> secara resmi dibatalkan atau dicabut.</li>
+          </ul>
+          <h3>7.3 Hasil Janji vs Kenyataan</h3>
+          <ul>
+            <li><strong>Terbuka:</strong> tenggatnya belum lewat, atau tidak ada tanggal pasti dan janjinya belum terlaksana.</li>
+            <li><strong>Meleset:</strong> tenggatnya lewat tanpa janji itu terlaksana.</li>
+            <li><strong>Terpenuhi:</strong> janjinya terlaksana sebelum tenggat, dikonfirmasi oleh sumber asli atau resmi.</li>
+          </ul>
+          <p>Bila hasilnya berubah, barisnya diperbarui dan perubahannya dicatat beserta tanggalnya di <a href={SITE.changelog}>catatan perubahan</a>.</p>
+
+          <h2 id="legal-force">8. Menilai kekuatan hukum</h2>
+          <p>
+            Mengikat atau tidaknya sebuah instrumen ditentukan oleh undang-undang tentang pembentukan peraturan. Pasal 7 ayat (1)
+            Undang-Undang Nomor 12 Tahun 2011 menetapkan hierarkinya: UUD 1945, Ketetapan MPR, Undang-Undang atau Perppu, Peraturan
+            Pemerintah, Peraturan Presiden, Peraturan Daerah Provinsi, dan Peraturan Daerah Kabupaten atau Kota
+            <Cite k="uu-12-2011" keys={R} />. Menurut Pasal 8, peraturan yang dibuat menteri dan lembaga lain diakui dan mengikat hanya
+            bila diperintahkan oleh peraturan yang lebih tinggi atau dibentuk berdasarkan kewenangan <Cite k="pasal-8-note" keys={R} />.
+          </p>
+          <p>
+            Surat edaran berada di luar kedua daftar itu. Sifatnya panduan administratif. Karena itu surat edaran etika AI tahun 2023,
+            yang menyebut dirinya pedoman etika <Cite k="se-9-2023" keys={R} />, dikodekan Tidak mengikat meskipun sudah berlaku.
+            Peraturan Presiden dikodekan mengikat, karena akan punya kekuatan hukum begitu ditandatangani, sementara statusnya tetap
+            Rancangan sampai saat itu. Penilaian lengkap tiap instrumen ada di halaman <a href={href(lang, 'instruments/')}>Instrumen</a>.
+          </p>
+
+          <h2 id="comparison">9. Kerangka perbandingan</h2>
+          <p>
+            Uni Eropa menjadi titik acuan karena punya hukum AI mengikat yang paling lengkap, yaitu AI Act <Cite k="ai-act" keys={R} />,
+            dan karena penulis hidup di bawah aturan itu. Perbandingan ini titik acuan, bukan anjuran agar Indonesia meniru Eropa. Aturan
+            hukum bekerja berbeda di sistem hukum dan politik yang berbeda.
+          </p>
+          <div class="panel table-panel">
+            <table class="ruled stack">
+              <caption class="visually-hidden">Indonesia dan Uni Eropa pada enam pertanyaan tata kelola</caption>
+              <thead>
+                <tr><th scope="col">Pertanyaan</th><th scope="col">Indonesia</th><th scope="col">Uni Eropa</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-label="Pertanyaan"><strong>Klasifikasi risiko</strong></td>
+                  <td data-label="Indonesia">Rancangan aturan etika disebut pejabat punya tiga tingkat: risiko rendah, tinggi, dan tidak dapat diterima (<a href={tiersEntry}>catatan</a>). Baru pernyataan resmi, naskahnya belum dipublikasikan.</td>
+                  <td data-label="Uni Eropa">Praktik terlarang (Pasal 5), sistem berisiko tinggi (Pasal 6 dan Lampiran III), dan kewajiban transparansi (Pasal 50) <Cite k="ai-act" keys={R} />.</td>
+                </tr>
+                <tr>
+                  <td data-label="Pertanyaan"><strong>Penggunaan terlarang</strong></td>
+                  <td data-label="Indonesia">Belum ada yang berlaku.</td>
+                  <td data-label="Uni Eropa">Larangan Pasal 5 berlaku sejak 2 Februari 2025 (Pasal 113 huruf a), termasuk teknik manipulatif atau menipu yang menimbulkan kerugian signifikan <Cite k="ai-act" keys={R} />.</td>
+                </tr>
+                <tr>
+                  <td data-label="Pertanyaan"><strong>Pelaporan insiden</strong></td>
+                  <td data-label="Indonesia">Rancangan aturan etika disebut mewajibkan kanal pelaporan insiden. Untuk data pribadi, Pasal 46 UU 27/2022 mewajibkan pemberitahuan tertulis paling lambat 3 x 24 jam kepada subjek data dan lembaga <Cite k={['uu-pdp', 'uu-pdp-46']} keys={R} />.</td>
+                  <td data-label="Uni Eropa">Pasal 73 AI Act: insiden serius dilaporkan paling lambat 15 hari, 2 hari untuk pelanggaran meluas atau infrastruktur kritis, dan 10 hari bila ada korban jiwa <Cite k="ai-act" keys={R} />. Pasal 33 GDPR: kebocoran data pribadi dalam 72 jam <Cite k="gdpr" keys={R} />.</td>
+                </tr>
+                <tr>
+                  <td data-label="Pertanyaan"><strong>Lembaga pengawas</strong></td>
+                  <td data-label="Indonesia">Pasal 58 UU 27/2022 mengatur lembaga yang ditetapkan oleh, dan bertanggung jawab kepada, Presiden <Cite k="uu-pdp" keys={R} />. Batas waktu pembentukannya 17 Oktober 2024 <Cite k="pdp-deadline" keys={R} />, dan lembaga itu belum terbentuk menurut laporan Agustus 2026 (<a href={pdpEntry}>catatan</a>).</td>
+                  <td data-label="Uni Eropa">Pasal 51 GDPR mewajibkan setiap negara anggota punya satu atau lebih otoritas pengawas publik yang independen <Cite k="gdpr" keys={R} />.</td>
+                </tr>
+                <tr>
+                  <td data-label="Pertanyaan"><strong>Sanksi</strong></td>
+                  <td data-label="Indonesia">Rancangan aturan etika disebut tanpa sanksi pidana dan mengandalkan penilaian mandiri (<a href={tiersEntry}>catatan</a>).</td>
+                  <td data-label="Uni Eropa">Pelanggaran Pasal 5 bisa didenda sampai EUR 35 juta atau 7 persen omzet tahunan global, mana yang lebih tinggi (Pasal 99 ayat (3)) <Cite k="ai-act" keys={R} />.</td>
+                </tr>
+                <tr>
+                  <td data-label="Pertanyaan"><strong>Linimasa</strong></td>
+                  <td data-label="Indonesia">Kedua Perpres AI belum ditandatangani meski tenggatnya berkali-kali disebut (<a href={perpresEntry}>catatan</a>).</td>
+                  <td data-label="Uni Eropa">Berlaku bertahap menurut Pasal 113, dengan aturan model serba guna sejak 2 Agustus 2025 <Cite k="ai-act" keys={R} />. Digital Omnibus, Regulation (EU) 2026/1744, menggeser kewajiban risiko tinggi yang berdiri sendiri ke 2 Desember 2027 dan yang tertanam dalam produk ke 2 Agustus 2028 <Cite k="omnibus" keys={R} />.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            <strong>Titik acuan lain.</strong> Konvensi Kerangka Dewan Eropa tentang AI adalah perjanjian internasional mengikat pertama
+            tentang AI, dan Uni Eropa meratifikasinya pada Mei 2026 <Cite k="coe" keys={R} />. Prinsip AI OECD <Cite k="oecd" keys={R} /> dan
+            Rekomendasi UNESCO tentang Etika AI <Cite k="unesco" keys={R} /> adalah hukum lunak. Panduan ASEAN tahun 2024 dan 2025 bersifat
+            regional dan tidak mengikat <Cite k={['asean-2024', 'asean-2025']} keys={R} />.
+          </p>
+          <p>
+            <strong>Praktik keselamatan AI terdepan.</strong> Pada AI Seoul Summit 2024, para pengembang AI terdepan berkomitmen
+            menerbitkan kerangka keselamatan yang menetapkan ambang risiko berat <Cite k="seoul" keys={R} />. Responsible Scaling Policy
+            milik Anthropic adalah salah satunya <Cite k="rsp" keys={R} />, dan UK AI Security Institute sudah mengulas praktik yang
+            muncul di antara kerangka-kerangka itu <Cite k="aisi" keys={R} />. Lensa keselamatan menanyakan apakah instrumen Indonesia
+            menjangkau risiko yang menjadi sasaran kerangka tersebut, misalnya model serba guna yang mumpuni, yang sering kali sama sekali
+            tidak melibatkan data pribadi.
+          </p>
+
+          <h2 id="limits">10. Validitas dan keterbatasan</h2>
+          <ul>
+            <li><strong>Satu pengode.</strong> Satu orang mengodekan semua catatan, jadi keandalan antarpengode tidak bisa diukur. Penyeimbangnya adalah buku kode yang terbuka, pengodean yang terikat pada sumber yang tercantum, dan koreksi terbuka.</li>
+            <li><strong>Hanya riset dokumen.</strong> Belum ada wawancara atau permohonan informasi. Catatan ini melihat apa yang dipublikasikan, bukan apa yang diputuskan di balik pintu.</li>
+            <li><strong>Rancangan yang belum terbit.</strong> Naskah rancangan kedua Perpres AI belum dipublikasikan. Klaim tentang isinya bersandar pada pernyataan resmi dan dinilai demikian.</li>
+            <li><strong>Bias seleksi.</strong> Peristiwa yang tidak diliput media lebih sulit ditemukan. Memantau kanal resmi secara langsung mengurangi bias ini, tetapi tidak menghilangkannya.</li>
+            <li><strong>Terjemahan.</strong> Setiap terjemahan bahasa Inggris adalah tafsiran. Kutipan asli dan tautannya tetap ada di halaman supaya pembaca bisa memeriksa.</li>
+            <li><strong>Tautan yang hilang.</strong> Halaman berita bisa pindah atau hilang. Pemeriksa tautan menemukan tautan yang rusak, dan setiap catatan menyimpan nama media serta judul supaya sumbernya tetap bisa dicari.</li>
+            <li><strong>Kebaruan.</strong> Setiap catatan akurat per tanggal terakhir dicek, yang ditampilkan di catatan itu.</li>
+          </ul>
+
+          <h2 id="data">11. Reprodusibilitas dan pengelolaan data</h2>
+          <ul>
+            <li><strong>Data terbuka.</strong> Setiap catatan, instrumen, dan tenggat disimpan sebagai berkas YAML biasa di <a href={SITE.repo}>repositori publik</a>, dengan lisensi CC BY 4.0. Kodenya berlisensi MIT.</li>
+            <li>
+              <strong>Skema.</strong> Catatan divalidasi dengan JSON Schema (draf 2020-12). Validator menambah pemeriksaan yang tidak bisa
+              dinyatakan skema: id cocok dengan nama berkas dan tanggalnya, instrumennya ada, tanggalnya nyata, tidak ada sumber yang
+              tercantum dua kali, kutipan mengikuti keempat aturan, tenggat lengkap dan urut dari yang terbaru, dan tidak ada teks yang
+              memuat tanda pisah panjang.
+            </li>
+            <li><strong>Integrasi berkelanjutan.</strong> Setiap perubahan yang diunggah menjalankan validator dan membangun situs penuh. Data yang gagal validasi tidak akan terbit.</li>
+            <li><strong>Jejak audit.</strong> Seluruh riwayat perubahan terbuka di git, jadi siapa pun bisa melihat apa yang berubah, kapan, dan mengapa.</li>
+          </ul>
+
+          <h2 id="ethics">12. Etika penelitian</h2>
+          <ul>
+            <li><strong>Pejabat publik, bukan orang perseorangan.</strong> Catatan ini merekam apa yang dikatakan dan dilakukan pejabat dan lembaga dalam peran publik mereka. Catatan ini tidak mengidentifikasi orang perseorangan.</li>
+            <li><strong>Penyamaran.</strong> Bila konten media sosial yang belum terverifikasi ditampilkan sebagai konteks, wajah dan nama akun disamarkan, dan gambarnya disimpan ulang untuk menghapus metadata.</li>
+            <li><strong>Kutipan yang proporsional.</strong> Kutipan dibuat pendek dan disertai atribusi, supaya liputan aslinya tetap bernilai dan tetap dibaca.</li>
+            <li><strong>Independensi.</strong> Monsoon Ledger adalah proyek independen dan bukan nasihat hukum.</li>
+          </ul>
+
+          <h2 id="ai">13. Penggunaan AI</h2>
           <p>
             Saya sendiri yang meriset sumber, menulis, dan menyunting setiap catatan dan setiap Pendapat saya. Saya memakai Claude untuk
             membantu membuat draf, menerjemahkan, dan membangun situs ini. Teks terjemahan saya periksa sendiri, dan sumber aslinya selalu
             ditautkan supaya Anda bisa mengeceknya.
           </p>
+
+          <h2 id="corrections">14. Koreksi</h2>
           <p>
+            Siapa pun bisa <a href={SITE.issues}>melaporkan kesalahan lewat GitHub</a> dengan menyertakan sumber. Kesalahan diperbaiki secara
+            terbuka dan tercatat di riwayat publik, dan setiap koreksi dicatat beserta tanggalnya di <a href={SITE.changelog}>catatan perubahan</a>.
             Lihat halaman <a href={href(lang, 'about/')}>Tentang</a> untuk tahu siapa penulisnya.
           </p>
+
+          <h2 id="glossary">15. Glosarium</h2>
+          <dl class="glossary">
+            <dt>UU (Undang-Undang)</dt><dd>Aturan yang dibentuk DPR bersama Presiden.</dd>
+            <dt>PP (Peraturan Pemerintah)</dt><dd>Peraturan untuk menjalankan undang-undang.</dd>
+            <dt>Perpres (Peraturan Presiden)</dt><dd>Peraturan Presiden. Kedua aturan AI yang direncanakan berbentuk ini.</dd>
+            <dt>SE (Surat Edaran)</dt><dd>Panduan administratif, di luar hierarki peraturan perundang-undangan.</dd>
+            <dt>Rancangan</dt><dd>Instrumen yang belum ditandatangani.</dd>
+            <dt>Komdigi</dt><dd>Kementerian Komunikasi dan Digital, dahulu Kominfo.</dd>
+            <dt>JDIH</dt><dd>Jaringan Dokumentasi dan Informasi Hukum milik pemerintah.</dd>
+            <dt>PPID</dt><dd>Pejabat Pengelola Informasi dan Dokumentasi, yang melayani permohonan informasi publik di setiap badan publik.</dd>
+            <dt>Pendengung (buzzer)</dt><dd>Akun atau orang yang dibayar atau diorganisasi untuk memperkuat suatu pesan di internet.</dd>
+          </dl>
         </>
       )
     }
+
+    <References keys={R} title={lang === 'en' ? 'References' : 'Daftar pustaka'} />
   </article>
   </div>
 </Base>

@@ -11,6 +11,22 @@
   note_en: The only AI-specific instrument in force in Indonesia. It is guidance, not law.
   note_id: Satu-satunya instrumen khusus AI yang berlaku di Indonesia. Isinya panduan, bukan aturan yang mengikat.
   source_url: https://inet.detik.com/law-and-policy/d-7103666/kominfo-terbitkan-surat-edaran-etika-penggunaan-ai-di-indonesia
+  issuer_en: Minister of Communication and Informatics (Kominfo, now Komdigi)
+  issuer_id: Menteri Komunikasi dan Informatika (Kominfo, kini Komdigi)
+  level_en: Circular letter. Outside the hierarchy in Article 7(1) of Law 12/2011 and outside the ministerial regulations recognised in Article 8.
+  level_id: Surat edaran. Di luar hierarki Pasal 7 ayat (1) UU 12/2011 dan di luar peraturan menteri yang diakui Pasal 8.
+  read_in_full: true
+  points_en:
+    - Addressed to businesses that build AI and to public and private electronic system operators (PSE).
+    - Organised in three parts, ethical values, how to apply them, and responsibility in using and developing AI.
+    - Describes itself as ethical guidance. It creates no sanctions.
+  points_id:
+    - Ditujukan kepada pelaku usaha pemrograman berbasis AI serta penyelenggara sistem elektronik (PSE) publik dan privat.
+    - Disusun dalam tiga bagian, yaitu nilai etika, pelaksanaan nilai etika, dan tanggung jawab dalam pemanfaatan dan pengembangan AI.
+    - Menyebut dirinya pedoman etika. Tidak memuat sanksi.
+  eu_en: No binding EU counterpart. In function it resembles soft-law codes such as the OECD AI Principles.
+  eu_id: Tidak ada padanan mengikat di Uni Eropa. Fungsinya mirip kode hukum lunak seperti Prinsip AI OECD.
+  refs: [se-9-2023, uu-12-2011, oecd]
 
 - id: draft-perpres-ai-roadmap
   name_en: Draft Presidential Regulation on the National AI Roadmap 2026 to 2029
@@ -21,6 +37,20 @@
   note_en: Unsigned as of 21 October 2026.
   note_id: Belum ditandatangani per 21 Oktober 2026.
   source_url: https://www.antaranews.com/berita/5802305/pemerintah-siapkan-gugus-tugas-kawal-implementasi-regulasi-ai
+  issuer_en: President of the Republic of Indonesia, drafted by Komdigi
+  issuer_id: Presiden Republik Indonesia, disusun oleh Komdigi
+  level_en: Presidential regulation, Article 7(1)(e) of Law 12/2011. Binding once signed and promulgated.
+  level_id: Peraturan Presiden, Pasal 7 ayat (1) huruf e UU 12/2011. Mengikat setelah ditandatangani dan diundangkan.
+  read_in_full: false
+  points_en:
+    - Draft text not published. What is known comes from official statements.
+    - Officials say a task force will oversee implementation once the President signs.
+  points_id:
+    - Naskah rancangan belum dipublikasikan. Yang diketahui berasal dari pernyataan resmi.
+    - Pejabat menyebut gugus tugas akan mengawal pelaksanaannya setelah Presiden menandatangani.
+  eu_en: No direct counterpart. The AI Act is a regulation with duties, not a national roadmap.
+  eu_id: Tidak ada padanan langsung. AI Act adalah regulasi yang memuat kewajiban, bukan peta jalan nasional.
+  refs: [uu-12-2011, ai-act]
 
 - id: draft-perpres-ai-ethics
   name_en: Draft Presidential Regulation on AI Ethics
@@ -31,6 +61,22 @@
   note_en: Unsigned as of 21 October 2026. Draft text has not been published.
   note_id: Belum ditandatangani per 21 Oktober 2026. Naskah rancangan belum dipublikasikan.
   source_url: https://www.antaranews.com/berita/5802433/kemkomdigi-terapkan-pendekatan-berbasis-risiko-dalam-aturan-etika-ai
+  issuer_en: President of the Republic of Indonesia, drafted by Komdigi
+  issuer_id: Presiden Republik Indonesia, disusun oleh Komdigi
+  level_en: Presidential regulation, Article 7(1)(e) of Law 12/2011. Binding once signed and promulgated.
+  level_id: Peraturan Presiden, Pasal 7 ayat (1) huruf e UU 12/2011. Mengikat setelah ditandatangani dan diundangkan.
+  read_in_full: false
+  points_en:
+    - Draft text not published. What is known comes from official statements.
+    - Described as risk-based, with three tiers, low, high and unacceptable risk.
+    - Described as carrying no criminal sanctions, relying on self-assessment, and requiring incident reporting channels.
+  points_id:
+    - Naskah rancangan belum dipublikasikan. Yang diketahui berasal dari pernyataan resmi.
+    - Disebut berbasis risiko, dengan tiga tingkat, yaitu risiko rendah, tinggi, dan tidak dapat diterima.
+    - Disebut tanpa sanksi pidana, mengandalkan penilaian mandiri, dan mewajibkan kanal pelaporan insiden.
+  eu_en: The AI Act sets binding prohibitions (Article 5), high-risk duties (Article 6 and Annex III), transparency duties (Article 50), serious incident reporting (Article 73) and fines (Article 99).
+  eu_id: AI Act memuat larangan yang mengikat (Pasal 5), kewajiban risiko tinggi (Pasal 6 dan Lampiran III), kewajiban transparansi (Pasal 50), pelaporan insiden serius (Pasal 73), dan denda (Pasal 99).
+  refs: [uu-12-2011, ai-act, omnibus]
 
 - id: asean-genai-guide-2025
   name_en: Expanded ASEAN Guide on AI Governance and Ethics, Generative AI
@@ -42,6 +88,20 @@
   note_en: Regional guidance, not binding on member states.
   note_id: Panduan regional, tidak mengikat negara anggota.
   source_url: https://asean.org/wp-content/uploads/2025/01/Expanded-ASEAN-Guide-on-AI-Governance-and-Ethics-Generative-AI.pdf
+  issuer_en: ASEAN Digital Ministers
+  issuer_id: Para Menteri Digital ASEAN
+  level_en: Regional guidance. Not part of Indonesian law and not binding on member states.
+  level_id: Panduan regional. Bukan bagian dari hukum Indonesia dan tidak mengikat negara anggota.
+  read_in_full: false
+  points_en:
+    - Expands the ASEAN Guide on AI Governance and Ethics, adopted on 2 February 2024, to cover generative AI.
+    - The 2024 guide sets seven guiding principles, including transparency, fairness, security and safety, and accountability.
+  points_id:
+    - Memperluas ASEAN Guide on AI Governance and Ethics yang diadopsi 2 Februari 2024 agar mencakup AI generatif.
+    - Panduan 2024 memuat tujuh prinsip, antara lain transparansi, keadilan, keamanan dan keselamatan, serta akuntabilitas.
+  eu_en: Comparable in status to EU guidance documents rather than to the AI Act itself.
+  eu_id: Setara dengan dokumen panduan, bukan dengan AI Act itu sendiri.
+  refs: [asean-2024, asean-2025]
 
 - id: project-nusa
   name_en: Project NUSA (Indonesia and Singapore AI governance initiative, Korika and AI Singapore)
@@ -53,6 +113,18 @@
   note_en: Launched 21 October 2026. Not a regulation.
   note_id: Diluncurkan 21 Oktober 2026. Bukan peraturan.
   source_url: https://www.antaranews.com/berita/5802593/indonesia-singapura-luncurkan-project-nusa-tata-kelola-ai
+  issuer_en: Korika (Indonesia) and AI Singapore
+  issuer_id: Korika (Indonesia) dan AI Singapore
+  level_en: Bilateral initiative. Not a legal instrument.
+  level_id: Inisiatif bilateral. Bukan instrumen hukum.
+  read_in_full: false
+  points_en:
+    - Launched on 21 October 2026 as an AI governance initiative between Indonesia and Singapore.
+  points_id:
+    - Diluncurkan pada 21 Oktober 2026 sebagai inisiatif tata kelola AI antara Indonesia dan Singapura.
+  eu_en: No counterpart in EU law.
+  eu_id: Tidak ada padanan dalam hukum Uni Eropa.
+  refs: []
 
 - id: uu-pdp-27-2022
   name_en: Personal Data Protection Law (Law 27/2022)
@@ -64,6 +136,22 @@
   note_en: The enforcing authority had still not been established as of the August 2026 report.
   note_id: Lembaga pengawas belum dibentuk per laporan Agustus 2026.
   source_url: https://www.hlc.com/en/publications/awaiting-indonesias-personal-data-protection-authority-a-constitutional-push-for-a-hard-deadline
+  issuer_en: House of Representatives (DPR) and the President
+  issuer_id: Dewan Perwakilan Rakyat dan Presiden
+  level_en: Law, Article 7(1)(c) of Law 12/2011. Binding.
+  level_id: Undang-Undang, Pasal 7 ayat (1) huruf c UU 12/2011. Mengikat.
+  read_in_full: true
+  points_en:
+    - Article 46 requires written notice of a personal data protection failure within 3 x 24 hours, to the data subject and to the agency.
+    - Article 58 provides for an agency that is set up by, and answerable to, the President.
+    - The two-year adjustment period ended in October 2024. The agency had not been formed by that deadline.
+  points_id:
+    - Pasal 46 mewajibkan pemberitahuan tertulis atas kegagalan pelindungan data pribadi paling lambat 3 x 24 jam, kepada subjek data dan kepada lembaga.
+    - Pasal 58 mengatur lembaga yang ditetapkan oleh, dan bertanggung jawab kepada, Presiden.
+    - Masa penyesuaian dua tahun berakhir Oktober 2024. Lembaga itu belum terbentuk saat tenggat tersebut.
+  eu_en: GDPR Article 33 requires breach notice to the supervisory authority within 72 hours. GDPR Article 51 requires independent supervisory authorities.
+  eu_id: Pasal 33 GDPR mewajibkan pemberitahuan kebocoran kepada otoritas pengawas dalam 72 jam. Pasal 51 GDPR mewajibkan otoritas pengawas yang independen.
+  refs: [uu-pdp, uu-pdp-46, pdp-deadline, gdpr]
 
 - id: gr-33-2026
   name_en: Government Regulation 33/2026 implementing the PDP Law
@@ -75,3 +163,17 @@
   note_en: Signed 16 July 2026. Takes effect on 16 January 2027.
   note_id: Ditandatangani 16 Juli 2026. Berlaku mulai 16 Januari 2027.
   source_url: https://www.nusantaradfdl.com/insights/indonesia-personal-data-protection-law-gr-33-2026/
+  issuer_en: President of the Republic of Indonesia
+  issuer_id: Presiden Republik Indonesia
+  level_en: Government regulation, Article 7(1)(d) of Law 12/2011. Binding once in effect.
+  level_id: Peraturan Pemerintah, Pasal 7 ayat (1) huruf d UU 12/2011. Mengikat setelah berlaku.
+  read_in_full: false
+  points_en:
+    - Implements the Personal Data Protection Law. Signed on 16 July 2026, in effect from 16 January 2027.
+    - Known so far from law firm summaries. The text has not yet been read for this ledger.
+  points_id:
+    - Peraturan pelaksana UU Pelindungan Data Pribadi. Ditandatangani 16 Juli 2026, berlaku mulai 16 Januari 2027.
+    - Sejauh ini diketahui dari ringkasan firma hukum. Naskahnya belum dibaca untuk catatan ini.
+  eu_en: The GDPR is directly applicable and needs no implementing regulation in this sense.
+  eu_id: GDPR berlaku langsung dan tidak memerlukan peraturan pelaksana dalam pengertian ini.
+  refs: [uu-12-2011, gdpr]

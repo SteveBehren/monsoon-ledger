@@ -2,8 +2,11 @@
 import Base from '../../layouts/Base.astro';
 import Stamp from '../../components/Stamp.astro';
 import InstrumentMap from '../../components/InstrumentMap.astro';
+import Cite from '../../components/Cite.astro';
+import References from '../../components/References.astro';
 import { getEntries, getInstruments } from '../../lib/data';
-import { ui, pick, LANGS, type Lang } from '../../lib/i18n';
+import { REFERENCES, type RefKey } from '../../lib/references';
+import { ui, href, pick, LANGS, type Lang } from '../../lib/i18n';
 
 export function getStaticPaths() {
   return LANGS.map((lang) => ({ params: { lang } }));
@@ -14,18 +17,117 @@ const t = ui[lang];
 const instruments = getInstruments();
 const entries = getEntries();
 
+// Page reference list: the hierarchy section first, then every instrument's refs, then the wider framework.
+const fixed: RefKey[] = ['uu-12-2011', 'pasal-8-note', 'db-bpk'];
+const framework: RefKey[] = ['uu-iccpr', 'gc34', 'uu-kip', 'uu-ite', 'uu-pdp'];
+const fromData = instruments.flatMap((i) => i.refs ?? []);
+for (const key of fromData) {
+  if (!(key in REFERENCES)) throw new Error(`data/instruments.yml: unknown reference "${key}"`);
+}
+const R = [...new Set([...fixed, ...(fromData as RefKey[]), ...framework])] as RefKey[];
+
 const copy = {
   en: {
     intro:
-      'The laws, regulations, drafts and guidance this ledger refers to. Binding means the instrument is, or would be once signed, legally binding. Not binding means guidance or an initiative without legal force.',
+      'The laws, regulations, drafts and guidance this ledger refers to, with the legal force of each, what it says, how far the author has read it, and its closest EU counterpart.',
     caption: 'Instruments referenced by Monsoon Ledger',
+    hierarchyTitle: 'How legal force is decided',
+    dossierTitle: 'Instrument dossiers',
+    dossierIntro: 'One card per instrument. "Read in full" means the author has read the complete text. Everything else is drawn from official statements or secondary analysis, as the entries show.',
+    issuer: 'Issued by',
+    level: 'Legal form',
+    points: 'Key points',
+    eu: 'EU counterpart',
+    readYes: 'Read in full by the author',
+    readNo: 'Not yet read in full',
+    refs: 'Sources',
+    entries: 'Entries',
+    frameworkTitle: 'The wider legal framework',
+    frameworkIntro: 'These instruments are not AI-specific, but they decide how AI can be used in public life in Indonesia, so the ledger cites them.',
+    instrument: 'Instrument',
+    why: 'Why it matters for AI governance',
+    refsTitle: 'References',
   },
   id: {
     intro:
-      'Undang-undang, peraturan, rancangan, dan panduan yang dirujuk di sini. Mengikat berarti instrumen itu punya kekuatan hukum, atau akan punya setelah ditandatangani. Tidak mengikat berarti panduan atau inisiatif tanpa kekuatan hukum.',
+      'Undang-undang, peraturan, rancangan, dan panduan yang dirujuk di sini, lengkap dengan kekuatan hukumnya, isinya, sejauh mana penulis sudah membacanya, dan padanan terdekatnya di Uni Eropa.',
     caption: 'Instrumen yang dirujuk Monsoon Ledger',
+    hierarchyTitle: 'Cara kekuatan hukum ditentukan',
+    dossierTitle: 'Berkas instrumen',
+    dossierIntro: 'Satu kartu untuk tiap instrumen. "Sudah dibaca lengkap" berarti penulis sudah membaca naskah utuhnya. Selebihnya diambil dari pernyataan resmi atau analisis sekunder, seperti tercantum di tiap catatan.',
+    issuer: 'Diterbitkan oleh',
+    level: 'Bentuk hukum',
+    points: 'Pokok isi',
+    eu: 'Padanan di Uni Eropa',
+    readYes: 'Sudah dibaca lengkap oleh penulis',
+    readNo: 'Belum dibaca lengkap',
+    refs: 'Sumber',
+    entries: 'Catatan',
+    frameworkTitle: 'Kerangka hukum yang lebih luas',
+    frameworkIntro: 'Instrumen ini tidak khusus mengatur AI, tetapi menentukan bagaimana AI boleh dipakai dalam kehidupan publik di Indonesia, sehingga ikut dirujuk.',
+    instrument: 'Instrumen',
+    why: 'Kenapa penting bagi tata kelola AI',
+    refsTitle: 'Daftar pustaka',
   },
 }[lang];
+
+const hierarchy = {
+  en: [
+    ['a', 'The 1945 Constitution (UUD 1945)'],
+    ['b', 'Decrees of the People\'s Consultative Assembly (Ketetapan MPR)'],
+    ['c', 'Laws and government regulations in lieu of law (UU, Perppu)'],
+    ['d', 'Government regulations (PP)'],
+    ['e', 'Presidential regulations (Perpres)'],
+    ['f', 'Provincial regulations'],
+    ['g', 'District and city regulations'],
+  ],
+  id: [
+    ['a', 'Undang-Undang Dasar Negara Republik Indonesia Tahun 1945'],
+    ['b', 'Ketetapan Majelis Permusyawaratan Rakyat'],
+    ['c', 'Undang-Undang atau Peraturan Pemerintah Pengganti Undang-Undang'],
+    ['d', 'Peraturan Pemerintah'],
+    ['e', 'Peraturan Presiden'],
+    ['f', 'Peraturan Daerah Provinsi'],
+    ['g', 'Peraturan Daerah Kabupaten atau Kota'],
+  ],
+}[lang];
+
+const frameworkRows: { key: RefKey; name: { en: string; id: string }; why: { en: string; id: string } }[] = [
+  {
+    key: 'uu-iccpr',
+    name: { en: 'Law 12/2005 ratifying the International Covenant on Civil and Political Rights', id: 'UU 12/2005 tentang Pengesahan Kovenan Internasional tentang Hak-Hak Sipil dan Politik' },
+    why: {
+      en: 'Makes Article 19 of the Covenant, the freedom to seek, receive and impart information, binding on Indonesia. The UN Human Rights Committee reads its limits narrowly in General Comment 34.',
+      id: 'Menjadikan Pasal 19 Kovenan, yaitu kebebasan mencari, menerima, dan menyampaikan informasi, mengikat Indonesia. Komite HAM PBB menafsirkan batasannya secara sempit dalam Komentar Umum 34.',
+    },
+  },
+  {
+    key: 'uu-kip',
+    name: { en: 'Law 14/2008 on Public Information Disclosure', id: 'UU 14/2008 tentang Keterbukaan Informasi Publik' },
+    why: {
+      en: 'Gives everyone the right to request information from public bodies, including how a ministry uses AI. The route to unpublished drafts and procurement records.',
+      id: 'Memberi setiap orang hak meminta informasi dari badan publik, termasuk cara kementerian memakai AI. Jalur untuk memperoleh rancangan yang belum terbit dan dokumen pengadaan.',
+    },
+  },
+  {
+    key: 'uu-ite',
+    name: { en: 'Law 1/2024, the second amendment to the Electronic Information and Transactions Law', id: 'UU 1/2024, perubahan kedua UU Informasi dan Transaksi Elektronik' },
+    why: {
+      en: 'Governs online content and electronic systems, the legal ground on which AI services and online speech meet. Parts were read down by the Constitutional Court in Decision 115/PUU-XXII/2024.',
+      id: 'Mengatur konten daring dan sistem elektronik, titik temu antara layanan AI dan kebebasan berpendapat di internet. Sebagian pasalnya dimaknai bersyarat oleh Mahkamah Konstitusi dalam Putusan 115/PUU-XXII/2024.',
+    },
+  },
+  {
+    key: 'uu-pdp',
+    name: { en: 'Law 27/2022 on Personal Data Protection', id: 'UU 27/2022 tentang Pelindungan Data Pribadi' },
+    why: {
+      en: 'The only binding law in force that sets duties for systems trained on or processing personal data, including breach notification. Its supervisory agency has not been formed.',
+      id: 'Satu-satunya undang-undang mengikat yang berlaku dan menetapkan kewajiban bagi sistem yang dilatih dengan atau memproses data pribadi, termasuk pemberitahuan kebocoran. Lembaga pengawasnya belum dibentuk.',
+    },
+  },
+];
+
+const entriesFor = (id: string) => entries.filter((e) => e.instrument === id);
 ---
 <Base lang={lang} path="instruments/" title={t.nav.instruments} nav="instruments">
   <header class="page-head">
@@ -65,7 +167,7 @@ const copy = {
             instruments.map((i) => (
               <tr id={i.id}>
                 <td data-label={t.instrument}>
-                  <span class="instr-name">{pick(lang, i.name_en, i.name_id)}</span>
+                  <a class="instr-name" href={`#dossier-${i.id}`}>{pick(lang, i.name_en, i.name_id)}</a>
                   {lang === 'en' && (
                     <span class="instr-other" lang="id">
                       {i.name_id}
@@ -91,4 +193,145 @@ const copy = {
       </table>
     </div>
   </section>
+
+  <section class="section doc-body prose" aria-labelledby="hierarchy-h" data-reveal>
+    <h2 id="hierarchy-h">{copy.hierarchyTitle}</h2>
+    {
+      lang === 'en' ? (
+        <p>
+          Article 7(1) of Law 12 of 2011 on lawmaking sets the order of Indonesian legislation, from the highest to the lowest, and
+          Article 7(2) gives each rule legal force according to its place in that order <Cite k="uu-12-2011" keys={R} />.
+        </p>
+      ) : (
+        <p>
+          Pasal 7 ayat (1) Undang-Undang Nomor 12 Tahun 2011 menetapkan urutan peraturan perundang-undangan Indonesia, dari yang
+          tertinggi sampai terendah, dan Pasal 7 ayat (2) menetapkan kekuatan hukum setiap peraturan sesuai hierarki itu
+          <Cite k="uu-12-2011" keys={R} />.
+        </p>
+      )
+    }
+    <ol class="hierarchy">
+      {hierarchy.map(([letter, label]) => <li><span class="mono">{letter}</span>{label}</li>)}
+    </ol>
+    {
+      lang === 'en' ? (
+        <>
+          <p>
+            Article 8 recognises other rules, such as ministerial regulations, and makes them binding only when a higher regulation
+            orders them or when they are made within the issuer's authority <Cite k="pasal-8-note" keys={R} />. A circular letter
+            (surat edaran) is in neither list. It guides administration but does not bind the public, which is why Indonesia's only
+            AI-specific instrument in force is coded Not binding.
+          </p>
+          <p>
+            Texts are checked in the BPK legal database and, where possible, against the issuing agency's own copy, because BPK
+            itself says its documents should be confirmed with the issuing agency <Cite k="db-bpk" keys={R} />.
+          </p>
+        </>
+      ) : (
+        <>
+          <p>
+            Pasal 8 mengakui peraturan lain, seperti peraturan menteri, dan menjadikannya mengikat hanya bila diperintahkan peraturan
+            yang lebih tinggi atau dibentuk berdasarkan kewenangan <Cite k="pasal-8-note" keys={R} />. Surat edaran tidak termasuk di
+            kedua daftar itu. Surat edaran memandu administrasi tetapi tidak mengikat masyarakat, karena itu satu-satunya instrumen khusus
+            AI yang berlaku di Indonesia dikodekan Tidak mengikat.
+          </p>
+          <p>
+            Naskah dicek di basis data hukum BPK dan, bila memungkinkan, dengan salinan instansi penerbitnya, karena BPK sendiri
+            menyatakan dokumennya perlu dikonfirmasi ke instansi penerbit <Cite k="db-bpk" keys={R} />.
+          </p>
+        </>
+      )
+    }
+  </section>
+
+  <section class="section" aria-labelledby="dossier-h" data-reveal>
+    <div class="section-head">
+      <div>
+        <h2 id="dossier-h">{copy.dossierTitle}</h2>
+        <p>{copy.dossierIntro}</p>
+      </div>
+    </div>
+    <div class="dossiers">
+      {
+        instruments.map((i) => {
+          const points = (lang === 'en' ? i.points_en : i.points_id) ?? [];
+          const related = entriesFor(i.id);
+          return (
+            <article class="dossier panel" id={`dossier-${i.id}`}>
+              <header>
+                <h3>{pick(lang, i.name_en, i.name_id)}</h3>
+                <div class="dossier-stamps">
+                  <Stamp tone={i.status} label={t.status[i.status]} />
+                  <Stamp tone={i.binding ? 'binding' : 'not-binding'} label={i.binding ? t.binding : t.notBinding} />
+                  <span class={`read-flag ${i.read_in_full ? 'is-read' : ''}`}>{i.read_in_full ? copy.readYes : copy.readNo}</span>
+                </div>
+              </header>
+              <dl>
+                {i.issuer_en && (<><dt>{copy.issuer}</dt><dd>{pick(lang, i.issuer_en, i.issuer_id ?? i.issuer_en)}</dd></>)}
+                {i.level_en && (<><dt>{copy.level}</dt><dd>{pick(lang, i.level_en, i.level_id ?? i.level_en)}</dd></>)}
+                {points.length > 0 && (
+                  <>
+                    <dt>{copy.points}</dt>
+                    <dd><ul>{points.map((p) => <li>{p}</li>)}</ul></dd>
+                  </>
+                )}
+                {i.eu_en && (<><dt>{copy.eu}</dt><dd>{pick(lang, i.eu_en, i.eu_id ?? i.eu_en)}</dd></>)}
+                <dt>{copy.refs}</dt>
+                <dd>
+                  <a href={i.source_url}>{t.source} <span aria-hidden="true">&#8599;</span></a>
+                  {i.refs && i.refs.length > 0 && <> <Cite k={i.refs as RefKey[]} keys={R} /></>}
+                </dd>
+                {related.length > 0 && (
+                  <>
+                    <dt>{copy.entries}</dt>
+                    <dd>
+                      <ul>
+                        {related.map((e) => <li><a href={href(lang, `entries/${e.id}/`)}>{pick(lang, e.title_en, e.title_id)}</a></li>)}
+                      </ul>
+                    </dd>
+                  </>
+                )}
+              </dl>
+            </article>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="framework-h" data-reveal>
+    <div class="section-head">
+      <div>
+        <h2 id="framework-h">{copy.frameworkTitle}</h2>
+        <p>{copy.frameworkIntro}</p>
+      </div>
+    </div>
+    <div class="panel table-panel">
+      <table class="ruled stack">
+        <caption class="visually-hidden">{copy.frameworkTitle}</caption>
+        <thead>
+          <tr><th scope="col">{copy.instrument}</th><th scope="col">{copy.why}</th></tr>
+        </thead>
+        <tbody>
+          {
+            frameworkRows.map((row) => (
+              <tr>
+                <td data-label={copy.instrument}>
+                  <span class="instr-name">{row.name[lang]}</span> <Cite k={row.key} keys={R} />
+                </td>
+                <td data-label={copy.why}>
+                  {row.why[lang]}
+                  {row.key === 'uu-iccpr' && <> <Cite k="gc34" keys={R} /></>}
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="doc-body">
+    <References keys={R} title={copy.refsTitle} />
+  </div>
 </Base>

@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import Stamp from '../../components/Stamp.astro';
 import { getDeadlines, getEntries, outcomeCounts, OUTCOMES } from '../../lib/data';
 import { ui, pick, href, SITE, LANGS, type Lang } from '../../lib/i18n';
+import { promiseAnchor } from '../../lib/ontology';
 
 export function getStaticPaths() {
   return LANGS.map((lang) => ({ params: { lang } }));
@@ -87,7 +88,7 @@ const copy = {
     <ol class="timeline" id="timeline">
       {
         deadlines.map((d) => (
-          <li data-outcome={d.outcome_status}>
+          <li data-outcome={d.outcome_status} id={promiseAnchor(d)}>
             <time class="t-date" datetime={d.date_said}>{d.date_said}</time>
             <span class="t-dot" aria-hidden="true" />
             <div class="t-card panel">

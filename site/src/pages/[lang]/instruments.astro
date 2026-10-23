@@ -6,7 +6,8 @@ import Cite from '../../components/Cite.astro';
 import References from '../../components/References.astro';
 import { getEntries, getInstruments } from '../../lib/data';
 import { REFERENCES, type RefKey } from '../../lib/references';
-import { ui, href, pick, LANGS, type Lang } from '../../lib/i18n';
+import { ui, href, pick, LANGS, SITE, type Lang } from '../../lib/i18n';
+import { getOntology } from '../../lib/ontology';
 
 export function getStaticPaths() {
   return LANGS.map((lang) => ({ params: { lang } }));
@@ -26,6 +27,41 @@ for (const key of fromData) {
 }
 const R = [...new Set([...fixed, ...(fromData as RefKey[]), ...framework])] as RefKey[];
 
+// schema.org Legislation records for the instruments that are legal texts, built from the
+// same data and curated ontology links the page shows. Initiatives and guides are left out.
+const LEGISLATION = new Set(['law', 'government-regulation', 'presidential-regulation', 'circular-letter']);
+const { nodes: oNodes, links: oLinks } = getOntology();
+const oLabel = (id: string) => oNodes.find((n) => n.id === id)?.label.en ?? id;
+const linked = (id: string, rel: string) => oLinks.filter((l) => l.from === `instrument:${id}` && l.rel === rel).map((l) => l.to);
+const pageUrl = new URL(href(lang, 'instruments/'), SITE.url).href;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': instruments
+    .filter((i) => LEGISLATION.has(i.type))
+    .map((i) => ({
+      '@type': 'Legislation',
+      '@id': `${pageUrl}#${i.id}`,
+      url: `${pageUrl}#${i.id}`,
+      name: pick(lang, i.name_en, i.name_id),
+      alternateName: lang === 'en' ? i.name_id : i.name_en,
+      inLanguage: 'id',
+      legislationType: t.instrumentType[i.type] ?? i.type,
+      legislationJurisdiction: 'Indonesia',
+      ...(i.issued && /^\d{4}-\d{2}-\d{2}$/.test(i.issued) ? { legislationDate: i.issued } : {}),
+      legislationLegalForce: `https://schema.org/${i.status === 'in-force' ? 'InForce' : 'NotInForce'}`,
+      ...(linked(i.id, 'passed_by').length
+        ? { legislationPassedBy: linked(i.id, 'passed_by').map((o) => ({ '@type': 'Organization', name: oLabel(o) })) }
+        : {}),
+      ...(linked(i.id, 'responsibility_of').length
+        ? { legislationResponsible: linked(i.id, 'responsibility_of').map((o) => ({ '@type': 'Organization', name: oLabel(o) })) }
+        : {}),
+      ...(linked(i.id, 'implements').length
+        ? { legislationEnsuresImplementationOf: linked(i.id, 'implements').map((o) => ({ '@id': `${pageUrl}#${o.replace('instrument:', '')}` })) }
+        : {}),
+      isBasedOn: i.source_url,
+    })),
+};
+
 const copy = {
   en: {
     intro:
@@ -40,6 +76,7 @@ const copy = {
     readYes: 'Read in full by the author',
     readNo: 'Not yet read in full',
     refs: 'Sources',
+    ontology: 'See every link in the ontology',
     entries: 'Entries',
     frameworkTitle: 'The wider legal framework',
     frameworkIntro: 'These instruments are not AI-specific, but they decide how AI can be used in public life in Indonesia, so the ledger cites them.',
@@ -60,6 +97,7 @@ const copy = {
     readYes: 'Sudah dibaca lengkap oleh penulis',
     readNo: 'Belum dibaca lengkap',
     refs: 'Sumber',
+    ontology: 'Lihat semua tautannya di ontologi',
     entries: 'Catatan',
     frameworkTitle: 'Kerangka hukum yang lebih luas',
     frameworkIntro: 'Instrumen ini tidak khusus mengatur AI, tetapi menentukan bagaimana AI boleh dipakai dalam kehidupan publik di Indonesia, sehingga ikut dirujuk.',
@@ -232,6 +270,7 @@ const entriesFor = (id: string) => entries.filter((e) => e.instrument === id);
                 <dd>
                   <a href={i.source_url}>{t.source} <span aria-hidden="true">&#8599;</span></a>
                   {i.refs && i.refs.length > 0 && <> <Cite k={i.refs as RefKey[]} keys={R} /></>}
+                  <a class="onto-out" href={`${href(lang, 'ontology/')}#${encodeURIComponent(`instrument:${i.id}`)}`}>{copy.ontology} <span aria-hidden="true">&rarr;</span></a>
                 </dd>
                 {related.length > 0 && (
                   <>
@@ -286,4 +325,5 @@ const entriesFor = (id: string) => entries.filter((e) => e.instrument === id);
   <div class="doc-body">
     <References keys={R} title={copy.refsTitle} />
   </div>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />
 </Base>

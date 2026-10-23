@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, DATA, ENTRIES, siteRequire, readYaml, entryFiles, isRealDate } from './lib.mjs';
+import { buildOntology } from './ontology.mjs';
 
 const Ajv2020 = siteRequire('ajv/dist/2020').default;
 
@@ -125,6 +126,7 @@ const ajv = new Ajv2020({ allErrors: true, strict: true });
 const validateEntry = ajv.compile(schema);
 const quotedSources = new Map();
 const files = entryFiles();
+const loadedEntries = [];
 if (files.length === 0) errors.push('data/entries: no entries found');
 
 for (const name of files) {
@@ -145,6 +147,7 @@ for (const name of files) {
     }
   }
   if (typeof entry !== 'object' || entry === null) continue;
+  loadedEntries.push(entry);
 
   const expectedId = name.replace(/\.yml$/, '');
   if (entry.id !== expectedId) fail(file, `id "${entry.id}" must equal the file name "${expectedId}"`);
@@ -172,6 +175,51 @@ for (const name of files) {
     }
   }
 }
+
+// Ontology layer: institutions, curated relations, and the fused graph built from all of the above.
+const ontologyFile = path.join(DATA, 'ontology.yml');
+const ontology = load(ontologyFile) ?? {};
+const institutionIds = new Set();
+const aliases = new Set();
+(Array.isArray(ontology.institutions) ? ontology.institutions : []).forEach((row, i) => {
+  for (const key of ['id', 'name_en', 'name_id', 'country']) if (!row?.[key]) fail(ontologyFile, `institution ${i + 1} is missing "${key}"`);
+  if (row?.id && institutionIds.has(row.id)) fail(ontologyFile, `duplicate institution id "${row.id}"`);
+  if (row?.id) institutionIds.add(row.id);
+  if (row?.country && !COUNTRIES.has(row.country)) fail(ontologyFile, `institution ${i + 1} has an unknown country`);
+  for (const a of row?.aliases ?? []) {
+    if (aliases.has(a.toLowerCase())) fail(ontologyFile, `alias "${a}" is used by two institutions`);
+    aliases.add(a.toLowerCase());
+  }
+});
+if (!Array.isArray(ontology.institutions)) fail(ontologyFile, 'must have an "institutions" list');
+if (!Array.isArray(ontology.relations)) fail(ontologyFile, 'must have a "relations" list');
+
+// The bibliography lives in TypeScript, so its keys and urls are read from the source text.
+const referencesText = fs.readFileSync(path.join(ROOT, 'site', 'src', 'lib', 'references.ts'), 'utf8');
+const referenceKeys = new Set([...referencesText.matchAll(/^  '?([a-z0-9-]+)'?: \{/gm)].map((m) => m[1]));
+const referenceUrls = new Set([...referencesText.matchAll(/url: '([^']+)'/g)].map((m) => m[1]));
+for (const group of ['compared_with', 'ranked_under']) {
+  for (const key of ontology.references?.[group] ?? []) {
+    if (!referenceKeys.has(key)) fail(ontologyFile, `references.${group} "${key}" is not in site/src/lib/references.ts`);
+  }
+}
+
+// A curated link may only rest on a source the ledger already cites.
+const citedUrls = new Set([
+  ...loadedEntries.flatMap((e) => (e.sources ?? []).map((s) => s?.url)),
+  ...deadlines.map((d) => d?.source_url),
+  ...instruments.map((i) => i?.source_url),
+  ...referenceUrls,
+]);
+(ontology.relations ?? []).forEach((r, i) => {
+  if (r?.source_url && !citedUrls.has(r.source_url)) {
+    fail(ontologyFile, `relation ${i + 1} source_url is not cited anywhere in the ledger: ${r.source_url}`);
+  }
+});
+
+const references = Object.fromEntries([...referenceKeys].map((k) => [k, { text: k }]));
+const graph = buildOntology({ entries: loadedEntries, instruments, deadlines, ontology, leads: radarLeads, references });
+for (const problem of graph.problems) fail(ontologyFile, problem);
 
 // No em dashes or en dashes anywhere in the project text.
 const BANNED = new RegExp(`[${String.fromCharCode(0x2013)}${String.fromCharCode(0x2014)}]`);
@@ -202,5 +250,5 @@ if (errors.length) {
   process.exit(1);
 }
 console.log(
-  `Validation passed: ${files.length} entries, ${instruments.length} instruments, ${deadlines.length} deadlines, ${watchSources.length} watched sources, ${radarLeads.length} radar leads, no em or en dashes.`,
+  `Validation passed: ${files.length} entries, ${instruments.length} instruments, ${deadlines.length} deadlines, ${watchSources.length} watched sources, ${radarLeads.length} radar leads, ontology ${graph.nodes.length} objects and ${graph.links.length} links, no em or en dashes.`,
 );

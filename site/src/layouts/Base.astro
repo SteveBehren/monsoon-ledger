@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import '../styles/visual.css';
 import BrandMark from '../components/BrandMark.astro';
 import SiteHead from '../components/SiteHead.astro';
 import { ui, other, href, SITE, type Lang } from '../lib/i18n';
@@ -11,7 +12,7 @@ interface Props {
   title?: string;
   description?: string;
   ogType?: 'website' | 'article';
-  nav?: 'home' | 'entries' | 'ledger' | 'instruments' | 'radar' | 'method' | 'about';
+  nav?: 'home' | 'entries' | 'ledger' | 'instruments' | 'ontology' | 'radar' | 'method' | 'about';
 }
 
 const { lang, path, title, description, ogType = 'website', nav } = Astro.props;
@@ -24,11 +25,12 @@ const canonical = new URL(href(lang, path), SITE.url).href;
 const enUrl = new URL(href('en', path), SITE.url).href;
 const idUrl = new URL(href('id', path), SITE.url).href;
 
+// The brand links home, so Home is not repeated in the navigation.
 const links = [
-  { key: 'home', path: '' },
   { key: 'entries', path: 'entries/' },
   { key: 'ledger', path: 'ledger/' },
   { key: 'instruments', path: 'instruments/' },
+  { key: 'ontology', path: 'ontology/' },
   { key: 'radar', path: 'radar/' },
   { key: 'method', path: 'method/' },
   { key: 'about', path: 'about/' },
@@ -170,7 +172,7 @@ const links = [
           <div>
             <h2>{t.footerExplore}</h2>
             <ul>
-              {links.slice(1).map((l) => <li><a href={href(lang, l.path)}>{t.nav[l.key]}</a></li>)}
+              {links.map((l) => <li><a href={href(lang, l.path)}>{t.nav[l.key]}</a></li>)}
             </ul>
           </div>
           <div>

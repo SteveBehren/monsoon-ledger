@@ -1,5 +1,6 @@
 ---
-import { SITE } from '../lib/i18n';
+import SiteHead from '../components/SiteHead.astro';
+import { SITE, ui } from '../lib/i18n';
 ---
 <!doctype html>
 <html lang="en">
@@ -7,13 +8,21 @@ import { SITE } from '../lib/i18n';
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{SITE.name}</title>
-    <meta name="description" content="AI governance from the archipelago, read in the original Bahasa." />
+    <meta name="description" content={ui.en.tagline} />
+    <meta name="theme-color" content="#0a0e13" />
     <meta http-equiv="refresh" content="0; url=/en/" />
     <link rel="canonical" href={`${SITE.url}/en/`} />
     <link rel="alternate" hreflang="en" href={`${SITE.url}/en/`} />
     <link rel="alternate" hreflang="id" href={`${SITE.url}/id/`} />
     <link rel="alternate" hreflang="x-default" href={`${SITE.url}/en/`} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <SiteHead
+      lang="en"
+      title={SITE.name}
+      description={ui.en.tagline}
+      url={`${SITE.url}/`}
+      locale={ui.en.ogLocale}
+      altLocale={ui.id.ogLocale}
+    />
     <style>
       body { margin: 0; padding: 2rem 1rem; background: #0a0e13; color: #e4e9ee; font-family: system-ui, sans-serif; }
       a { color: #5cc2cc; }

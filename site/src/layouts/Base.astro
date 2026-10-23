@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import BrandMark from '../components/BrandMark.astro';
+import SiteHead from '../components/SiteHead.astro';
 import { ui, other, href, SITE, type Lang } from '../lib/i18n';
 
 interface Props {
@@ -16,7 +17,8 @@ interface Props {
 const { lang, path, title, description, ogType = 'website', nav } = Astro.props;
 const t = ui[lang];
 const alt = other(lang);
-const fullTitle = title ? `${title} | ${SITE.name}` : `${SITE.name} | ${t.tagline}`;
+// Tabs show the page name first and the site name after it. Home shows the site name only.
+const fullTitle = title ? `${title} | ${SITE.name}` : SITE.name;
 const desc = description ?? t.tagline;
 const canonical = new URL(href(lang, path), SITE.url).href;
 const enUrl = new URL(href('en', path), SITE.url).href;
@@ -59,19 +61,16 @@ const links = [
     <link rel="alternate" hreflang="id" href={idUrl} />
     <link rel="alternate" hreflang="x-default" href={enUrl} />
     <link rel="alternate" type="application/rss+xml" title={`${SITE.name} (${t.langName})`} href={href(lang, 'feed.xml')} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap.xml" />
-
-    <meta property="og:site_name" content={SITE.name} />
-    <meta property="og:title" content={title ?? SITE.name} />
-    <meta property="og:description" content={desc} />
-    <meta property="og:type" content={ogType} />
-    <meta property="og:url" content={canonical} />
-    <meta property="og:locale" content={t.ogLocale} />
-    <meta property="og:locale:alternate" content={ui[alt].ogLocale} />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content={title ?? SITE.name} />
-    <meta name="twitter:description" content={desc} />
+    <SiteHead
+      lang={lang}
+      title={title ?? SITE.name}
+      description={desc}
+      url={canonical}
+      ogType={ogType}
+      locale={t.ogLocale}
+      altLocale={ui[alt].ogLocale}
+    />
   </head>
   <body>
     <a class="skip-link" href="#main">{t.skip}</a>

@@ -1,6 +1,6 @@
 # Monsoon Ledger
 
-**AI governance from the archipelago, read in the original Bahasa.**
+**AI governance from the archipelago, promises checked against the record.**
 
 *Catatan janji dan kenyataan tata kelola AI di Nusantara.*
 
@@ -20,7 +20,7 @@ Indonesia's AI policy is announced, debated and missed in Bahasa Indonesia. Mini
 
 1. **Janji vs Kenyataan (Promise vs reality).** Every public deadline officials have given, set against what happened next, with a missed, open or met stamp.
 2. **A Safety lens on every entry.** The same four questions each time: does it require incident reporting, does it name unacceptable uses, does it address general-purpose models, and how strongly is it enforced.
-3. **Bahasa first.** Key quotes stay in the original Indonesian with an English line under them, and Indonesian-language sources come first.
+3. **Indonesian first.** Key quotes stay in the original Indonesian with an English line under them, and Indonesian-language sources come first.
 
 ## How to read an entry
 
@@ -67,7 +67,7 @@ data/instruments.yml    laws, drafts and guidance referenced by entries
 data/radar.yml          unreviewed leads written by the scanner
 data/scan-log.yml       one row per scan
 data/watch/             what the scanner reads and how it scores
-writing/                longer analysis (analysis/ in English, analisis/ in Bahasa)
+writing/                longer analysis (analysis/ in English, analisis/ in Bahasa Indonesia)
 scripts/                validate, new-entry, check-links, scan (monitoring layer) and its tests
 site/                   the Astro static site
 ```

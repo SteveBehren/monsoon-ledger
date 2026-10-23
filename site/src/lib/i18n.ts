@@ -20,7 +20,7 @@ const en = {
   htmlLang: 'en',
   ogLocale: 'en_GB',
   langName: 'English',
-  tagline: 'AI governance from the archipelago, read in the original Bahasa.',
+  tagline: 'AI governance from the archipelago, promises checked against the record.',
   skip: 'Skip to content',
   menu: 'Menu',
   brandSub: 'Indonesia AI governance',

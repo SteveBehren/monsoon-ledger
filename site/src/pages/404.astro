@@ -1,0 +1,15 @@
+---
+// Served by the host for any url that does not exist, so a mistyped link still shows the
+// site name, icons and a way back instead of a bare error page.
+import Base from '../layouts/Base.astro';
+import { href } from '../lib/i18n';
+---
+<Base lang="en" path="" title="Page not found" description="This page does not exist on Monsoon Ledger.">
+  <section class="wrap page-head">
+    <p class="kicker">404</p>
+    <h1>Page not found</h1>
+    <p class="lede">The link may be old or mistyped. Nothing on the ledger is deleted silently, so if a page moved, the changelog says where.</p>
+    <p><a href={href('en')}>Go to the English home page</a></p>
+    <p lang="id"><a href={href('id')} hreflang="id">Buka beranda Bahasa Indonesia</a></p>
+  </section>
+</Base>

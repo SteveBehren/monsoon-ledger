@@ -89,13 +89,13 @@ last_checked: ${today}
 
 eu_comparison: >
 
-# Optional Bahasa version of eu_comparison.
+# Optional Bahasa Indonesia version of eu_comparison.
 # perbandingan_eu_id: >
 
 # English, first person. My own words.
 my_take: >
 
-# Optional Bahasa version of my_take.
+# Optional Bahasa Indonesia version of my_take.
 # pendapat_id: >
 
 # At least one. language is id or en.

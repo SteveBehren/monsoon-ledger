@@ -25,7 +25,8 @@
     Halaman Tentang menjadi abstrak riset, dengan latar belakang penulis dari CV dan ijazah yang dibagikan penulis (hanya fakta
     profesional, berkasnya tidak diterbitkan). Ikon dan kartu pratinjau baru agar tautan tampil rapi di aplikasi obrolan. Slogan kini
     berbunyi "janji dicocokkan dengan catatan". Log pembangunan ini menggantikan linimasa yang ditulis manual.
-  commits: ["dd028b3", "6135efb", "b7f7fd4", "4d8ec6d"]
+  pr: 5
+  commits: ["dd028b3", "6135efb", "b7f7fd4", "4d8ec6d", "b6306ab"]
 
 - date: 2026-10-23
   kind: fix

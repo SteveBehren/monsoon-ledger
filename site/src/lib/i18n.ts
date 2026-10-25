@@ -16,6 +16,23 @@ export const SITE = {
 export const other = (lang: Lang): Lang => (lang === 'en' ? 'id' : 'en');
 export const href = (lang: Lang, p = '') => `/${lang}/${p}`;
 
+export const MONTHS = {
+  en: {
+    short: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    long: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+  },
+  id: {
+    short: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+    long: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+  },
+} as const;
+
+/** 2025-04-30 becomes "30 April 2025" in both languages. */
+export function fmtDate(lang: Lang, iso: string): string {
+  const [y, m, d] = iso.split('-').map(Number);
+  return `${d} ${MONTHS[lang].long[m - 1]} ${y}`;
+}
+
 const en = {
   htmlLang: 'en',
   ogLocale: 'en_GB',
@@ -48,7 +65,7 @@ const en = {
   metrics: {
     entries: 'Entries',
     instruments: 'Instruments tracked',
-    missed: 'Deadlines missed',
+    missed: 'Dated promises missed',
     checked: 'Sources last checked',
   },
   lens: {
@@ -118,7 +135,7 @@ const en = {
     general_purpose_models: 'Does it address general-purpose models?',
     enforcement: 'How strongly is it enforced?',
   } satisfies Record<Topic, string>,
-  outcome: { missed: 'Missed', open: 'Open', met: 'Met' } satisfies Record<Outcome, string>,
+  outcome: { missed: 'Missed', open: 'Open', met: 'Met', 'no-deadline': 'No deadline' } satisfies Record<Outcome, string>,
   instrumentType: {
     'circular-letter': 'Circular letter',
     'presidential-regulation': 'Presidential regulation',
@@ -135,6 +152,7 @@ const en = {
   lastChecked: 'Last checked',
   date: 'Date',
   source: 'Source',
+  archived: 'Archived copy',
   sources: 'Sources',
   instrument: 'Instrument',
   readEntry: 'Read entry',
@@ -191,7 +209,7 @@ const id: Strings = {
   metrics: {
     entries: 'Catatan',
     instruments: 'Instrumen dipantau',
-    missed: 'Tenggat terlewat',
+    missed: 'Janji bertenggat terlewat',
     checked: 'Sumber terakhir dicek',
   },
   lens: {
@@ -261,7 +279,7 @@ const id: Strings = {
     general_purpose_models: 'Apakah model serba guna ikut diatur?',
     enforcement: 'Seberapa kuat penegakannya?',
   },
-  outcome: { missed: 'Terlewat', open: 'Masih terbuka', met: 'Terpenuhi' },
+  outcome: { missed: 'Terlewat', open: 'Masih terbuka', met: 'Terpenuhi', 'no-deadline': 'Tanpa tenggat' },
   instrumentType: {
     'circular-letter': 'Surat edaran',
     'presidential-regulation': 'Peraturan Presiden',
@@ -278,6 +296,7 @@ const id: Strings = {
   lastChecked: 'Terakhir dicek',
   date: 'Tanggal',
   source: 'Sumber',
+  archived: 'Salinan arsip',
   sources: 'Sumber',
   instrument: 'Instrumen',
   readEntry: 'Baca catatan',

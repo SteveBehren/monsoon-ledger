@@ -6,6 +6,8 @@
 // Nothing here adds a fact: every object and link comes from a data file, and every curated
 // link in data/ontology.yml carries a source the ledger already cites.
 
+import { slug, splitWho, promiseId, promiseKey, computePromise, todayWIB } from './promises.mjs';
+
 /** Object types, in the order the explorer lists them. */
 export const OBJECT_TYPES = {
   instrument: { en: 'Instrument', id: 'Instrumen' },
@@ -65,22 +67,8 @@ export const RELATIONS = {
 
 export const EVIDENCE = ['legal-text', 'official-statement', 'press-report'];
 
-export const slug = (text) =>
-  String(text)
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[^\p{L}\p{N}]+/gu, '-')
-    .replace(/^-+|-+$/g, '');
-
-/** "Edwin Hidayat Abdullah, Komdigi" becomes { name, affiliation }. */
-export function splitWho(who) {
-  const i = String(who).indexOf(',');
-  return i < 0 ? { name: who.trim(), affiliation: '' } : { name: who.slice(0, i).trim(), affiliation: who.slice(i + 1).trim() };
-}
-
-export const promiseId = (d) => `promise:${d.date_said}-${slug(splitWho(d.who).name)}`;
-/** The anchor of a promise's row on the Promise vs Reality page. */
-export const promiseAnchor = (d) => `d-${d.date_said}-${slug(splitWho(d.who).name)}`;
+// Promise ids and name handling live in promises.mjs, shared with the validator and the site.
+export { slug, splitWho, promiseId, promiseAnchor, promiseKey } from './promises.mjs';
 
 function hostLabel(url) {
   try {
@@ -92,12 +80,12 @@ function hostLabel(url) {
 
 /**
  * Builds the graph.
- * @param {object} data { entries, instruments, deadlines, ontology, leads?, references? }
+ * @param {object} data { entries, instruments, deadlines, ontology, leads?, references?, today? }
  *   references maps bibliography keys to { text, url }. Without it, reference objects carry
  *   only their key (the validator works that way).
  * @returns {{ nodes: object[], links: object[], problems: string[] }}
  */
-export function buildOntology({ entries, instruments, deadlines, ontology, leads = [], references = null }) {
+export function buildOntology({ entries, instruments, deadlines, ontology, leads = [], references = null, today = todayWIB() }) {
   const nodes = new Map();
   const links = [];
   const problems = [];
@@ -197,8 +185,14 @@ export function buildOntology({ entries, instruments, deadlines, ontology, leads
       id: pid,
       type: 'promise',
       label: { en: d.promised_en, id: d.promised_id },
-      href: `ledger/#${promiseAnchor(d)}`,
-      props: { date_said: d.date_said, outcome: d.outcome_status, said_by: d.who },
+      href: `promises/${promiseKey(d)}/`,
+      props: {
+        date_said: d.date_said,
+        claim_type: d.claim_type,
+        ...(d.deadline ? { deadline: d.deadline } : {}),
+        outcome: computePromise(d, today).outcome,
+        said_by: d.who,
+      },
     });
     addLink(pid, 'evidenced_by', addDocument(d.source_url));
     const person = `person:${slug(name)}`;

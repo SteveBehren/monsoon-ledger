@@ -1,10 +1,10 @@
 ---
 // Replays the Promise vs Reality ledger over time. Every dot is a row of data/deadlines.yml,
-// placed on the date it was said and coloured by its outcome today. The step line counts the
+// placed on the date it was said and coloured by its computed outcome today. The step line counts the
 // promises made so far. Moving the slider shows the ledger as it stood on any date.
-import type { Deadline } from '../lib/data';
-import { promiseAnchor } from '../lib/ontology';
-import { ui, href, pick, type Lang } from '../lib/i18n';
+import { withState, type Deadline } from '../lib/data';
+import { promiseKey } from '../lib/ontology';
+import { ui, href, pick, MONTHS, type Lang } from '../lib/i18n';
 
 interface Props {
   deadlines: Deadline[];
@@ -36,7 +36,7 @@ rows.forEach((r, i) => {
 step += ` H${x(end).toFixed(1)}`;
 const area = `${step} V${y(0).toFixed(1)} H${x(start).toFixed(1)}Z`;
 
-const months = lang === 'en' ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] : ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const months = MONTHS[lang].short;
 const ticks: { x: number; label: string }[] = [];
 for (let d = new Date(start); d.getTime() <= end; d.setUTCMonth(d.getUTCMonth() + 3)) {
   ticks.push({ x: x(d.getTime()), label: `${months[d.getUTCMonth()]} ${d.getUTCFullYear()}` });
@@ -74,9 +74,9 @@ const data = rows.map((r) => ({
   date: r.date_said,
   who: r.who,
   text: pick(lang, r.promised_en, r.promised_id),
-  outcome: r.outcome_status,
-  outcomeLabel: t.outcome[r.outcome_status],
-  href: `#${promiseAnchor(r)}`,
+  outcome: withState(r).outcome,
+  outcomeLabel: t.outcome[withState(r).outcome],
+  href: href(lang, `promises/${promiseKey(r)}/`),
 }));
 ---
 <section class="replay panel" data-replay data-start={start} data-total={total} data-months={JSON.stringify(months)} aria-labelledby="replay-h">

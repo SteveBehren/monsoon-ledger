@@ -2,7 +2,10 @@
 // (see the build script), so this module trusts the shape of the data.
 import fs from 'node:fs';
 import path from 'node:path';
+import { execSync } from 'node:child_process';
 import yaml from 'js-yaml';
+// @ts-ignore: plain JavaScript module shared with the validator and the share cards.
+import { computePromise, summarise, oldestMissed, todayWIB, promiseKey, splitWho } from '../../../scripts/promises.mjs';
 
 const DATA = path.resolve(process.cwd(), '..', 'data');
 
@@ -10,11 +13,14 @@ export type Status = 'announced' | 'draft' | 'signed' | 'in-force' | 'withdrawn'
 export type Evidence = 'legal-text' | 'official-statement' | 'press-report';
 export type YesNo = 'yes' | 'no' | 'unclear';
 export type Enforcement = 'binding' | 'soft' | 'none' | 'unclear';
-export type Outcome = 'missed' | 'open' | 'met';
+/** Computed by scripts/promises.mjs. no-deadline is for conditional and status claims. */
+export type Outcome = 'missed' | 'open' | 'met' | 'no-deadline';
+export type ClaimType = 'dated' | 'conditional' | 'status_claim';
 export type Topic = 'incident_reporting' | 'unacceptable_uses' | 'general_purpose_models' | 'enforcement';
 
 export const TOPICS: Topic[] = ['incident_reporting', 'unacceptable_uses', 'general_purpose_models', 'enforcement'];
 export const STATUSES: Status[] = ['announced', 'draft', 'signed', 'in-force', 'withdrawn'];
+/** The outcomes a dated promise can have, in the order the balance bar draws them. */
 export const OUTCOMES: Outcome[] = ['missed', 'open', 'met'];
 
 export interface Source {
@@ -52,15 +58,39 @@ export interface Entry {
   sources: Source[];
 }
 
+/** One row of data/deadlines.yml, in the promise format (docs/standard/v0.1/). */
 export interface Deadline {
   date_said: string;
+  country: string;
   who: string;
+  role_en?: string;
+  role_id?: string;
+  instrument?: string;
+  claim_type: ClaimType;
+  deadline_rule?: string;
+  deadline?: string;
+  deadline_precision?: 'day' | 'month' | 'quarter' | 'half' | 'year';
+  deadline_basis_en: string;
+  deadline_basis_id: string;
   promised_en: string;
   promised_id: string;
   outcome_en: string;
   outcome_id: string;
-  outcome_status: Outcome;
+  outcome_date?: string;
+  outcome_source_url?: string;
+  evidence: Evidence;
   source_url: string;
+  archive_url?: string;
+  archived_at?: string;
+}
+
+/** A promise with its computed state on the build day. */
+export interface PromiseRow extends Deadline {
+  key: string;
+  outcome: Outcome;
+  days_past: number | null;
+  days_remaining: number | null;
+  days_early_late: number | null;
 }
 
 export interface Instrument {
@@ -141,10 +171,61 @@ export function getBuildLog(): BuildRow[] {
   return tidy(read<BuildRow[]>(path.join(DATA, 'build-log.yml')));
 }
 
-export function outcomeCounts(deadlines: Deadline[]): Record<Outcome, number> {
-  const counts: Record<Outcome, number> = { missed: 0, open: 0, met: 0 };
-  for (const d of deadlines) counts[d.outcome_status] += 1;
-  return counts;
+/** The day the site is built, in Western Indonesian Time. Every computed outcome is as of this day. */
+export const TODAY: string = todayWIB();
+
+/**
+ * The data version cited on receipts: the short hash of the last commit that changed data/.
+ * Falls back to the deployed commit, which on Vercel can be a shallow clone without history.
+ */
+export const DATA_VERSION: string = (() => {
+  try {
+    const hash = execSync('git log -1 --format=%h -- data', { cwd: path.resolve(process.cwd(), '..'), stdio: ['ignore', 'pipe', 'ignore'] })
+      .toString()
+      .trim();
+    if (hash) return hash;
+  } catch {
+    // no git history available
+  }
+  return (process.env.VERCEL_GIT_COMMIT_SHA ?? '').slice(0, 7) || 'unversioned';
+})();
+
+export interface PromiseCounts {
+  total: number;
+  dated: number;
+  missed: number;
+  open: number;
+  met: number;
+  conditional: number;
+  status_claim: number;
+}
+
+/** Headline counts, computed by scripts/promises.mjs. Missed, open and met count dated promises only. */
+export function outcomeCounts(deadlines: Deadline[]): PromiseCounts {
+  return summarise(deadlines, TODAY);
+}
+
+export function withState(d: Deadline): PromiseRow {
+  const c = computePromise(d, TODAY);
+  return { ...d, key: promiseKey(d), outcome: c.outcome, days_past: c.days_past, days_remaining: c.days_remaining, days_early_late: c.days_early_late };
+}
+
+/** "Meutya Hafid, Minister of Communication and Digital Affairs": the name, then the role if recorded. */
+export function speaker(d: Deadline, lang: 'en' | 'id'): string {
+  const { name, affiliation } = splitWho(d.who);
+  const role = lang === 'en' ? d.role_en : d.role_id;
+  return [name, role ?? affiliation].filter(Boolean).join(', ');
+}
+
+/** Every promise with its computed state, newest first. */
+export function getPromises(): PromiseRow[] {
+  return getDeadlines().map(withState);
+}
+
+/** The dated promise missed for longest, for the receipt headline. */
+export function getOldestMissed(): PromiseRow | undefined {
+  const found = oldestMissed(getDeadlines(), TODAY);
+  return found ? withState(found.row) : undefined;
 }
 
 // An entry "covers" a topic when the answer is yes, or when enforcement is binding or soft.

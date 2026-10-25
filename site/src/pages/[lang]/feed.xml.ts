@@ -1,6 +1,8 @@
 import type { APIRoute, GetStaticPaths } from 'astro';
-import { getEntries } from '../../lib/data';
-import { ui, pick, SITE, LANGS, type Lang } from '../../lib/i18n';
+import { getEntries, getPromises, TODAY } from '../../lib/data';
+// @ts-ignore: plain JavaScript module shared with the validator.
+import { toTime, fromTime } from '../../../../scripts/promises.mjs';
+import { ui, pick, fmtDate, SITE, LANGS, type Lang } from '../../lib/i18n';
 
 export const getStaticPaths: GetStaticPaths = () => LANGS.map((lang) => ({ params: { lang } }));
 
@@ -11,17 +13,54 @@ export const GET: APIRoute = ({ params }) => {
   const lang = params.lang as Lang;
   const t = ui[lang];
   const home = `${SITE.url}/${lang}/`;
-  const items = getEntries()
-    .map((e) => {
-      const link = `${SITE.url}/${lang}/entries/${e.id}/`;
-      return `    <item>
+  const entryItems = getEntries().map((e) => {
+    const link = `${SITE.url}/${lang}/entries/${e.id}/`;
+    return {
+      date: e.date,
+      xml: `    <item>
       <title>${esc(pick(lang, e.title_en, e.title_id))}</title>
       <link>${link}</link>
       <guid isPermaLink="true">${link}</guid>
       <pubDate>${new Date(`${e.date}T00:00:00Z`).toUTCString()}</pubDate>
       <description>${esc(pick(lang, e.summary_en, e.ringkasan_id))}</description>
-    </item>`;
-    })
+    </item>`,
+    };
+  });
+
+  // One item when a promise changes outcome: missed on the day after its deadline (or on the
+  // day it was kept late), met on the day it was kept. Computed by scripts/promises.mjs.
+  const outcomeItems = getPromises().flatMap((p) => {
+    const changed =
+      p.outcome === 'met' || (p.outcome === 'missed' && p.outcome_date)
+        ? p.outcome_date!
+        : p.outcome === 'missed' && p.deadline
+          ? fromTime(toTime(p.deadline) + 86_400_000)
+          : null;
+    if (!changed || changed > TODAY) return [];
+    const link = `${SITE.url}/${lang}/promises/${p.key}/`;
+    const label = t.outcome[p.outcome];
+    const promised = pick(lang, p.promised_en, p.promised_id);
+    const body =
+      lang === 'en'
+        ? `${p.who} promised this on ${fmtDate(lang, p.date_said)}.${p.deadline ? ` The deadline was ${fmtDate(lang, p.deadline)}.` : ''} Outcome: ${label}.`
+        : `${p.who} menjanjikan ini pada ${fmtDate(lang, p.date_said)}.${p.deadline ? ` Tenggatnya ${fmtDate(lang, p.deadline)}.` : ''} Hasil: ${label}.`;
+    return [
+      {
+        date: changed,
+        xml: `    <item>
+      <title>${esc(`${label}: ${promised}`)}</title>
+      <link>${link}</link>
+      <guid isPermaLink="false">${link}#${p.outcome}</guid>
+      <pubDate>${new Date(`${changed}T00:00:00Z`).toUTCString()}</pubDate>
+      <description>${esc(body)}</description>
+    </item>`,
+      },
+    ];
+  });
+
+  const items = [...entryItems, ...outcomeItems]
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .map((i) => i.xml)
     .join('\n');
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

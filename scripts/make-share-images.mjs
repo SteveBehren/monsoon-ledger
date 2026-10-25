@@ -1,45 +1,172 @@
-// node scripts/make-share-images.mjs
-//
-// Regenerates the icons and link preview images in site/public/ from the brand mark.
-// Needs Playwright with a Chromium build. It is a one-off design tool, not part of the
-// site build, so Playwright is not a project dependency:
-//   PLAYWRIGHT=/path/to/playwright/index.mjs node scripts/make-share-images.mjs
-//
-// Writes:
-//   favicon.svg, favicon.ico (16, 32, 48), favicon-32.png, apple-touch-icon.png (180),
-//   icon-192.png, icon-512.png, icon-maskable-512.png, og-en.jpg and og-id.jpg (1200 x 630).
+// The share images: link preview cards (1200 x 630) and the site icons, drawn as SVG and
+// rendered to PNG with @resvg/resvg-js, using the Inter font files in scripts/fonts/ (OFL).
+// One pipeline for everything:
+//   - the site build imports siteCard, receiptCard and renderPng (site/src/pages/og/) and
+//     renders a card for the site and for every promise receipt, in both languages, so a
+//     card always matches the data it was built from and says "as of" which day;
+//   - running this file directly regenerates the icons in site/public/:
+//       node scripts/make-share-images.mjs
+//     favicon.svg, favicon.ico (16, 32, 48), favicon-32.png, apple-touch-icon.png (180),
+//     icon-192.png, icon-512.png and icon-maskable-512.png.
+// Nothing here reads data files: callers pass in the words, so the numbers on a card come
+// from scripts/promises.mjs like everywhere else.
 import fs from 'node:fs';
 import path from 'node:path';
-import { ROOT } from './lib.mjs';
+import { pathToFileURL } from 'node:url';
 
-const OUT = path.join(ROOT, 'site', 'public');
-const { chromium } = await import(process.env.PLAYWRIGHT ?? 'playwright');
-const browser = await chromium.launch(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {});
+export const COLOURS = {
+  bg: '#0a0e13',
+  accent: '#5cc2cc',
+  ink: '#e4e9ee',
+  soft: '#a3aebb',
+  faint: '#6f7c8b',
+  red: '#ef7b7f',
+  amber: '#e2b45c',
+  green: '#6fcf9f',
+};
+const C = COLOURS;
+const FONT = 'Inter';
 
-const BG = '#0a0e13';
-const ACCENT = '#5cc2cc';
-const INK = '#e4e9ee';
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 // The mark: two ledger rules with an isobar running between them.
-const mark = (size, { pad = 0, radius = 6, bg = BG } = {}) => `
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="${size}" height="${size}">
-  <rect width="32" height="32" rx="${radius}" fill="${bg}"/>
+const markInner = `<path d="M6 10h20M6 24h20" stroke="${C.ink}" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+    <path d="M5.5 17.5q2.6-4.4 5.2 0t5.2 0 5.2 0 5.2 0" fill="none" stroke="${C.accent}" stroke-width="2.6" stroke-linecap="round"/>`;
+
+/** The brand mark as a standalone SVG. pad keeps it inside a maskable icon's safe zone. */
+export function markSvg(size, { pad = 0, radius = 6 } = {}) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="${size}" height="${size}">
+  <rect width="32" height="32" rx="${radius}" fill="${C.bg}"/>
   <g transform="translate(${pad} ${pad}) scale(${(32 - pad * 2) / 32})">
-    <path d="M6 10h20M6 24h20" stroke="${INK}" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
-    <path d="M5.5 17.5q2.6-4.4 5.2 0t5.2 0 5.2 0 5.2 0" fill="none" stroke="${ACCENT}" stroke-width="2.6" stroke-linecap="round"/>
+    ${markInner}
   </g>
 </svg>`;
-
-async function png(html, width, height) {
-  const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
-  await page.setContent(`<!doctype html><html><body style="margin:0;background:transparent">${html}</body></html>`);
-  const buf = await page.screenshot({ omitBackground: true, clip: { x: 0, y: 0, width, height } });
-  await page.close();
-  return buf;
 }
 
-// ICO with embedded PNG images, supported by every current browser.
-function ico(images) {
+const markAt = (x, y, size) =>
+  `<g transform="translate(${x} ${y}) scale(${size / 32})"><rect width="32" height="32" rx="6" fill="${C.bg}" stroke="${C.ink}" stroke-opacity="0.15"/>${markInner}</g>`;
+
+// Faint isobars behind the right half of a card. Decoration only.
+function isobars(cx, cy, opacityKey = 0.55) {
+  let d = '';
+  for (let k = 1; k <= 11; k++) {
+    const pts = [];
+    for (let i = 0; i < 64; i++) {
+      const a = (i / 64) * Math.PI * 2;
+      const r = (18 + k * 30) * (1 + 0.13 * Math.sin(2 * a + k * 0.45) + 0.06 * Math.sin(3 * a - k * 0.3));
+      pts.push(`${(cx + r * Math.cos(a) * 1.25).toFixed(1)} ${(cy + r * Math.sin(a) * 0.85).toFixed(1)}`);
+    }
+    d += `<path d="M${pts.join(' L')}Z" fill="none" stroke="${C.accent}" stroke-opacity="${k === 4 ? opacityKey : 0.16}" stroke-width="${k === 4 ? 2 : 1.1}"/>`;
+  }
+  return d;
+}
+
+// Approximate Inter advance widths, in em, good enough to wrap lines without a text engine.
+function textWidth(text, size, weight = 400) {
+  let em = 0;
+  for (const ch of text) {
+    if (' .,:;!|il1jtfr\'"()[]'.includes(ch)) em += 0.3;
+    else if ('mwMW'.includes(ch)) em += 0.86;
+    else if (ch >= 'A' && ch <= 'Z') em += 0.68;
+    else if (ch >= '0' && ch <= '9') em += 0.6;
+    else em += 0.56;
+  }
+  return em * size * (weight >= 600 ? 1.04 : 1);
+}
+
+/** Greedy word wrap. Lines past maxLines are cut with an ellipsis. */
+export function wrap(text, size, maxWidth, { weight = 400, maxLines = 3 } = {}) {
+  const lines = [];
+  let line = '';
+  for (const word of String(text).split(/\s+/)) {
+    const next = line ? `${line} ${word}` : word;
+    if (line && textWidth(next, size, weight) > maxWidth) {
+      lines.push(line);
+      line = word;
+    } else line = next;
+  }
+  if (line) lines.push(line);
+  if (lines.length > maxLines) {
+    const kept = lines.slice(0, maxLines);
+    kept[maxLines - 1] = `${kept[maxLines - 1].replace(/[\s,.;:]+$/, '')}…`;
+    return kept;
+  }
+  return lines;
+}
+
+const tspans = (lines, x, y, step) => lines.map((l, i) => `<tspan x="${x}" y="${y + i * step}">${esc(l)}</tspan>`).join('');
+
+function frame(inner, footer) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <radialGradient id="glow" cx="0.8" cy="0.45" r="0.75">
+      <stop offset="0" stop-color="#12303a"/>
+      <stop offset="0.62" stop-color="${C.bg}"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  ${isobars(960, 300)}
+  ${markAt(72, 64, 52)}
+  <text x="140" y="100" font-family="${FONT}" font-weight="600" font-size="30" fill="${C.ink}">Monsoon Ledger</text>
+  ${inner}
+  <text x="72" y="584" font-family="${FONT}" font-size="22" fill="${C.soft}">${esc(footer)}</text>
+</svg>`;
+}
+
+/** The site-wide card: kicker, tagline, footer line. */
+export function siteCard({ kicker, tagline, foot }) {
+  const lines = wrap(tagline, 54, 760, { weight: 600, maxLines: 4 });
+  return frame(
+    `<text font-family="${FONT}" font-size="20" letter-spacing="2" fill="${C.accent}"><tspan x="72" y="196">${esc(kicker.toUpperCase())}</tspan></text>
+  <text font-family="${FONT}" font-weight="600" font-size="54" fill="${C.ink}">${tspans(lines, 72, 270, 64)}</text>`,
+    foot,
+  );
+}
+
+const TONES = { missed: C.red, open: C.amber, met: C.green, 'no-deadline': C.soft };
+
+/**
+ * A receipt card. Words come from the caller, in the page's language:
+ *   { kicker, promised, said, outcome, stamp, count, asOf, site }
+ * outcome picks the colour; stamp is its label; count is the line next to it.
+ */
+export function receiptCard({ kicker, promised, said, outcome, stamp, count, asOf, site }) {
+  const tone = TONES[outcome] ?? C.soft;
+  const big = wrap(promised, 50, 1000, { weight: 600, maxLines: 3 });
+  const saidLines = wrap(said, 25, 1000, { maxLines: 2 });
+  const top = 238;
+  const saidY = top + big.length * 60 + 18;
+  const stampText = stamp.toUpperCase();
+  const stampW = Math.round(textWidth(stampText, 22, 600) + stampText.length * 1.5 + 56);
+  const statusY = 470;
+  return frame(
+    `<text font-family="${FONT}" font-size="20" letter-spacing="2" fill="${C.accent}"><tspan x="72" y="176">${esc(kicker.toUpperCase())}</tspan></text>
+  <text font-family="${FONT}" font-weight="600" font-size="50" fill="${C.ink}">${tspans(big, 72, top, 60)}</text>
+  <text font-family="${FONT}" font-size="25" fill="${C.soft}">${tspans(saidLines, 72, saidY, 34)}</text>
+  <rect x="72" y="${statusY}" width="${stampW}" height="44" rx="22" fill="${tone}" fill-opacity="0.14" stroke="${tone}" stroke-width="1.5"/>
+  <circle cx="94" cy="${statusY + 22}" r="6" fill="${tone}"/>
+  <text x="110" y="${statusY + 30}" font-family="${FONT}" font-weight="600" font-size="22" letter-spacing="1.5" fill="${tone}">${esc(stampText)}</text>
+  <text x="${72 + stampW + 20}" y="${statusY + 32}" font-family="${FONT}" font-weight="600" font-size="32" fill="${C.ink}">${esc(count)}</text>
+  <text x="1128" y="584" text-anchor="end" font-family="${FONT}" font-size="20" fill="${C.faint}">${esc(asOf)}</text>`,
+    site,
+  );
+}
+
+/**
+ * Renders an SVG string to a PNG buffer. The caller passes the Resvg class from
+ * @resvg/resvg-js and the font folder, so this file works from the build and from the CLI.
+ */
+export function renderPng(svg, { Resvg, fontDir, width }) {
+  const fontFiles = ['Inter-Regular.otf', 'Inter-SemiBold.otf'].map((f) => path.join(fontDir, f));
+  const resvg = new Resvg(svg, {
+    font: { fontFiles, loadSystemFonts: false, defaultFontFamily: FONT },
+    ...(width ? { fitTo: { mode: 'width', value: width } } : {}),
+  });
+  return resvg.render().asPng();
+}
+
+/** ICO with embedded PNG images, supported by every current browser. */
+export function ico(images) {
   const header = Buffer.alloc(6);
   header.writeUInt16LE(0, 0);
   header.writeUInt16LE(1, 2);
@@ -60,69 +187,23 @@ function ico(images) {
   return Buffer.concat([header, ...dir, ...images.map((i) => i.data)]);
 }
 
-fs.writeFileSync(path.join(OUT, 'favicon.svg'), mark(32).trim() + '\n');
-const small = [];
-for (const size of [16, 32, 48]) small.push({ size, data: await png(mark(size), size, size) });
-fs.writeFileSync(path.join(OUT, 'favicon.ico'), ico(small));
-fs.writeFileSync(path.join(OUT, 'favicon-32.png'), small[1].data);
-// iOS draws its own rounded corners, so the touch icon is a full square.
-fs.writeFileSync(path.join(OUT, 'apple-touch-icon.png'), await png(mark(180, { radius: 0, pad: 3 }), 180, 180));
-fs.writeFileSync(path.join(OUT, 'icon-192.png'), await png(mark(192), 192, 192));
-fs.writeFileSync(path.join(OUT, 'icon-512.png'), await png(mark(512), 512, 512));
-// Maskable icons keep the mark inside the central 80 percent safe zone.
-fs.writeFileSync(path.join(OUT, 'icon-maskable-512.png'), await png(mark(512, { radius: 0, pad: 5 }), 512, 512));
+// CLI: regenerate the icons.
+if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+  const { ROOT, siteRequire } = await import('./lib.mjs');
+  const { Resvg } = siteRequire('@resvg/resvg-js');
+  const OUT = path.join(ROOT, 'site', 'public');
+  const opts = (width) => ({ Resvg, fontDir: path.join(ROOT, 'scripts', 'fonts'), width });
+  const icon = (size, o) => renderPng(markSvg(size, o), opts(size));
 
-// Link preview cards, one per language.
-function isobars() {
-  let d = '';
-  const cx = 930;
-  const cy = 300;
-  for (let k = 1; k <= 11; k++) {
-    const n = 64;
-    const pts = [];
-    for (let i = 0; i < n; i++) {
-      const a = (i / n) * Math.PI * 2;
-      const r = (18 + k * 30) * (1 + 0.13 * Math.sin(2 * a + k * 0.45) + 0.06 * Math.sin(3 * a - k * 0.3));
-      pts.push([cx + r * Math.cos(a) * 1.25, cy + r * Math.sin(a) * 0.85]);
-    }
-    d += `<path d="M${pts.map((p) => p.map((v) => v.toFixed(1)).join(' ')).join(' L')}Z" fill="none" stroke="${ACCENT}" stroke-opacity="${k === 4 ? 0.85 : 0.22}" stroke-width="${k === 4 ? 2.2 : 1.2}"/>`;
-  }
-  return `<svg width="1200" height="630" viewBox="0 0 1200 630" style="position:absolute;inset:0">${d}<circle cx="${cx}" cy="${cy}" r="6" fill="${ACCENT}"/></svg>`;
+  fs.writeFileSync(path.join(OUT, 'favicon.svg'), `${markSvg(32).trim()}\n`);
+  const small = [16, 32, 48].map((size) => ({ size, data: icon(size) }));
+  fs.writeFileSync(path.join(OUT, 'favicon.ico'), ico(small));
+  fs.writeFileSync(path.join(OUT, 'favicon-32.png'), small[1].data);
+  // iOS draws its own rounded corners, so the touch icon is a full square.
+  fs.writeFileSync(path.join(OUT, 'apple-touch-icon.png'), icon(180, { radius: 0, pad: 3 }));
+  fs.writeFileSync(path.join(OUT, 'icon-192.png'), icon(192));
+  fs.writeFileSync(path.join(OUT, 'icon-512.png'), icon(512));
+  // Maskable icons keep the mark inside the central 80 percent safe zone.
+  fs.writeFileSync(path.join(OUT, 'icon-maskable-512.png'), icon(512, { radius: 0, pad: 5 }));
+  console.log('Icons written to site/public/. Preview cards are rendered by the site build.');
 }
-
-const cards = {
-  en: {
-    kicker: 'An independent AI governance tracker',
-    tagline: 'AI governance from the archipelago, promises checked against the record.',
-    foot: 'English and Bahasa Indonesia · Sourced · Open data',
-  },
-  id: {
-    kicker: 'Pelacak independen tata kelola AI',
-    tagline: 'Catatan janji dan kenyataan tata kelola AI di Nusantara.',
-    foot: 'Bahasa Indonesia dan Inggris · Bersumber · Data terbuka',
-  },
-};
-
-for (const [lang, c] of Object.entries(cards)) {
-  const html = `
-  <div style="position:relative;width:1200px;height:630px;overflow:hidden;background:radial-gradient(120% 90% at 78% 45%, #12303a 0%, ${BG} 62%);font-family:-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:${INK}">
-    ${isobars()}
-    <div style="position:absolute;left:72px;top:72px;right:420px">
-      <div style="display:flex;align-items:center;gap:18px">
-        ${mark(64)}
-        <span style="font-size:30px;font-weight:600;letter-spacing:0.01em">Monsoon Ledger</span>
-      </div>
-      <p style="margin:56px 0 0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:20px;letter-spacing:0.08em;text-transform:uppercase;color:${ACCENT}">${c.kicker}</p>
-      <p style="margin:18px 0 0;font-size:52px;line-height:1.15;font-weight:600;letter-spacing:-0.01em">${c.tagline}</p>
-    </div>
-    <p style="position:absolute;left:72px;bottom:56px;margin:0;font-size:22px;color:#a3aebb">${c.foot}</p>
-  </div>`;
-  const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
-  await page.setContent(`<!doctype html><html><body style="margin:0">${html}</body></html>`);
-  // JPEG keeps the card well under the size limit WhatsApp applies to preview images.
-  fs.writeFileSync(path.join(OUT, `og-${lang}.jpg`), await page.screenshot({ type: 'jpeg', quality: 86 }));
-  await page.close();
-}
-
-await browser.close();
-console.log('Icons and preview images written to site/public/.');

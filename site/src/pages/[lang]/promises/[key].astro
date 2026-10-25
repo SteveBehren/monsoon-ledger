@@ -1,0 +1,291 @@
+---
+// A receipt: one permanent page per promise in data/deadlines.yml. The key is the same one the
+// ontology and the ledger use (scripts/promises.mjs promiseKey). The outcome and the day counts
+// come from scripts/promises.mjs on the build day, and Base.astro brings the counts up to today.
+import Base from '../../../layouts/Base.astro';
+import Stamp from '../../../components/Stamp.astro';
+import Evidence from '../../../components/Evidence.astro';
+import { getPromises, getEntries, getInstruments, speaker, TODAY, DATA_VERSION, type PromiseRow } from '../../../lib/data';
+import { getOntology, promiseAnchor } from '../../../lib/ontology';
+import { ui, href, pick, fmtDate, SITE, LANGS, type Lang } from '../../../lib/i18n';
+
+export function getStaticPaths() {
+  const promises = getPromises();
+  return LANGS.flatMap((lang) => promises.map((p) => ({ params: { lang, key: p.key }, props: { p } })));
+}
+
+interface Props {
+  p: PromiseRow;
+}
+
+const { p } = Astro.props;
+const lang = Astro.params.lang as Lang;
+const t = ui[lang];
+const url = new URL(href(lang, `promises/${p.key}/`), SITE.url).href;
+const promised = pick(lang, p.promised_en, p.promised_id);
+const who = speaker(p, lang);
+
+// Entries and instruments this promise connects to, read from the ontology: the documents the
+// promise rests on, the entries that cite the same documents, and the instruments they concern.
+const { links } = getOntology();
+const pid = `promise:${p.key}`;
+const docs = new Set(links.filter((l) => l.from === pid && l.rel === 'evidenced_by').map((l) => l.to));
+const entryIds = new Set(links.filter((l) => l.rel === 'cites' && docs.has(l.to)).map((l) => l.from.replace('entry:', '')));
+const entries = getEntries().filter((e) => entryIds.has(e.id));
+const instrumentIds = new Set([...(p.instrument ? [p.instrument] : []), ...entries.map((e) => e.instrument)]);
+const instruments = getInstruments().filter((i) => instrumentIds.has(i.id));
+
+const precision = {
+  en: { day: 'exact day', month: 'month', quarter: 'quarter', half: 'half year', year: 'year' },
+  id: { day: 'hari tertentu', month: 'bulan', quarter: 'kuartal', half: 'semester', year: 'tahun' },
+}[lang];
+const claim = {
+  en: { dated: 'Dated promise', conditional: 'Conditional promise', status_claim: 'Status claim' },
+  id: { dated: 'Janji bertenggat', conditional: 'Janji bersyarat', status_claim: 'Klaim kemajuan' },
+}[lang];
+const copy =
+  lang === 'en'
+    ? {
+        kicker: 'Promise receipt',
+        said: 'Said on',
+        by: 'by',
+        original: 'In Bahasa Indonesia',
+        english: 'In English',
+        deadline: 'Deadline',
+        precision: 'Precision of the wording',
+        basis: 'How the deadline was set',
+        noDeadline: 'No deadline. This promise depends on an event or reports progress, so it is never counted as missed.',
+        status: 'Outcome',
+        asOf: 'as of',
+        past: 'days past the deadline',
+        left: 'days left until the deadline',
+        late: (n: number) => (n > 0 ? `Kept ${n} days late.` : n < 0 ? `Kept ${-n} days early.` : 'Kept on the deadline day.'),
+        since: 'What has happened since',
+        evidence: 'Evidence',
+        source: 'Source',
+        archived: 'Archived copy',
+        archivedOn: 'saved',
+        noArchive: 'No archived copy yet. The archive script runs with each scheduled scan.',
+        cite: 'Cite this',
+        plain: 'Plain text',
+        copyBtn: 'Copy',
+        copied: 'Copied',
+        version: 'Data version',
+        related: 'Connected in the ledger',
+        relatedEntries: 'Entries citing the same report',
+        relatedInstruments: 'Instruments those entries concern',
+        none: 'None yet.',
+        row: 'See it on Promise vs Reality',
+        graph: 'See it in the ontology',
+        method: 'How promises are coded',
+        correction: 'Report a correction',
+        apaType: 'Promise record',
+        outcomeNote: (o: string) => `Outcome: ${o} as of ${TODAY}.`,
+      }
+    : {
+        kicker: 'Bukti janji',
+        said: 'Diucapkan pada',
+        by: 'oleh',
+        original: 'Dalam bahasa Indonesia',
+        english: 'Dalam bahasa Inggris',
+        deadline: 'Tenggat',
+        precision: 'Ketepatan kata-katanya',
+        basis: 'Cara tenggat ditetapkan',
+        noDeadline: 'Tanpa tenggat. Janji ini bergantung pada suatu peristiwa atau melaporkan kemajuan, jadi tidak pernah dihitung terlewat.',
+        status: 'Hasil',
+        asOf: 'per',
+        past: 'hari lewat tenggat',
+        left: 'hari lagi sampai tenggat',
+        late: (n: number) => (n > 0 ? `Ditepati ${n} hari terlambat.` : n < 0 ? `Ditepati ${-n} hari lebih awal.` : 'Ditepati tepat pada hari tenggat.'),
+        since: 'Yang terjadi sesudahnya',
+        evidence: 'Bukti',
+        source: 'Sumber',
+        archived: 'Salinan arsip',
+        archivedOn: 'disimpan',
+        noArchive: 'Belum ada salinan arsip. Skrip arsip berjalan bersama setiap pemindaian terjadwal.',
+        cite: 'Kutip halaman ini',
+        plain: 'Teks biasa',
+        copyBtn: 'Salin',
+        copied: 'Tersalin',
+        version: 'Versi data',
+        related: 'Terhubung di catatan ini',
+        relatedEntries: 'Catatan yang mengutip laporan yang sama',
+        relatedInstruments: 'Instrumen yang dibahas catatan itu',
+        none: 'Belum ada.',
+        row: 'Lihat di Janji vs Kenyataan',
+        graph: 'Lihat di ontologi',
+        method: 'Cara janji dikodekan',
+        correction: 'Laporkan koreksi',
+        apaType: 'Catatan janji',
+        outcomeNote: (o: string) => `Hasil: ${o} per ${TODAY}.`,
+      };
+
+const outcomeLabel = t.outcome[p.outcome];
+const year = TODAY.slice(0, 4);
+const [ty, tm, td] = TODAY.split('-').map(Number);
+const apaDate = `${year}, ${['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][tm - 1]} ${td}`;
+const citePlain = `"${promised}" (${who}, ${fmtDate(lang, p.date_said)}). ${SITE.name}, ${url}. ${copy.outcomeNote(outcomeLabel)} ${copy.version} ${DATA_VERSION}.`;
+const citeApa = `Tanjung, S. B. (${apaDate}). ${promised} [${copy.apaType}, ${p.date_said}]. ${SITE.name}. ${url}`;
+const bibKey = `monsoonledger-${p.key}`;
+const tex = (s: string) => s.replace(/([&%$#_{}])/g, '\\$1');
+const citeBib = `@misc{${bibKey},
+  author       = {Tanjung, Stephen Behren},
+  title        = {{${tex(promised)}}},
+  howpublished = {${SITE.name}},
+  year         = {${ty}},
+  url          = {${url}},
+  note         = {${tex(`${p.claim_type === 'dated' ? `Deadline ${p.deadline}. ` : ''}${copy.outcomeNote(outcomeLabel)} ${copy.version} ${DATA_VERSION}.`)}}
+}`;
+const issueUrl = `${SITE.issues}/new?title=${encodeURIComponent(`Correction: promise ${p.key}`)}`;
+const description = `${who}, ${fmtDate(lang, p.date_said)}: ${promised}. ${outcomeLabel}${p.days_past ? `, ${p.days_past} ${copy.past}` : ''} (${copy.asOf} ${fmtDate(lang, TODAY)}).`;
+---
+<Base lang={lang} path={`promises/${p.key}/`} title={promised} description={description} ogType="article" ogImage={`/og/${lang}/${p.key}.png`} nav="ledger">
+  <article class="receipt">
+    <header class="page-head receipt-head-block">
+      <p class="kicker">{copy.kicker} · {claim[p.claim_type]}</p>
+      <h1>{promised}</h1>
+      <p class="lede">
+        {copy.said} <time datetime={p.date_said}>{fmtDate(lang, p.date_said)}</time> {copy.by} {who}
+      </p>
+    </header>
+
+    <div class="receipt-grid">
+      <div class="receipt-main">
+        <section class="receipt-words panel" aria-label={copy.original}>
+          <p class="label">{copy.original}</p>
+          <p class="rw-original" lang="id">{p.promised_id}</p>
+          <p class="label">{copy.english}</p>
+          <p class="rw-english" lang="en">{p.promised_en}</p>
+        </section>
+
+        <section class="receipt-deadline panel" aria-labelledby="dl-h">
+          <h2 id="dl-h" class="label">{copy.deadline}</h2>
+          {
+            p.deadline ? (
+              <>
+                <p class="rd-date"><time datetime={p.deadline}>{fmtDate(lang, p.deadline)}</time></p>
+                <dl class="rd-facts">
+                  <dt>{copy.precision}</dt>
+                  <dd>{precision[p.deadline_precision!]}</dd>
+                  <dt>{copy.basis}</dt>
+                  <dd>{pick(lang, p.deadline_basis_en, p.deadline_basis_id)}</dd>
+                </dl>
+              </>
+            ) : (
+              <>
+                <p class="rd-none">{copy.noDeadline}</p>
+                <dl class="rd-facts">
+                  <dt>{copy.basis}</dt>
+                  <dd>{pick(lang, p.deadline_basis_en, p.deadline_basis_id)}</dd>
+                </dl>
+              </>
+            )
+          }
+        </section>
+
+        <section class="receipt-since" aria-labelledby="since-h">
+          <h2 id="since-h" class="label">{copy.since}</h2>
+          <p>{pick(lang, p.outcome_en, p.outcome_id)}</p>
+        </section>
+
+        <section class="receipt-cite" aria-labelledby="cite-h">
+          <h2 id="cite-h">{copy.cite}</h2>
+          {
+            [
+              [copy.plain, citePlain],
+              ['APA', citeApa],
+              ['BibTeX', citeBib],
+            ].map(([label, text]) => (
+              <div class="cite-block">
+                <div class="cite-bar">
+                  <span class="label">{label}</span>
+                  <button type="button" class="cite-copy" data-copy data-label-done={copy.copied} hidden>
+                    {copy.copyBtn}
+                  </button>
+                </div>
+                <pre>{text}</pre>
+              </div>
+            ))
+          }
+          <p class="cite-meta">
+            {copy.version}: <a class="mono" href={`${SITE.repo}/commits/main/data`}>{DATA_VERSION}</a> · {url}
+          </p>
+        </section>
+      </div>
+
+      <aside class="receipt-side">
+        <div class={`receipt-stamp panel rs-${p.outcome}`}>
+          <p class="label">
+            {copy.status} <span class="rh-asof">{copy.asOf} <time datetime={TODAY} data-today>{fmtDate(lang, TODAY)}</time></span>
+          </p>
+          <Stamp tone={p.outcome} label={outcomeLabel} />
+          {
+            p.days_past !== null && p.deadline && (
+              <p class="rs-count">
+                <b data-days-past={p.deadline}>{p.days_past}</b> <span>{copy.past}</span>
+              </p>
+            )
+          }
+          {
+            p.days_remaining !== null && p.deadline && (
+              <p class="rs-count rs-left">
+                <b data-days-left={p.deadline}>{p.days_remaining}</b> <span>{copy.left}</span>
+              </p>
+            )
+          }
+          {p.days_early_late !== null && <p class="rs-note">{copy.late(p.days_early_late)}</p>}
+        </div>
+
+        <div class="receipt-proof panel">
+          <p class="label">{copy.evidence}</p>
+          <Evidence level={p.evidence} lang={lang} />
+          <p class="rp-link">
+            <a href={p.source_url} rel="noopener">{copy.source} <span aria-hidden="true">&#8599;</span></a>
+            <span class="rp-host mono">{new URL(p.source_url).hostname.replace(/^www\./, '')}</span>
+          </p>
+          {
+            p.archive_url ? (
+              <p class="rp-link">
+                <a href={p.archive_url} rel="noopener">{copy.archived} <span aria-hidden="true">&#8599;</span></a>
+                <span class="rp-host mono">{copy.archivedOn} {p.archived_at}</span>
+              </p>
+            ) : (
+              <p class="rp-none">{copy.noArchive}</p>
+            )
+          }
+        </div>
+
+        <div class="receipt-links panel">
+          <p class="label">{copy.related}</p>
+          <p class="rl-head">{copy.relatedEntries}</p>
+          {entries.length ? <ul>{entries.map((e) => <li><a href={href(lang, `entries/${e.id}/`)}>{pick(lang, e.title_en, e.title_id)}</a></li>)}</ul> : <p class="rp-none">{copy.none}</p>}
+          <p class="rl-head">{copy.relatedInstruments}</p>
+          {instruments.length ? <ul>{instruments.map((i) => <li><a href={`${href(lang, 'instruments/')}#${i.id}`}>{pick(lang, i.name_en, i.name_id)}</a></li>)}</ul> : <p class="rp-none">{copy.none}</p>}
+          <ul class="rl-more">
+            <li><a href={`${href(lang, 'ledger/')}#${promiseAnchor(p)}`}>{copy.row}</a></li>
+            <li><a href={`${href(lang, 'ontology/')}#${encodeURIComponent(pid)}`}>{copy.graph}</a></li>
+            <li><a href={`${href(lang, 'method/')}#coding`}>{copy.method}</a></li>
+            <li><a href={issueUrl}>{copy.correction}</a></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </article>
+
+  <script>
+    for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
+      button.hidden = false;
+      const label = button.textContent;
+      button.addEventListener('click', async () => {
+        const text = button.closest('.cite-block')?.querySelector('pre')?.textContent ?? '';
+        try {
+          await navigator.clipboard.writeText(text);
+          button.textContent = button.dataset.labelDone ?? label;
+          setTimeout(() => (button.textContent = label), 1600);
+        } catch {
+          // Clipboard blocked: the text stays selectable.
+        }
+      });
+    }
+  </script>
+</Base>

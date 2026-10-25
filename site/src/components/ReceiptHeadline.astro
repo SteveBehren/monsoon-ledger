@@ -1,0 +1,36 @@
+---
+// The receipt headline: the dated promise that has been missed for longest, how long ago its
+// deadline passed, and a link to its receipt. Counted by scripts/promises.mjs on the build day,
+// then brought up to today by the [data-days-past] script in Base.astro.
+import { getOldestMissed, speaker, TODAY } from '../lib/data';
+import { href, fmtDate, type Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const p = getOldestMissed();
+const lower = (s: string) => (/^[A-Z](?![A-Z])/.test(s) ? s[0].toLowerCase() + s.slice(1) : s);
+const words =
+  lang === 'en'
+    ? { label: 'Oldest missed promise', asOf: 'as of', promised: 'promised', deadline: 'The deadline was', ago: 'days past the deadline', open: 'Open the receipt' }
+    : { label: 'Janji terlewat paling lama', asOf: 'per', promised: 'menjanjikan', deadline: 'Tenggatnya', ago: 'hari lewat tenggat', open: 'Buka buktinya' };
+---
+{
+  p && p.deadline && (
+    <a class="receipt-head panel" href={href(lang, `promises/${p.key}/`)}>
+      <p class="label">
+        {words.label} <span class="rh-asof">{words.asOf} <time datetime={TODAY} data-today>{fmtDate(lang, TODAY)}</time></span>
+      </p>
+      <p class="rh-line">
+        {fmtDate(lang, p.date_said)}: {speaker(p, lang)} {words.promised} {lower(lang === 'en' ? p.promised_en : p.promised_id)}.{' '}
+        {words.deadline} {fmtDate(lang, p.deadline)}.
+      </p>
+      <p class="rh-count">
+        <b data-days-past={p.deadline}>{p.days_past}</b> <span>{words.ago}</span>
+      </p>
+      <span class="section-link">{words.open} <span class="arrow" aria-hidden="true">&rarr;</span></span>
+    </a>
+  )
+}

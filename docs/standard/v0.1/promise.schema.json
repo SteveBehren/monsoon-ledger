@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://monsoonledger.vercel.app/standard/v0.1/promise.schema.json",
+  "title": "Open Promise Ledger v0.1: promise",
+  "description": "One public promise by a government actor about AI or a closely related digital rule, with the source it rests on and what happened to it. The outcome is never stored: it is computed from claim_type, deadline and outcome_date. See README.md in this folder.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "date_said",
+    "country",
+    "who",
+    "claim_type",
+    "deadline_basis_en",
+    "deadline_basis_id",
+    "promised_en",
+    "promised_id",
+    "outcome_en",
+    "outcome_id",
+    "evidence",
+    "source_url"
+  ],
+  "$defs": {
+    "isoDate": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "text": { "type": "string", "pattern": "\\S" },
+    "url": { "type": "string", "pattern": "^https?://\\S+$" }
+  },
+  "properties": {
+    "date_said": { "description": "The day the promise was made, in the speaker's time zone.", "$ref": "#/$defs/isoDate" },
+    "country": { "description": "ISO 3166-1 alpha-2 code of the government that made the promise.", "type": "string", "pattern": "^[A-Z]{2}$" },
+    "who": { "description": "The speaker as the source names them, then a comma and their body or title, for example \"Meutya Hafid, Minister\".", "$ref": "#/$defs/text" },
+    "role_en": { "description": "Optional. The speaker's role at the time, as the source states it, in English.", "$ref": "#/$defs/text" },
+    "role_id": { "description": "Optional. The same role in the ledger's second language.", "$ref": "#/$defs/text" },
+    "instrument": { "description": "Optional. The id of the instrument the promise is about, only when the source names it.", "type": "string", "minLength": 1 },
+    "claim_type": {
+      "description": "dated: has a deadline that can pass. conditional: depends on an event and has no date. status_claim: a claim about progress with no deadline.",
+      "enum": ["dated", "conditional", "status_claim"]
+    },
+    "deadline_rule": {
+      "description": "How the deadline follows from the wording: \"within N months\", \"within N days\", \"end YYYY-MM\", \"end YYYY-Qn\", \"end YYYY-Hn\", \"end YYYY\" or \"on YYYY-MM-DD\". Dated promises only.",
+      "type": "string",
+      "pattern": "^(within [0-9]+ (months?|days?)|end [0-9]{4}(-([0-9]{2}|Q[1-4]|H[12]))?|on [0-9]{4}-[0-9]{2}-[0-9]{2})$"
+    },
+    "deadline": { "description": "The last day the promise could still be kept. Dated promises only.", "$ref": "#/$defs/isoDate" },
+    "deadline_precision": { "description": "How precise the wording was.", "enum": ["day", "month", "quarter", "half", "year"] },
+    "deadline_basis_en": { "description": "The wording in the source that sets the deadline, or explains why there is none, and how the date was derived.", "$ref": "#/$defs/text" },
+    "deadline_basis_id": { "description": "The same explanation in the language the promise was made in (see README.md on field names).", "$ref": "#/$defs/text" },
+    "promised_en": { "description": "The promise in one line, in English.", "$ref": "#/$defs/text" },
+    "promised_id": { "description": "The promise in one line, in the language it was made in.", "$ref": "#/$defs/text" },
+    "outcome_en": { "description": "What has happened since, in one line. Narrative only: it never sets the computed outcome.", "$ref": "#/$defs/text" },
+    "outcome_id": { "description": "The same line in the ledger's second language.", "$ref": "#/$defs/text" },
+    "outcome_date": { "description": "Optional. The day the promise was kept or the outcome was confirmed.", "$ref": "#/$defs/isoDate" },
+    "outcome_source_url": { "description": "Required with outcome_date: the source that shows it.", "$ref": "#/$defs/url" },
+    "evidence": {
+      "description": "legal-text, official-statement or press-report, as defined in README.md.",
+      "enum": ["legal-text", "official-statement", "press-report"]
+    },
+    "source_url": { "description": "The report or record of the promise.", "$ref": "#/$defs/url" },
+    "archive_url": { "description": "A preserved copy of source_url, for example in the Internet Archive.", "$ref": "#/$defs/url" },
+    "archived_at": { "description": "The day that copy was made.", "$ref": "#/$defs/isoDate" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "claim_type": { "const": "dated" } } },
+      "then": { "required": ["deadline_rule", "deadline", "deadline_precision"] },
+      "else": { "not": { "anyOf": [{ "required": ["deadline"] }, { "required": ["deadline_rule"] }, { "required": ["deadline_precision"] }] } }
+    },
+    { "dependentRequired": { "outcome_date": ["outcome_source_url"], "archive_url": ["archived_at"], "archived_at": ["archive_url"] } }
+  ]
+}

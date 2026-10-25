@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getEntries } from '../lib/data';
+import { getEntries, getPromises } from '../lib/data';
 import { SITE, LANGS } from '../lib/i18n';
 
 export const GET: APIRoute = () => {
@@ -16,7 +16,9 @@ export const GET: APIRoute = () => {
     { path: 'method/system/' },
     { path: 'silencing/' },
     { path: 'about/' },
+    { path: 'method/standard/' },
     ...entries.map((e) => ({ path: `entries/${e.id}/`, lastmod: e.last_checked })),
+    ...getPromises().map((p) => ({ path: `promises/${p.key}/` })),
   ];
 
   const urls = paths

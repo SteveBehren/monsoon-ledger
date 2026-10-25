@@ -24,7 +24,8 @@
     validator, contoh nyata, dan kit untuk negara lain. Sumber disimpan salinannya di Internet Archive setelah setiap pemindaian.
     Peta cuaca dan jam berjalan, yang mengulang tujuh tenggat yang sama, dihapus. Satu tingkat denda GDPR di catatan kebocoran
     data dikoreksi.
-  commits: ["b786b78", "55e8dce", "12a131a", "314162f"]
+  pr: 6
+  commits: ["b786b78", "55e8dce", "12a131a", "314162f", "e15b19f"]
 
 - date: 2026-10-23
   kind: feature

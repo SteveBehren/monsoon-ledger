@@ -1,0 +1,41 @@
+# Your promise ledger: one row per public promise, newest first.
+# Format: Open Promise Ledger v0.1, see docs/standard/v0.1/README.md.
+# Check it with:  npm run validate -- --data kit/data
+#
+# The row below is a real Indonesian promise, copied from Monsoon Ledger as a worked example.
+# Replace it with your own rows. Every value must come from the source you cite:
+#
+#   date_said           the day it was said (YYYY-MM-DD, the speaker's time zone)
+#   country             ISO 3166-1 alpha-2 code
+#   who                 the speaker as the source names them, then a comma and their body or title
+#   role_en, role_id    optional, the role as the source states it
+#   claim_type          dated | conditional | status_claim
+#   deadline_rule       dated only: within N months | within N days | end YYYY-MM | end YYYY-Qn | end YYYY-Hn | end YYYY | on YYYY-MM-DD
+#   deadline            dated only: the date that rule gives (the validator recomputes it)
+#   deadline_precision  dated only: day | month | quarter | half | year
+#   deadline_basis_*    the wording that sets the deadline, and how you read it
+#   promised_*          the promise in one line, in English (_en) and in the original language (_id)
+#   outcome_*           what has happened since, in one line
+#   outcome_date        optional: the day it was kept, with outcome_source_url
+#   evidence            legal-text | official-statement | press-report
+#   source_url          the report of the promise; archive_url and archived_at when you have a copy
+#
+# Never write the outcome itself. Tools compute missed, open or met from these fields.
+
+- date_said: 2025-01-13
+  country: ID
+  who: Meutya Hafid, Minister
+  role_en: Minister of Communication and Digital Affairs
+  role_id: Menteri Komunikasi dan Digital
+  claim_type: dated
+  deadline_rule: end 2025-04
+  deadline: 2025-04-30
+  deadline_precision: month
+  deadline_basis_en: Expected within three months, or in April 2025, as the report puts it. Three months from 13 January is 13 April; the later reading, the end of April 2025, is used.
+  deadline_basis_id: Ditargetkan selesai tiga bulan lagi, atau pada April 2025, seperti ditulis dalam berita. Tiga bulan dari 13 Januari adalah 13 April; tafsir yang lebih akhir, akhir April 2025, yang dipakai.
+  promised_en: A binding rule within three months
+  promised_id: Aturan yang mengikat dalam tiga bulan
+  outcome_en: No binding AI rule issued. Still a draft as of 21 October 2026
+  outcome_id: Belum ada aturan AI yang mengikat. Masih rancangan per 21 Oktober 2026
+  evidence: official-statement
+  source_url: https://teknologi.bisnis.com/read/20250113/101/1831117/menkomdigi-targetkan-aturan-penggunaan-ai-rampung-april-2025

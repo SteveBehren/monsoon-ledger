@@ -1,0 +1,22 @@
+# Open Promise Ledger v0.1, worked example: a dated promise.
+# Copied from data/deadlines.yml in Monsoon Ledger on 25 October 2026. The live row may have
+# changed since; the copy in data/deadlines.yml is the record. npm run validate checks this
+# file against promise.schema.json.
+
+- date_said: 2025-01-13
+  country: ID
+  who: Meutya Hafid, Minister
+  role_en: Minister of Communication and Digital Affairs
+  role_id: Menteri Komunikasi dan Digital
+  claim_type: dated
+  deadline_rule: end 2025-04
+  deadline: 2025-04-30
+  deadline_precision: month
+  deadline_basis_en: Expected within three months, or in April 2025, as the report puts it. Three months from 13 January is 13 April; the later reading, the end of April 2025, is used.
+  deadline_basis_id: Ditargetkan selesai tiga bulan lagi, atau pada April 2025, seperti ditulis dalam berita. Tiga bulan dari 13 Januari adalah 13 April; tafsir yang lebih akhir, akhir April 2025, yang dipakai.
+  promised_en: A binding rule within three months
+  promised_id: Aturan yang mengikat dalam tiga bulan
+  outcome_en: No binding AI rule issued. Still a draft as of 21 October 2026
+  outcome_id: Belum ada aturan AI yang mengikat. Masih rancangan per 21 Oktober 2026
+  evidence: official-statement
+  source_url: https://teknologi.bisnis.com/read/20250113/101/1831117/menkomdigi-targetkan-aturan-penggunaan-ai-rampung-april-2025

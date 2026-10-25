@@ -2,10 +2,10 @@
 import Base from '../../layouts/Base.astro';
 import Stamp from '../../components/Stamp.astro';
 import EntryItem from '../../components/EntryItem.astro';
-import MonsoonField from '../../components/MonsoonField.astro';
-import LiveSince from '../../components/LiveSince.astro';
+import ReceiptHeadline from '../../components/ReceiptHeadline.astro';
+import PromiseBalance from '../../components/PromiseBalance.astro';
 import LensMatrix from '../../components/LensMatrix.astro';
-import { getEntries, getDeadlines, getInstruments, getRadar, getScanLog, outcomeCounts, latestCheck, OUTCOMES } from '../../lib/data';
+import { getEntries, getDeadlines, getPromises, getInstruments, getRadar, getScanLog, outcomeCounts, latestCheck } from '../../lib/data';
 import { ui, href, pick, LANGS, type Lang } from '../../lib/i18n';
 
 export function getStaticPaths() {
@@ -19,7 +19,7 @@ const latest = entries.slice(0, 3);
 const deadlines = getDeadlines();
 const instruments = getInstruments();
 const counts = outcomeCounts(deadlines);
-const firstPromise = [...deadlines].sort((a, b) => a.date_said.localeCompare(b.date_said))[0];
+const recent = getPromises().slice(0, 3);
 const checked = latestCheck(entries);
 const lastScan = getScanLog()[0];
 const leads = getRadar().leads.filter((l) => l.status !== 'dismissed' && l.triage?.relevant !== false).slice(0, 3);
@@ -33,10 +33,9 @@ const copy = {
     explore: 'Explore the entries',
     method: 'How evidence is graded',
     ledgerTitle: 'Promise vs Reality',
-    ledgerIntro: "The public deadlines officials have given for Indonesia's AI rules, and what happened to each one.",
+    ledgerIntro: "The public promises officials have made about Indonesia's AI rules, each with a computed outcome and a receipt.",
     ledgerLink: 'Open the full ledger',
     recent: 'Most recent promises',
-    promises: 'promises',
     briefKicker: 'Legal brief, working draft',
     briefTitle: 'Silencing by automation',
     briefText:
@@ -56,10 +55,9 @@ const copy = {
     explore: 'Jelajahi catatan',
     method: 'Cara bukti dinilai',
     ledgerTitle: 'Janji vs Kenyataan',
-    ledgerIntro: 'Tenggat yang pernah diumumkan pejabat untuk aturan AI Indonesia, dan apa yang terjadi pada masing-masing.',
+    ledgerIntro: 'Janji publik pejabat tentang aturan AI Indonesia, masing-masing dengan hasil yang dihitung dan bukti janji.',
     ledgerLink: 'Buka buku catatan lengkap',
     recent: 'Janji terbaru',
-    promises: 'janji',
     briefKicker: 'Catatan hukum, draf kerja',
     briefTitle: 'Pembungkaman lewat otomatisasi',
     briefText:
@@ -86,7 +84,7 @@ const copy = {
         <a class="btn" href={href(lang, 'method/')}>{copy.method}</a>
       </div>
     </div>
-    <div class="hero-art"><MonsoonField deadlines={deadlines} lang={lang} /></div>
+    <div class="hero-art"><ReceiptHeadline lang={lang} /></div>
   </section>
 
   <div class="metrics" data-reveal>
@@ -100,15 +98,13 @@ const copy = {
     </a>
     <a class="metric metric--alert" href={href(lang, 'ledger/')}>
       <p class="label">{t.metrics.missed}</p>
-      <span class="figure">{counts.missed}<small>/ {deadlines.length}</small></span>
+      <span class="figure">{counts.missed}<small>/ {counts.dated}</small></span>
     </a>
     <a class="metric" href={href(lang, 'method/')}>
       <p class="label">{t.metrics.checked}</p>
       <time class="figure figure--date" datetime={checked}>{checked}</time>
     </a>
   </div>
-
-  {firstPromise && <LiveSince deadline={firstPromise} lang={lang} />}
 
   <aside class="callout" aria-labelledby="brief-h" data-reveal>
     <div>
@@ -142,33 +138,18 @@ const copy = {
       <a class="section-link" href={href(lang, 'ledger/')}>{copy.ledgerLink} <span class="arrow" aria-hidden="true">&rarr;</span></a>
     </div>
     <div class="panel">
-      <div class="balance">
-        <p class="label">{deadlines.length} {copy.promises}</p>
-        <div class="balance-bar" aria-hidden="true">
-          {OUTCOMES.filter((o) => counts[o] > 0).map((o) => <i class={`b-${o}`} style={`flex:${counts[o]}`} />)}
-        </div>
-        <ul class="balance-legend">
-          {
-            OUTCOMES.map((o) => (
-              <li>
-                <span class="figure">{counts[o]}</span>
-                <Stamp tone={o} label={t.outcome[o]} />
-              </li>
-            ))
-          }
-        </ul>
-      </div>
+      <PromiseBalance counts={counts} lang={lang} />
       <p class="label inset">{copy.recent}</p>
       <ul class="promise-mini">
         {
-          deadlines.slice(0, 3).map((d) => (
+          recent.map((d) => (
             <li>
               <time datetime={d.date_said}>{d.date_said}</time>
               <span>
-                {pick(lang, d.promised_en, d.promised_id)}
+                <a href={href(lang, `promises/${d.key}/`)}>{pick(lang, d.promised_en, d.promised_id)}</a>
                 <span class="who">{d.who}</span>
               </span>
-              <Stamp tone={d.outcome_status} label={t.outcome[d.outcome_status]} />
+              <Stamp tone={d.outcome} label={t.outcome[d.outcome]} />
             </li>
           ))
         }

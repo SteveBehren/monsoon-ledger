@@ -20,7 +20,7 @@ const entries = [
   },
 ];
 const deadlines = [
-  { date_said: '2026-02-02', who: 'Ani Example, Komdigi', promised_en: 'Soon', promised_id: 'Segera', outcome_status: 'open', source_url: 'https://news.example/story' },
+  { date_said: '2026-02-02', who: 'Ani Example, Komdigi', claim_type: 'dated', deadline: '2026-03-31', promised_en: 'Soon', promised_id: 'Segera', source_url: 'https://news.example/story' },
 ];
 const ontology = {
   institutions: [{ id: 'komdigi', name_en: 'Komdigi', name_id: 'Komdigi', country: 'ID', aliases: ['Komdigi'] }],

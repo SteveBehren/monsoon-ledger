@@ -4,8 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'js-yaml';
 // @ts-ignore: plain JavaScript module shared with the Node scripts.
-import { buildOntology, OBJECT_TYPES, RELATIONS, promiseAnchor as anchor } from '../../../scripts/ontology.mjs';
-import { getDeadlines, getEntries, getInstruments, type Deadline } from './data';
+import { buildOntology, OBJECT_TYPES, RELATIONS, promiseAnchor as anchor, promiseKey as key } from '../../../scripts/ontology.mjs';
+import { getDeadlines, getEntries, getInstruments, TODAY, type Deadline } from './data';
 import { REFERENCES } from './references';
 
 const DATA = path.resolve(process.cwd(), '..', 'data');
@@ -40,9 +40,12 @@ export function getOntology(): { nodes: OntologyNode[]; links: OntologyLink[] } 
     ontology: load('ontology.yml'),
     leads: radar.leads ?? [],
     references: REFERENCES,
+    today: TODAY,
   });
   return { nodes, links };
 }
 
 export const promiseAnchor = (d: Deadline): string => anchor(d);
+/** The receipt path segment, shared with the ontology id: promises/<key>/. */
+export const promiseKey = (d: Deadline): string => key(d);
 export { OBJECT_TYPES, RELATIONS };

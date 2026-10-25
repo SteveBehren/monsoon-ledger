@@ -1,0 +1,47 @@
+---
+// The balance of dated promises: missed, open and met, counted by scripts/promises.mjs on the
+// build day. Conditional and status claims have no deadline, so they are named but not counted.
+// Used on the home page and on Promise vs Reality.
+import Stamp from './Stamp.astro';
+import { OUTCOMES, TODAY, type PromiseCounts } from '../lib/data';
+import { ui, fmtDate, type Lang } from '../lib/i18n';
+
+interface Props {
+  counts: PromiseCounts;
+  lang: Lang;
+  /** Render as a standalone panel. */
+  panel?: boolean;
+}
+
+const { counts, lang, panel = false } = Astro.props;
+const t = ui[lang];
+const words =
+  lang === 'en'
+    ? {
+        head: `${counts.missed} of ${counts.dated} dated promises missed`,
+        asOf: 'as of',
+        apart: `Not counted: ${counts.conditional} conditional and ${counts.status_claim} status ${counts.status_claim === 1 ? 'claim' : 'claims'}, which set no deadline.`,
+      }
+    : {
+        head: `${counts.missed} dari ${counts.dated} janji bertenggat terlewat`,
+        asOf: 'per',
+        apart: `Tidak dihitung: ${counts.conditional} janji bersyarat dan ${counts.status_claim} klaim kemajuan, yang tidak menetapkan tenggat.`,
+      };
+---
+<div class:list={['balance', { panel }]} role="group" aria-label={words.head}>
+  <p class="label">{words.head} <span class="balance-asof">{words.asOf} <time datetime={TODAY}>{fmtDate(lang, TODAY)}</time></span></p>
+  <div class="balance-bar" aria-hidden="true">
+    {OUTCOMES.filter((o) => counts[o as 'missed' | 'open' | 'met'] > 0).map((o) => <i class={`b-${o}`} style={`flex:${counts[o as 'missed' | 'open' | 'met']}`} />)}
+  </div>
+  <ul class="balance-legend">
+    {
+      OUTCOMES.map((o) => (
+        <li>
+          <span class="figure">{counts[o as 'missed' | 'open' | 'met']}</span>
+          <Stamp tone={o} label={t.outcome[o]} />
+        </li>
+      ))
+    }
+  </ul>
+  {counts.conditional + counts.status_claim > 0 && <p class="balance-apart">{words.apart}</p>}
+</div>

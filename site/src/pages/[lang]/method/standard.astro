@@ -1,0 +1,71 @@
+---
+// The promise format, rendered from the spec itself (docs/standard/v0.1/README.md, and
+// README.id.md in Bahasa Indonesia), so the page and the repository never disagree.
+import fs from 'node:fs';
+import path from 'node:path';
+import yaml from 'js-yaml';
+import Base from '../../../layouts/Base.astro';
+import MethodTabs from '../../../components/MethodTabs.astro';
+import PageRail from '../../../components/PageRail.astro';
+import { Content as SpecEn } from '../../../../../docs/standard/v0.1/README.md';
+import { Content as SpecId } from '../../../../../docs/standard/v0.1/README.id.md';
+import { ui, SITE, LANGS, type Lang } from '../../../lib/i18n';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const t = ui[lang];
+const adopters = yaml.load(fs.readFileSync(path.resolve(process.cwd(), '..', 'docs', 'standard', 'adopters.yml'), 'utf8'), {
+  schema: yaml.CORE_SCHEMA,
+}) as { name: string; country: string; url: string; data: string; version: string }[];
+const copy =
+  lang === 'en'
+    ? {
+        kicker: 'How the ledger works',
+        title: 'Promise format',
+        lede: 'The format this ledger uses for every promise, published so that other ledgers can use it and anyone can check the counts. Version 0.1, a draft.',
+        schema: 'JSON Schema',
+        kit: 'Start a ledger for your country',
+        examples: 'Worked examples',
+        adopters: 'Ledgers using the format',
+        adoptersNote: 'Open an issue to add another ledger.',
+        data: 'data',
+      }
+    : {
+        kicker: 'Cara catatan ini bekerja',
+        title: 'Format janji',
+        lede: 'Format yang dipakai catatan ini untuk setiap janji, diterbitkan supaya catatan lain bisa memakainya dan siapa pun bisa memeriksa angkanya. Versi 0.1, masih draf.',
+        schema: 'JSON Schema',
+        kit: 'Mulai catatan untuk negara Anda',
+        examples: 'Contoh nyata',
+        adopters: 'Catatan yang memakai format ini',
+        adoptersNote: 'Buka issue untuk menambahkan catatan lain.',
+        data: 'data',
+      };
+---
+<Base lang={lang} path="method/standard/" title={copy.title} nav="method" description={copy.lede}>
+  <header class="page-head">
+    <p class="kicker">{copy.kicker}</p>
+    <h1>{t.nav.method}</h1>
+    <p class="lede">{copy.lede}</p>
+    <MethodTabs lang={lang} current="standard" />
+  </header>
+  <div class="doc doc--prose">
+    <article class="doc-body prose spec">
+      <ul class="spec-links">
+        <li><a class="btn btn--primary" href="/standard/v0.1/promise.schema.json">{copy.schema} <span aria-hidden="true">&darr;</span></a></li>
+        <li><a class="btn" href={`${SITE.repo}/tree/main/kit`}>{copy.kit} <span aria-hidden="true">&#8599;</span></a></li>
+        <li><a class="btn" href={`${SITE.repo}/tree/main/docs/standard/v0.1/examples`}>{copy.examples} <span aria-hidden="true">&#8599;</span></a></li>
+      </ul>
+      {lang === 'en' ? <SpecEn /> : <SpecId />}
+      <h2 id="adopters">{copy.adopters}</h2>
+      <ul>
+        {adopters.map((a) => <li><a href={a.url}>{a.name}</a> ({a.country}, v{a.version}), <a href={a.data}>{copy.data}</a></li>)}
+      </ul>
+      <p>{copy.adoptersNote} <a href={SITE.issues}>{t.openIssue}</a></p>
+    </article>
+    <PageRail lang={lang} sections />
+  </div>
+</Base>

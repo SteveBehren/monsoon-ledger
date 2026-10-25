@@ -7,6 +7,26 @@
 #           so YAML never reads a hash such as 4518e71 as a number
 # Rows are checked by npm run validate: real dates, newest first, known kind, short hashes.
 
+- date: 2026-10-25
+  kind: feature
+  title_en: Computed promise outcomes, receipts, the open promise format and evidence archiving
+  title_id: Hasil janji yang dihitung, bukti janji, format janji terbuka, dan pengarsipan bukti
+  detail_en: >
+    Promise outcomes are now computed from deadlines derived by published rules, so headline counts read among dated promises
+    (4 of 5 missed) with conditional and status claims shown apart, instead of 4 of 7 set by hand. Every promise has a receipt
+    page and share card. The format is published with a JSON Schema the validator uses, worked examples and a kit for other
+    countries. Sources get preserved copies in the Internet Archive after each scan. The weather map and the running clock,
+    which repeated the same seven deadlines, were removed. A GDPR fine tier in the breach entry was corrected.
+  detail_id: >
+    Hasil janji kini dihitung dari tenggat yang diturunkan dengan aturan yang diterbitkan, jadi angka utama dihitung dari janji
+    bertenggat (4 dari 5 terlewat) dengan janji bersyarat dan klaim kemajuan ditampilkan terpisah, bukan 4 dari 7 yang diisi
+    manual. Setiap janji punya halaman bukti janji dan kartu pratinjau. Formatnya diterbitkan bersama JSON Schema yang dipakai
+    validator, contoh nyata, dan kit untuk negara lain. Sumber disimpan salinannya di Internet Archive setelah setiap pemindaian.
+    Peta cuaca dan jam berjalan, yang mengulang tujuh tenggat yang sama, dihapus. Satu tingkat denda GDPR di catatan kebocoran
+    data dikoreksi.
+  pr: 6
+  commits: ["b786b78", "55e8dce", "12a131a", "314162f", "e15b19f"]
+
 - date: 2026-10-23
   kind: feature
   title_en: Visual layer, ontology, About abstract, icons and link previews

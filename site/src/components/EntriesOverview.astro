@@ -3,7 +3,7 @@
 // which language its sources were published. Everything is counted from data/entries/.
 // Dots dim when the filters below hide their entry.
 import { EVIDENCE_STRENGTH, type Entry, type Evidence } from '../lib/data';
-import { ui, href, pick, type Lang } from '../lib/i18n';
+import { ui, href, pick, MONTHS, type Lang } from '../lib/i18n';
 
 interface Props {
   entries: Entry[];
@@ -21,7 +21,7 @@ const start = Date.UTC(first.getUTCFullYear(), first.getUTCMonth() - 1, 1);
 const end = Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1);
 const pct = (time: number) => ((time - start) / (end - start)) * 100;
 
-const months = lang === 'en' ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] : ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const months = MONTHS[lang].short;
 const ticks: { left: number; label: string }[] = [];
 for (let d = new Date(start); d.getTime() < end; d.setUTCMonth(d.getUTCMonth() + 1)) {
   ticks.push({ left: pct(d.getTime()), label: d.getUTCMonth() === 0 ? `${months[0]} ${d.getUTCFullYear()}` : months[d.getUTCMonth()] });

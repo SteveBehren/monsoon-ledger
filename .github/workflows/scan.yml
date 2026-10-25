@@ -1,7 +1,8 @@
 name: Scan
 
 # The ledger's monitoring layer. Twice a week it reads every watched source, writes new
-# leads to data/radar.yml and a row to data/scan-log.yml, validates, builds, and commits.
+# leads to data/radar.yml and a row to data/scan-log.yml, archives sources that have no
+# preserved copy yet (npm run archive), validates, builds, and commits.
 # The commit to main triggers a Vercel deploy, so the Radar page updates by itself.
 #
 # Schedule: Monday and Thursday at 06:17 Western Indonesian Time (UTC+7).
@@ -58,6 +59,14 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: npm run scan
 
+      # Preserve every source in the Internet Archive. Writes only archive_url and archived_at
+      # beside sources. An archive outage never stops the scan.
+      - name: Archive sources
+        if: github.event_name != 'pull_request'
+        continue-on-error: true
+        timeout-minutes: 6
+        run: npm run archive
+
       - name: Validate and build
         run: |
           npm run validate
@@ -68,13 +77,14 @@ jobs:
         run: |
           git config user.name "monsoon-ledger-scanner"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/radar.yml data/scan-log.yml data/watch/seen.json
+          git add data/radar.yml data/scan-log.yml data/watch/seen.json data/deadlines.yml data/instruments.yml data/entries
           if git diff --cached --quiet; then
             echo "Nothing to commit."
             exit 0
           fi
           NEW=$(node -e "const y=require('./site/node_modules/js-yaml');const fs=require('fs');const l=y.load(fs.readFileSync('data/scan-log.yml','utf8'));console.log(l[0].new_leads)")
-          git commit -m "Scan: ${NEW} new radar leads"
-          # Someone may have pushed while the scan ran. The scanner only touches its own files.
+          git commit -m "Scan: ${NEW} new radar leads, sources archived"
+          # Someone may have pushed while the scan ran. The scanner and the archiver only touch
+          # their own files and fields.
           git pull --rebase origin main
           git push

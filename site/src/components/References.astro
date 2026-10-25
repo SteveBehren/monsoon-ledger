@@ -1,13 +1,16 @@
 ---
 // The numbered reference list for a page. Order follows `keys`, which also drives <Cite> numbering.
-import { REFERENCES, type RefKey } from '../lib/references';
+import { REFERENCES, type RefKey, type Reference } from '../lib/references';
+import { ui, type Lang } from '../lib/i18n';
 
 interface Props {
   keys: readonly RefKey[];
   title: string;
+  lang?: Lang;
 }
 
-const { keys, title } = Astro.props;
+const { keys, title, lang = 'en' } = Astro.props;
+const ref = (key: RefKey): Reference => REFERENCES[key];
 ---
 <section class="refs" aria-labelledby="refs-h">
   <h2 id="refs-h">{title}</h2>
@@ -15,8 +18,9 @@ const { keys, title } = Astro.props;
     {
       keys.map((key) => (
         <li id={`ref-${key}`}>
-          {REFERENCES[key].text}{' '}
-          <a href={REFERENCES[key].url}>{REFERENCES[key].url}</a>
+          {ref(key).text}{' '}
+          <a href={ref(key).url}>{ref(key).url}</a>
+          {ref(key).archive_url && <>{' '}(<a href={ref(key).archive_url}>{ui[lang].archived}</a>, {ref(key).archived_at})</>}
         </li>
       ))
     }

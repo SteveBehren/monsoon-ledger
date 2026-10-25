@@ -39,9 +39,11 @@ safety_note_id: >
 last_checked: 2026-10-22
 
 eu_comparison: >
-  The GDPR also gives 72 hours to notify the supervisory authority, and allows fines of up to 4%
-  of worldwide annual turnover or 20 million euros for the most serious infringements. Indonesia's
-  cap is 2% of annual gross revenue, and its supervisory authority does not exist yet.
+  The GDPR also gives 72 hours to notify the supervisory authority (Article 33). A failure to
+  notify falls in its lower fine tier, up to 10 million euros or 2% of worldwide annual turnover,
+  whichever is higher (Article 83(4)(a)). The higher tier, 20 million euros or 4%, covers
+  infringements such as the basic principles and data subjects' rights (Article 83(5)).
+  Indonesia's cap is 2% of annual gross revenue, and its supervisory authority does not exist yet.
 
 my_take: >
   This one is not about AI directly, and I am including it on purpose. AI rules lean on the same

@@ -1,0 +1,22 @@
+# Where you look for new promises: official legal databases, ministry pages and news searches.
+# The same format drives the Monsoon Ledger scanner (scripts/scan.mjs), which can read this
+# file if you adapt it. The examples are two of the Indonesian sources. Replace them with your own.
+#
+# kind:     news-search (needs query and edition, like id-ID) | page-links (needs url) | rss (needs url)
+# country:  ISO 3166-1 alpha-2, or ASEAN for regional sources
+# language: the language the source publishes in
+
+- id: gn-id-perpres-ai
+  name: Google News (Bahasa Indonesia), AI presidential regulations
+  kind: news-search
+  country: ID
+  language: id
+  edition: id-ID
+  query: '("Perpres AI" OR "Perpres kecerdasan artifisial" OR "regulasi AI") Komdigi'
+
+- id: jdih-komdigi
+  name: JDIH Komdigi (legal documentation network of the Ministry of Communication and Digital Affairs)
+  kind: page-links
+  country: ID
+  language: id
+  url: https://jdih.komdigi.go.id/

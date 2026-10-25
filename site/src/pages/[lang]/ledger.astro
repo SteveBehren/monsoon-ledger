@@ -2,9 +2,10 @@
 import Base from '../../layouts/Base.astro';
 import Stamp from '../../components/Stamp.astro';
 import PromiseReplay from '../../components/PromiseReplay.astro';
-import LiveSince from '../../components/LiveSince.astro';
-import { getDeadlines, getEntries, outcomeCounts, OUTCOMES } from '../../lib/data';
-import { ui, pick, href, SITE, LANGS, type Lang } from '../../lib/i18n';
+import ReceiptHeadline from '../../components/ReceiptHeadline.astro';
+import PromiseBalance from '../../components/PromiseBalance.astro';
+import { getDeadlines, getPromises, getEntries, outcomeCounts, OUTCOMES, type Outcome } from '../../lib/data';
+import { ui, pick, href, fmtDate, SITE, LANGS, type Lang } from '../../lib/i18n';
 import { promiseAnchor } from '../../lib/ontology';
 
 export function getStaticPaths() {
@@ -14,33 +15,35 @@ export function getStaticPaths() {
 const lang = Astro.params.lang as Lang;
 const t = ui[lang];
 const deadlines = getDeadlines();
+const promises = getPromises();
 const counts = outcomeCounts(deadlines);
-const firstPromise = [...deadlines].sort((a, b) => a.date_said.localeCompare(b.date_said))[0];
+// Filter chips: the three outcomes of dated promises, then the claims that have no deadline.
+const chips = ([...OUTCOMES, 'no-deadline'] as Outcome[])
+  .map((o) => ({ o, n: promises.filter((p) => p.outcome === o).length }))
+  .filter((c) => c.n > 0);
 const related = getEntries().find((e) => e.id === '2026-10-21-id-perpres-ai-keep-almost-arriving');
 
 const copy = {
   en: {
     title: 'Promise vs Reality',
     intro:
-      "The public deadlines officials have given for Indonesia's AI rules, set against what happened next. Janji is the promise. Kenyataan is the reality. Each row links to the report of the statement.",
+      "The public promises officials have made about Indonesia's AI rules, set against what happened next. Janji is the promise. Kenyataan is the reality. Each promise has a receipt with its deadline, its source and a preserved copy.",
     howTo:
-      'A row stays open until the deadline passes or the rule arrives. When an outcome changes, the row is updated and the change is logged in the changelog.',
+      'Outcomes are computed, not set by hand: a dated promise turns from open to missed the day after its deadline, counted in Western Indonesian Time. Conditional promises and status claims set no deadline and are never counted as missed. When something happens, the row is updated and the change is logged in the changelog.',
     promise: 'Promise',
     reality: 'Reality',
-    total: 'Balance',
-    promises: 'promises',
+    due: 'Deadline',
     entries: 'Read the entry on why the rules keep almost arriving',
   },
   id: {
     title: 'Janji vs Kenyataan',
     intro:
-      'Tenggat yang pernah diumumkan pejabat untuk aturan AI Indonesia, disandingkan dengan apa yang terjadi sesudahnya. Janji adalah apa yang diucapkan. Kenyataan adalah apa yang terjadi. Setiap baris menautkan ke laporan tentang pernyataan itu.',
+      'Janji publik pejabat tentang aturan AI Indonesia, disandingkan dengan apa yang terjadi sesudahnya. Janji adalah apa yang diucapkan. Kenyataan adalah apa yang terjadi. Setiap janji punya bukti janji lengkap dengan tenggat, sumber, dan salinan arsipnya.',
     howTo:
-      'Sebuah baris tetap terbuka sampai tenggatnya lewat atau aturannya terbit. Kalau hasilnya berubah, baris diperbarui dan perubahannya dicatat di catatan perubahan.',
+      'Hasilnya dihitung, tidak diisi manual: janji bertenggat berubah dari masih terbuka menjadi terlewat sehari setelah tenggatnya, dihitung menurut WIB. Janji bersyarat dan klaim kemajuan tidak menetapkan tenggat dan tidak pernah dihitung terlewat. Kalau sesuatu terjadi, baris diperbarui dan perubahannya dicatat di catatan perubahan.',
     promise: 'Janji',
     reality: 'Kenyataan',
-    total: 'Saldo',
-    promises: 'janji',
+    due: 'Tenggat',
     entries: 'Baca catatan tentang aturan yang tak kunjung terbit',
   },
 }[lang];
@@ -52,24 +55,10 @@ const copy = {
     <p class="lede">{copy.intro}</p>
   </header>
 
-  <div class="panel balance" role="group" aria-label={copy.total} data-reveal>
-    <p class="label">{deadlines.length} {copy.promises}</p>
-    <div class="balance-bar" aria-hidden="true">
-      {OUTCOMES.filter((o) => counts[o] > 0).map((o) => <i class={`b-${o}`} style={`flex:${counts[o]}`} />)}
-    </div>
-    <ul class="balance-legend">
-      {
-        OUTCOMES.map((o) => (
-          <li>
-            <span class="figure">{counts[o]}</span>
-            <Stamp tone={o} label={t.outcome[o]} />
-          </li>
-        ))
-      }
-    </ul>
+  <div class="ledger-top" data-reveal>
+    <PromiseBalance counts={counts} lang={lang} panel />
+    <ReceiptHeadline lang={lang} />
   </div>
-
-  {firstPromise && <LiveSince deadline={firstPromise} lang={lang} />}
 
   <div class="section section--tight">
     <PromiseReplay deadlines={deadlines} lang={lang} />
@@ -81,11 +70,11 @@ const copy = {
         <legend>{t.show}</legend>
         <label class="chip"><input type="radio" name="outcome" value="" checked /><span>{t.all} <span class="count">{deadlines.length}</span></span></label>
         {
-          OUTCOMES.filter((o) => counts[o] > 0).map((o) => (
+          chips.map(({ o, n }) => (
             <label class="chip">
               <input type="radio" name="outcome" value={o} />
               <span>
-                {t.outcome[o]} <span class="count">{counts[o]}</span>
+                {t.outcome[o]} <span class="count">{n}</span>
               </span>
             </label>
           ))
@@ -96,8 +85,8 @@ const copy = {
 
     <ol class="timeline" id="timeline">
       {
-        deadlines.map((d) => (
-          <li data-outcome={d.outcome_status} id={promiseAnchor(d)}>
+        promises.map((d) => (
+          <li data-outcome={d.outcome} id={promiseAnchor(d)}>
             <time class="t-date" datetime={d.date_said}>{d.date_said}</time>
             <span class="t-dot" aria-hidden="true" />
             <div class="t-card panel">
@@ -106,12 +95,13 @@ const copy = {
                   {copy.promise}
                   {lang === 'en' && <span lang="id">Janji</span>}
                 </p>
-                <span class="t-text">{pick(lang, d.promised_en, d.promised_id)}</span>
+                <a class="t-text t-receipt" href={href(lang, `promises/${d.key}/`)}>{pick(lang, d.promised_en, d.promised_id)}</a>
                 <span class="t-who">
                   <span>{d.who}</span>
                   <a href={d.source_url}>
                     {t.source} <span aria-hidden="true">&#8599;</span>
                   </a>
+                  {d.archive_url && <a href={d.archive_url}>{t.archived}</a>}
                 </span>
               </div>
               <div class="t-col">
@@ -120,7 +110,10 @@ const copy = {
                   {lang === 'en' && <span lang="id">Kenyataan</span>}
                 </p>
                 <span class="t-text">{pick(lang, d.outcome_en, d.outcome_id)}</span>
-                <Stamp tone={d.outcome_status} label={t.outcome[d.outcome_status]} />
+                <span class="t-due">
+                  <Stamp tone={d.outcome} label={t.outcome[d.outcome]} />
+                  {d.deadline && <span>{copy.due} {fmtDate(lang, d.deadline)}</span>}
+                </span>
               </div>
             </div>
           </li>

@@ -202,7 +202,19 @@
               "id",
               "en"
             ]
+          },
+          "archive_url": {
+            "description": "A preserved copy of url, written by npm run archive.",
+            "$ref": "#/$defs/url"
+          },
+          "archived_at": {
+            "description": "The day that copy was made.",
+            "$ref": "#/$defs/isoDate"
           }
+        },
+        "dependentRequired": {
+          "archive_url": ["archived_at"],
+          "archived_at": ["archive_url"]
         }
       }
     }

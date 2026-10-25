@@ -127,6 +127,7 @@ const n = (i: number) => String(i).padStart(2, '0');
                   <a href={s.url} hreflang={s.language}>{s.title}</a>
                   <span class="outlet">
                     {s.outlet}, {t.sourceLang[s.language]}
+                    {s.archive_url && <>{' \u00b7 '}<a href={s.archive_url}>{t.archived}</a> {s.archived_at}</>}
                   </span>
                 </span>
               </li>

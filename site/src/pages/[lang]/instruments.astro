@@ -269,6 +269,7 @@ const entriesFor = (id: string) => entries.filter((e) => e.instrument === id);
                 <dt>{copy.refs}</dt>
                 <dd>
                   <a href={i.source_url}>{t.source} <span aria-hidden="true">&#8599;</span></a>
+                  {i.archive_url && <> <a href={i.archive_url}>{t.archived}</a></>}
                   {i.refs && i.refs.length > 0 && <> <Cite k={i.refs as RefKey[]} keys={R} /></>}
                   <a class="onto-out" href={`${href(lang, 'ontology/')}#${encodeURIComponent(`instrument:${i.id}`)}`}>{copy.ontology} <span aria-hidden="true">&rarr;</span></a>
                 </dd>
@@ -323,7 +324,7 @@ const entriesFor = (id: string) => entries.filter((e) => e.instrument === id);
   </section>
 
   <div class="doc-body">
-    <References keys={R} title={copy.refsTitle} />
+    <References lang={lang} keys={R} title={copy.refsTitle} />
   </div>
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />
 </Base>

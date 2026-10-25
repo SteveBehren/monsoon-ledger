@@ -5,6 +5,9 @@ export interface Reference {
   /** Citation text, in the language of the source. */
   text: string;
   url: string;
+  /** Optional preserved copy, shown by <References> next to the link. */
+  archive_url?: string;
+  archived_at?: string;
 }
 
 export const REFERENCES = {

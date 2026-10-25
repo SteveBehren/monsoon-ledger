@@ -28,6 +28,8 @@ export interface Source {
   url: string;
   outlet: string;
   language: 'id' | 'en';
+  archive_url?: string;
+  archived_at?: string;
 }
 
 export interface Entry {
@@ -104,6 +106,8 @@ export interface Instrument {
   note_en: string;
   note_id: string;
   source_url: string;
+  archive_url?: string;
+  archived_at?: string;
   issuer_en?: string;
   issuer_id?: string;
   level_en?: string;

@@ -82,45 +82,55 @@ function checkArchive(file, where, row) {
 const promiseSchema = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs', 'standard', 'v0.1', 'promise.schema.json'), 'utf8'));
 // strictRequired is an Ajv lint, not part of JSON Schema: the format requires fields inside if/then branches.
 const validatePromise = new Ajv2020({ allErrors: true, strict: true, strictRequired: false }).compile(promiseSchema);
-const deadlinesFile = path.join(DATA_DIR, 'deadlines.yml');
-const deadlines = load(deadlinesFile) ?? [];
-if (!Array.isArray(deadlines)) {
-  fail(deadlinesFile, 'must be a list');
-} else {
+function checkPromises(file, rows, { order = true } = {}) {
+  if (!Array.isArray(rows)) return fail(file, 'must be a list');
   const keys = new Set();
-  deadlines.forEach((row, i) => {
+  rows.forEach((row, i) => {
     const where = `row ${i + 1}`;
-    for (const problem of schemaErrors(validatePromise, row)) fail(deadlinesFile, `${where} ${problem}`);
+    for (const problem of schemaErrors(validatePromise, row)) fail(file, `${where} ${problem}`);
     if (!row || typeof row !== 'object') return;
     for (const key of ['date_said', 'deadline', 'outcome_date']) {
-      if (row[key] && !isRealDate(row[key])) fail(deadlinesFile, `${where} "${key}" must be a real YYYY-MM-DD date`);
+      if (row[key] && !isRealDate(row[key])) fail(file, `${where} "${key}" must be a real YYYY-MM-DD date`);
     }
     // The deadline must follow from its rule, so every derivation can be checked by machine.
     if (row.claim_type === 'dated' && row.deadline_rule && isRealDate(row.date_said)) {
       try {
         const derived = deriveDeadline(row.deadline_rule, row.date_said);
-        if (derived.deadline !== row.deadline) fail(deadlinesFile, `${where} deadline ${row.deadline} does not follow from "${row.deadline_rule}", expected ${derived.deadline}`);
-        if (derived.precision !== row.deadline_precision) fail(deadlinesFile, `${where} deadline_precision should be "${derived.precision}" for "${row.deadline_rule}"`);
+        if (derived.deadline !== row.deadline) fail(file, `${where} deadline ${row.deadline} does not follow from "${row.deadline_rule}", expected ${derived.deadline}`);
+        if (derived.precision !== row.deadline_precision) fail(file, `${where} deadline_precision should be "${derived.precision}" for "${row.deadline_rule}"`);
       } catch (error) {
-        fail(deadlinesFile, `${where} ${error.message}`);
+        fail(file, `${where} ${error.message}`);
       }
-      if (row.deadline && row.deadline < row.date_said) fail(deadlinesFile, `${where} deadline is before date_said`);
+      if (row.deadline && row.deadline < row.date_said) fail(file, `${where} deadline is before date_said`);
     }
     if (row.outcome_date) {
-      if (row.outcome_date < row.date_said) fail(deadlinesFile, `${where} outcome_date is before date_said`);
-      if (row.outcome_date > TODAY) fail(deadlinesFile, `${where} outcome_date is in the future`);
+      if (row.outcome_date < row.date_said) fail(file, `${where} outcome_date is before date_said`);
+      if (row.outcome_date > TODAY) fail(file, `${where} outcome_date is in the future`);
     }
-    if (row.instrument && !instrumentIds.has(row.instrument)) fail(deadlinesFile, `${where} instrument "${row.instrument}" does not exist`);
+    if (row.instrument && !instrumentIds.has(row.instrument)) fail(file, `${where} instrument "${row.instrument}" does not exist`);
     if (row.date_said && row.who) {
       const key = promiseKey(row);
-      if (keys.has(key)) fail(deadlinesFile, `${where} repeats ${key}; one speaker can have one promise per day`);
+      if (keys.has(key)) fail(file, `${where} repeats ${key}; one speaker can have one promise per day`);
       keys.add(key);
     }
-    if (i > 0 && row.date_said && deadlines[i - 1]?.date_said && row.date_said > deadlines[i - 1].date_said) {
-      fail(deadlinesFile, `${where} is out of order, keep the list newest first`);
+    if (order && i > 0 && row.date_said && rows[i - 1]?.date_said && row.date_said > rows[i - 1].date_said) {
+      fail(file, `${where} is out of order, keep the list newest first`);
     }
-    checkArchive(deadlinesFile, where, row);
+    checkArchive(file, where, row);
   });
+}
+
+const deadlinesFile = path.join(DATA_DIR, 'deadlines.yml');
+const deadlines = load(deadlinesFile) ?? [];
+checkPromises(deadlinesFile, deadlines);
+
+// The worked examples published with the format must stay valid against it.
+if (!KIT) {
+  const examplesDir = path.join(ROOT, 'docs', 'standard', 'v0.1', 'examples');
+  for (const name of fs.readdirSync(examplesDir).filter((f) => f.endsWith('.yml'))) {
+    const file = path.join(examplesDir, name);
+    checkPromises(file, load(file) ?? [], { order: false });
+  }
 }
 
 // Monitoring layer: watched sources, the Radar and the scan log

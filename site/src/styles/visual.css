@@ -2292,3 +2292,50 @@ main {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Promise format page: the spec rendered from docs/standard/ */
+
+.doc-body ul.spec-links {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1.5rem;
+  padding: 0;
+}
+
+.spec h1 {
+  font-size: clamp(1.4rem, 1.2rem + 0.8vw, 1.8rem);
+  margin: 0 0 0.6rem;
+}
+
+.spec table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 1rem 0 1.5rem;
+  font-size: 0.86rem;
+}
+
+.spec th,
+.spec td {
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.spec th {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.spec td code {
+  white-space: nowrap;
+}

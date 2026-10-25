@@ -1,0 +1,9 @@
+# Ledgers that follow the Open Promise Ledger format (docs/standard/).
+# To add yours, open an issue at https://github.com/SteveBehren/monsoon-ledger/issues with a link
+# to your site and your data. Listing a ledger here says it uses the format, nothing more.
+
+- name: Monsoon Ledger
+  country: ID
+  url: https://monsoonledger.vercel.app
+  data: https://github.com/SteveBehren/monsoon-ledger/blob/main/data/deadlines.yml
+  version: '0.1'

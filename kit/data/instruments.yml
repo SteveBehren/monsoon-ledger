@@ -1,0 +1,30 @@
+# The laws, drafts and guidance your promises are about. A promise may name one with
+# instrument: <id>, but only when its source names it.
+# Required: id, name_en, name_id, type, status, binding, note_en, note_id, source_url.
+# The row below is a real Indonesian example from Monsoon Ledger. Replace it with your own.
+
+- id: se-menkominfo-9-2023
+  name_en: Ministerial Circular Letter 9/2023 on AI ethics
+  name_id: Surat Edaran Menkominfo 9/2023 tentang etika kecerdasan artifisial
+  issued: 2023-12-19
+  type: circular-letter
+  status: in-force
+  binding: false
+  note_en: The only AI-specific instrument in force in Indonesia. It is guidance, not law.
+  note_id: Satu-satunya instrumen khusus AI yang berlaku di Indonesia. Isinya panduan, bukan aturan yang mengikat.
+  source_url: https://inet.detik.com/law-and-policy/d-7103666/kominfo-terbitkan-surat-edaran-etika-penggunaan-ai-di-indonesia
+  issuer_en: Minister of Communication and Informatics (Kominfo, now Komdigi)
+  issuer_id: Menteri Komunikasi dan Informatika (Kominfo, kini Komdigi)
+  level_en: Circular letter. Outside the hierarchy in Article 7(1) of Law 12/2011 and outside the ministerial regulations recognised in Article 8.
+  level_id: Surat edaran. Di luar hierarki Pasal 7 ayat (1) UU 12/2011 dan di luar peraturan menteri yang diakui Pasal 8.
+  read_in_full: true
+  points_en:
+    - Addressed to businesses that build AI and to public and private electronic system operators (PSE).
+    - Organised in three parts, ethical values, how to apply them, and responsibility in using and developing AI.
+    - Describes itself as ethical guidance. It creates no sanctions.
+  points_id:
+    - Ditujukan kepada pelaku usaha pemrograman berbasis AI serta penyelenggara sistem elektronik (PSE) publik dan privat.
+    - Disusun dalam tiga bagian, yaitu nilai etika, pelaksanaan nilai etika, dan tanggung jawab dalam pemanfaatan dan pengembangan AI.
+    - Menyebut dirinya pedoman etika. Tidak memuat sanksi.
+  eu_en: No binding EU counterpart. In function it resembles soft-law codes such as the OECD AI Principles.
+  eu_id: Tidak ada padanan mengikat di Uni Eropa. Fungsinya mirip kode hukum lunak seperti Prinsip AI OECD.

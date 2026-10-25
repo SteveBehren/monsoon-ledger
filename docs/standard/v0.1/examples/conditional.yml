@@ -1,0 +1,17 @@
+# Open Promise Ledger v0.1, worked example: a conditional promise.
+# Copied from data/deadlines.yml in Monsoon Ledger on 25 October 2026. The live row may have
+# changed since; the copy in data/deadlines.yml is the record. npm run validate checks this
+# file against promise.schema.json.
+
+- date_said: 2026-10-21
+  country: ID
+  who: Irma Handayani, Komdigi
+  claim_type: conditional
+  deadline_basis_en: The task force is to start once the President signs the regulations. No date is given, so this promise has no deadline and cannot be missed.
+  deadline_basis_id: Gugus tugas mulai bekerja setelah Presiden menandatangani aturannya. Tidak ada tanggal, jadi janji ini tidak punya tenggat dan tidak bisa terlewat.
+  promised_en: Task force starts once the President signs
+  promised_id: Gugus tugas mulai bekerja setelah Presiden menandatangani
+  outcome_en: Still called a draft
+  outcome_id: Masih disebut rancangan
+  evidence: official-statement
+  source_url: https://www.antaranews.com/berita/5802305/pemerintah-siapkan-gugus-tugas-kawal-implementasi-regulasi-ai

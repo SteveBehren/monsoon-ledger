@@ -27,6 +27,8 @@
   evidence: official-statement
   source_url: https://www.antaranews.com/berita/5802305/pemerintah-siapkan-gugus-tugas-kawal-implementasi-regulasi-ai
 
+# TODO: search summaries of this source also report a target to finish both regulations this
+# year. If the article says so, add it as a separate dated row (deadline_rule: end 2026).
 - date_said: 2026-09-03
   country: ID
   who: Edwin Hidayat Abdullah, Komdigi

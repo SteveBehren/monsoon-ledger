@@ -6,7 +6,8 @@ import References from '../../components/References.astro';
 import MethodTabs from '../../components/MethodTabs.astro';
 import PageRail from '../../components/PageRail.astro';
 import RailEvidence from '../../components/RailEvidence.astro';
-import { ui, href, SITE, LANGS, type Lang } from '../../lib/i18n';
+import { getDeadlines, getPromises, outcomeCounts, TODAY } from '../../lib/data';
+import { ui, href, fmtDate, SITE, LANGS, type Lang } from '../../lib/i18n';
 import type { RefKey } from '../../lib/references';
 
 export function getStaticPaths() {
@@ -55,6 +56,8 @@ const toc = {
     ['levels', 'Source hierarchy and evidence levels'],
     ['verification', 'Verification protocol'],
     ['coding', 'Coding scheme'],
+    ['coding-promises', 'Coding promises'],
+    ['preservation', 'Preserving evidence'],
     ['legal-force', 'Assessing legal force'],
     ['comparison', 'Comparative frame'],
     ['limits', 'Validity and limitations'],
@@ -73,6 +76,8 @@ const toc = {
     ['levels', 'Hierarki sumber dan tingkat bukti'],
     ['verification', 'Protokol verifikasi'],
     ['coding', 'Skema pengodean'],
+    ['coding-promises', 'Mengodekan janji'],
+    ['preservation', 'Melestarikan bukti'],
     ['legal-force', 'Menilai kekuatan hukum'],
     ['comparison', 'Kerangka perbandingan'],
     ['limits', 'Validitas dan keterbatasan'],
@@ -89,6 +94,12 @@ const lede = {
   en: 'Monsoon Ledger is a longitudinal, document-based study of how Indonesia governs artificial intelligence. This page sets out the research design, how sources are found and graded, how every claim is verified and coded, what the ledger can and cannot show, and how anyone can reproduce or correct it.',
   id: 'Monsoon Ledger adalah kajian longitudinal berbasis dokumen tentang cara Indonesia mengatur kecerdasan artifisial. Halaman ini memaparkan desain penelitian, cara sumber ditemukan dan dinilai, cara setiap klaim diverifikasi dan dikodekan, apa yang bisa dan tidak bisa ditunjukkan catatan ini, dan bagaimana siapa pun bisa mengulang atau mengoreksinya.',
 }[lang];
+
+// Promise coding is shown with the live data, so this page and the ledger never disagree.
+const promises = getPromises();
+const dated = promises.filter((p) => p.claim_type === 'dated').slice().reverse();
+const counts = outcomeCounts(getDeadlines());
+const receipt = (key: string) => href(lang, `promises/${key}/`);
 
 const perpresEntry = href(lang, 'entries/2026-10-21-id-perpres-ai-keep-almost-arriving/');
 const tiersEntry = href(lang, 'entries/2026-10-21-id-ethics-risk-tiers/');
@@ -327,14 +338,99 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             <li><strong>Withdrawn:</strong> officially abandoned or revoked.</li>
           </ul>
           <h3>7.3 Promise vs Reality outcomes</h3>
-          <ul>
-            <li><strong>Open:</strong> the stated deadline has not passed, or no hard date was given and the promised act has not happened.</li>
-            <li><strong>Missed:</strong> the stated deadline passed without the promised act.</li>
-            <li><strong>Met:</strong> the promised act happened by the stated deadline, confirmed in a primary or official source.</li>
-          </ul>
-          <p>When an outcome changes, the row is updated and the change is logged with its date in the <a href={SITE.changelog}>changelog</a>.</p>
+          <p>
+            Outcomes are no longer coded by hand. They are computed from each promise's claim type, deadline and outcome date, as
+            set out in section 8.
+          </p>
 
-          <h2 id="legal-force">8. Assessing legal force</h2>
+          <h2 id="coding-promises">8. Coding promises</h2>
+          <p>
+            The <a href={href(lang, 'ledger/')}>Promise vs Reality</a> ledger follows the promise format published on the{' '}
+            <a href={href(lang, 'method/standard/')}>Promise format</a> page. Its rules are summarised here.
+          </p>
+          <h3>8.1 What counts as a promise</h3>
+          <p>
+            A public, on-the-record statement by a named official or government body that commits the government to an act about AI
+            rules, such as signing, issuing or launching an instrument or forming a body, reported by a named outlet or an official
+            channel. Hopes without an act ("Indonesia wants to lead in AI"), statements by companies and unnamed sources are not
+            promises. Each promise is one row in <code>data/deadlines.yml</code>, coded at the evidence level of its source.
+          </p>
+          <h3>8.2 Three claim types</h3>
+          <ul>
+            <li><strong>Dated:</strong> the promise has a deadline that can pass, for example "a binding rule within three months".</li>
+            <li><strong>Conditional:</strong> it depends on an event and gives no date, for example "the task force starts once the President signs". It is never counted as missed.</li>
+            <li><strong>Status claim:</strong> a claim about progress with no deadline, for example "only the President's signature is left". It is never counted as missed.</li>
+          </ul>
+          <h3>8.3 Deriving the deadline</h3>
+          <p>The deadline is the last day the promise could still be kept, derived from the words in the source:</p>
+          <ol>
+            <li>When the wording allows more than one date, the latest plausible reading is used, so that every "missed" can be defended.</li>
+            <li>A named period ends on its last day: "in June 2025" is 30 June 2025, "in the first half of 2026" is 30 June 2026, "in 2026" is 31 December 2026, "this month" is the last day of the month in which it was said.</li>
+            <li>"Within N months" counts calendar months from the day it was said, clamped to the end of a shorter month: one month from 31 January is 28 or 29 February.</li>
+            <li>The deadline day counts in Western Indonesian Time (WIB). The promise is still open on that day.</li>
+            <li>No wording about time means no deadline: the promise is conditional or a status claim.</li>
+          </ol>
+          <p>
+            Each dated row records its derivation as a rule, such as <code>end 2025-06</code>, together with the wording behind it.
+            The validator recomputes every deadline from its rule and refuses the data if they disagree. The derivations in the
+            ledger today:
+          </p>
+          <div class="panel table-panel">
+            <table class="ruled stack">
+              <caption class="visually-hidden">Deadline derivations</caption>
+              <thead><tr><th scope="col">Said</th><th scope="col">Promise</th><th scope="col">Rule</th><th scope="col">Deadline</th><th scope="col">Basis</th></tr></thead>
+              <tbody>
+                {dated.map((p) => (
+                  <tr>
+                    <td data-label="Said" class="num">{p.date_said}</td>
+                    <td data-label="Promise"><a href={receipt(p.key)}>{p.promised_en}</a></td>
+                    <td data-label="Rule"><code>{p.deadline_rule}</code></td>
+                    <td data-label="Deadline" class="num">{p.deadline}</td>
+                    <td data-label="Basis">{p.deadline_basis_en}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <h3>8.4 Computing the outcome</h3>
+          <p>
+            The outcome is never set by hand. For a dated promise it is <strong>met</strong> if it was kept on or before the
+            deadline, <strong>missed</strong> if the deadline has passed without it being kept (or it was kept late), and{' '}
+            <strong>open</strong> otherwise. Conditional promises are met once kept and otherwise have no deadline. Status claims
+            never have one. One module, <code>scripts/promises.mjs</code>, does this for the validator, every page, the feeds and the
+            share cards, so a count can never differ between two places. Headline counts are taken among dated promises only. As of{' '}
+            {fmtDate(lang, TODAY)}: {counts.missed} of {counts.dated} dated promises missed, {counts.open} open and {counts.met} met;{' '}
+            {counts.conditional} conditional {counts.conditional === 1 ? 'promise' : 'promises'} and {counts.status_claim} status{' '}
+            {counts.status_claim === 1 ? 'claim' : 'claims'} set no deadline.
+          </p>
+          <h3>8.5 Disputes and corrections</h3>
+          <p>
+            Anyone who reads a source differently can <a href={SITE.issues}>open an issue</a> with the wording. The derivation is
+            checked again against the source. If it changes, the rule, the deadline and the basis are updated together, the change
+            is logged with its date in the <a href={SITE.changelog}>changelog</a>, and the earlier reading stays in the public git
+            history. When two readings remain possible, the later deadline is kept.
+          </p>
+          <h3>8.6 A single coder</h3>
+          <p>
+            Every promise is coded by one person, the author. There is no second coder and no inter-coder reliability measure. To
+            make up for that, every derivation is published with the wording it rests on, and the validator checks each deadline
+            against its rule, so any reader can retrace and contest every reading.
+          </p>
+
+          <h2 id="preservation">9. Preserving evidence</h2>
+          <p>
+            News pages move, change and disappear. Following the attention the Berkeley Protocol gives to preserving digital open
+            source information <Cite k="berkeley" keys={R} />, every source behind a promise, an instrument or an entry gets a copy
+            in the Internet Archive.
+          </p>
+          <ul>
+            <li><strong>How.</strong> After each scheduled scan, <code>scripts/archive.mjs</code> looks for an existing snapshot of each unarchived source and, if there is none, requests one, a few per run with a pause between requests.</li>
+            <li><strong>Where it shows.</strong> The copy and its date are recorded next to the source in the data, and every page that shows the source links the copy beside it. The original link remains the citation.</li>
+            <li><strong>Missing copies.</strong> The validator warns about every source still without a copy. A missing copy never blocks publication and is never hidden.</li>
+            <li><strong>Limits.</strong> Some sites refuse archiving, and a snapshot shows the page as the archive saw it, which can differ from what a reader saw behind a paywall or after a live update. If the original changes or disappears, the copy is the record of what was said.</li>
+          </ul>
+
+          <h2 id="legal-force">10. Assessing legal force</h2>
           <p>
             Whether an instrument binds anyone is decided by Indonesia's law on lawmaking. Article 7(1) of Law 12 of 2011 sets the
             hierarchy: the 1945 Constitution, decrees of the People's Consultative Assembly, laws and government regulations in lieu
@@ -350,7 +446,7 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             stays Draft until then. The full assessment for each instrument is on the <a href={href(lang, 'instruments/')}>Instruments</a> page.
           </p>
 
-          <h2 id="comparison">9. Comparative frame</h2>
+          <h2 id="comparison">11. Comparative frame</h2>
           <p>
             The EU is the reference point because it has the most complete binding AI law in force, the AI Act
             <Cite k="ai-act" keys={R} />, and because the author lives under it. The comparison is a reference point, not a claim that
@@ -410,7 +506,7 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             such as capable general-purpose models, which often involve no personal data at all.
           </p>
 
-          <h2 id="limits">10. Validity and limitations</h2>
+          <h2 id="limits">12. Validity and limitations</h2>
           <ul>
             <li><strong>Single coder.</strong> One person codes every entry, so inter-coder reliability cannot be measured. The mitigation is a published codebook, coding tied to listed sources, and open corrections.</li>
             <li><strong>Desk research only.</strong> No interviews or information requests yet. The ledger sees what is published, not what is decided behind closed doors.</li>
@@ -421,20 +517,20 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             <li><strong>Recency.</strong> Each entry is accurate as of its last checked date, which is shown on the entry.</li>
           </ul>
 
-          <h2 id="data">11. Reproducibility and data management</h2>
+          <h2 id="data">13. Reproducibility and data management</h2>
           <ul>
             <li><strong>Open data.</strong> Every entry, instrument and deadline is a plain YAML file in the <a href={SITE.repo}>public repository</a>, under CC BY 4.0. The code is under MIT.</li>
             <li>
               <strong>Schema.</strong> Entries are validated against a JSON Schema (draft 2020-12). A validator adds checks the schema
               cannot express: each id matches its file name and date, each instrument exists, dates are real, no source appears twice,
-              quotes follow the four rules, deadlines are complete and newest first, and no text anywhere contains an em dash or en dash.
+              quotes follow the four rules, every promise follows the published format and its deadline follows from its rule, and no text anywhere contains an em dash or en dash.
             </li>
             <li><strong>Continuous integration.</strong> Every push runs the validator and a full site build. The build refuses to publish data that fails validation.</li>
             <li><strong>Audit trail.</strong> The full history of every change is public in git, so anyone can see what changed, when and why.</li>
             <li><strong>Automated monitoring.</strong> A scanner checks the watched sources twice a week and lists unreviewed leads on the <a href={href(lang, 'radar/')}>Radar</a>. The <a href={href(lang, 'method/system/')}>Technical system</a> page documents the pipeline in full.</li>
           </ul>
 
-          <h2 id="ethics">12. Research ethics</h2>
+          <h2 id="ethics">14. Research ethics</h2>
           <ul>
             <li><strong>Public officials, not private people.</strong> The ledger records what officials and public bodies say and do in their public roles. It does not identify private individuals.</li>
             <li><strong>Redaction.</strong> Where unverified social media content is shown for context, faces and account names are redacted and the image is re-encoded to strip metadata.</li>
@@ -442,19 +538,19 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             <li><strong>Independence.</strong> Monsoon Ledger is an independent project. It is not legal advice.</li>
           </ul>
 
-          <h2 id="ai">13. Use of AI</h2>
+          <h2 id="ai">15. Use of AI</h2>
           <p>
             I research the sources, write and edit every entry and every My take myself, and use Claude to help draft, translate and build
             the site. Translated text is reviewed by me, and the original source is always linked so you can check it.
           </p>
 
-          <h2 id="corrections">14. Corrections</h2>
+          <h2 id="corrections">16. Corrections</h2>
           <p>
             Anyone can <a href={SITE.issues}>report an error on GitHub</a> with a source. Errors are fixed in the open, as public commits,
             and every correction is logged with its date in the <a href={SITE.changelog}>changelog</a>. See <a href={href(lang, 'about/')}>About</a> for who writes this.
           </p>
 
-          <h2 id="glossary">15. Glossary</h2>
+          <h2 id="glossary">17. Glossary</h2>
           <dl class="glossary">
             <dt lang="id">UU (Undang-Undang)</dt><dd>A law passed by the House of Representatives and the President.</dd>
             <dt lang="id">PP (Peraturan Pemerintah)</dt><dd>A government regulation that implements a law.</dd>
@@ -685,14 +781,100 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             <li><strong>Dicabut:</strong> secara resmi dibatalkan atau dicabut.</li>
           </ul>
           <h3>7.3 Hasil Janji vs Kenyataan</h3>
-          <ul>
-            <li><strong>Terbuka:</strong> tenggatnya belum lewat, atau tidak ada tanggal pasti dan janjinya belum terlaksana.</li>
-            <li><strong>Meleset:</strong> tenggatnya lewat tanpa janji itu terlaksana.</li>
-            <li><strong>Terpenuhi:</strong> janjinya terlaksana sebelum tenggat, dikonfirmasi oleh sumber asli atau resmi.</li>
-          </ul>
-          <p>Bila hasilnya berubah, barisnya diperbarui dan perubahannya dicatat beserta tanggalnya di <a href={SITE.changelog}>catatan perubahan</a>.</p>
+          <p>
+            Hasil tidak lagi dikodekan secara manual. Hasil dihitung dari jenis klaim, tenggat, dan tanggal hasil setiap janji,
+            seperti dijelaskan di bagian 8.
+          </p>
 
-          <h2 id="legal-force">8. Menilai kekuatan hukum</h2>
+          <h2 id="coding-promises">8. Mengodekan janji</h2>
+          <p>
+            Catatan <a href={href(lang, 'ledger/')}>Janji vs Kenyataan</a> mengikuti format janji yang diterbitkan di halaman{' '}
+            <a href={href(lang, 'method/standard/')}>Format janji</a>. Berikut ringkasan aturannya.
+          </p>
+          <h3>8.1 Apa yang dihitung sebagai janji</h3>
+          <p>
+            Pernyataan publik dan resmi dari pejabat atau lembaga pemerintah yang disebut namanya, yang mengikat pemerintah pada suatu
+            tindakan soal aturan AI, misalnya menandatangani, menerbitkan, atau meluncurkan instrumen, atau membentuk lembaga, dan
+            dilaporkan oleh media yang jelas namanya atau saluran resmi. Harapan tanpa tindakan ("Indonesia ingin memimpin di bidang
+            AI"), pernyataan perusahaan, dan sumber tanpa nama tidak dihitung. Setiap janji adalah satu baris di{' '}
+            <code>data/deadlines.yml</code>, dikodekan sesuai tingkat bukti sumbernya.
+          </p>
+          <h3>8.2 Tiga jenis klaim</h3>
+          <ul>
+            <li><strong>Bertenggat:</strong> janji punya tenggat yang bisa lewat, misalnya "aturan yang mengikat dalam tiga bulan".</li>
+            <li><strong>Bersyarat:</strong> janji bergantung pada suatu peristiwa dan tidak menyebut tanggal, misalnya "gugus tugas mulai bekerja setelah Presiden menandatangani". Janji ini tidak pernah dihitung terlewat.</li>
+            <li><strong>Klaim kemajuan:</strong> klaim tentang kemajuan tanpa tenggat, misalnya "tinggal menunggu tanda tangan Presiden". Klaim ini tidak pernah dihitung terlewat.</li>
+          </ul>
+          <h3>8.3 Menurunkan tenggat</h3>
+          <p>Tenggat adalah hari terakhir janji masih bisa ditepati, diturunkan dari kata-kata di sumber:</p>
+          <ol>
+            <li>Jika kata-katanya memungkinkan lebih dari satu tanggal, dipakai tafsir paling akhir yang masuk akal, supaya setiap status terlewat bisa dipertanggungjawabkan.</li>
+            <li>Periode yang disebut berakhir di hari terakhirnya: "pada Juni 2025" berarti 30 Juni 2025, "pada semester pertama 2026" berarti 30 Juni 2026, "pada 2026" berarti 31 Desember 2026, "bulan ini" berarti hari terakhir bulan saat janji diucapkan.</li>
+            <li>"Dalam N bulan" dihitung dengan bulan kalender sejak hari janji diucapkan, dipotong ke akhir bulan yang lebih pendek: satu bulan dari 31 Januari adalah 28 atau 29 Februari.</li>
+            <li>Hari tenggat dihitung menurut Waktu Indonesia Barat (WIB). Pada hari itu janji masih terbuka.</li>
+            <li>Tanpa kata-kata soal waktu berarti tanpa tenggat: janji itu bersyarat atau klaim kemajuan.</li>
+          </ol>
+          <p>
+            Setiap baris bertenggat mencatat cara penurunannya sebagai aturan, misalnya <code>end 2025-06</code>, beserta kalimat yang
+            mendasarinya. Validator menghitung ulang setiap tenggat dari aturannya dan menolak data jika hasilnya berbeda. Penurunan
+            tenggat yang ada di catatan saat ini:
+          </p>
+          <div class="panel table-panel">
+            <table class="ruled stack">
+              <caption class="visually-hidden">Penurunan tenggat</caption>
+              <thead><tr><th scope="col">Diucapkan</th><th scope="col">Janji</th><th scope="col">Aturan</th><th scope="col">Tenggat</th><th scope="col">Dasar</th></tr></thead>
+              <tbody>
+                {dated.map((p) => (
+                  <tr>
+                    <td data-label="Diucapkan" class="num">{p.date_said}</td>
+                    <td data-label="Janji"><a href={receipt(p.key)}>{p.promised_id}</a></td>
+                    <td data-label="Aturan"><code>{p.deadline_rule}</code></td>
+                    <td data-label="Tenggat" class="num">{p.deadline}</td>
+                    <td data-label="Dasar">{p.deadline_basis_id}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <h3>8.4 Menghitung hasil</h3>
+          <p>
+            Hasil tidak pernah diisi manual. Untuk janji bertenggat, hasilnya <strong>terpenuhi</strong> jika ditepati pada atau
+            sebelum tenggat, <strong>terlewat</strong> jika tenggat sudah lewat tanpa ditepati (atau ditepati terlambat), dan{' '}
+            <strong>masih terbuka</strong> selain itu. Janji bersyarat terpenuhi setelah ditepati dan selain itu tidak punya tenggat.
+            Klaim kemajuan tidak pernah punya tenggat. Satu modul, <code>scripts/promises.mjs</code>, menghitungnya untuk validator,
+            semua halaman, umpan RSS, dan kartu pratinjau, jadi angka tidak mungkin berbeda di dua tempat. Angka utama hanya dihitung
+            dari janji bertenggat. Per {fmtDate(lang, TODAY)}: {counts.missed} dari {counts.dated} janji bertenggat terlewat,{' '}
+            {counts.open} masih terbuka, dan {counts.met} terpenuhi; {counts.conditional} janji bersyarat dan {counts.status_claim}{' '}
+            klaim kemajuan tidak menetapkan tenggat.
+          </p>
+          <h3>8.5 Sanggahan dan koreksi</h3>
+          <p>
+            Siapa pun yang membaca sumber dengan cara berbeda bisa <a href={SITE.issues}>membuka issue</a> dengan menyertakan kalimat
+            sumbernya. Penurunan tenggat itu dicek lagi terhadap sumber. Jika berubah, aturan, tenggat, dan dasarnya diperbarui
+            bersamaan, perubahannya dicatat beserta tanggalnya di <a href={SITE.changelog}>catatan perubahan</a>, dan tafsir
+            sebelumnya tetap tersimpan di riwayat git yang terbuka. Jika dua tafsir tetap mungkin, tenggat yang lebih akhir yang dipakai.
+          </p>
+          <h3>8.6 Satu orang pengode</h3>
+          <p>
+            Setiap janji dikodekan oleh satu orang, yaitu penulis. Tidak ada pengode kedua dan tidak ada ukuran keandalan antarpengode.
+            Sebagai gantinya, setiap penurunan tenggat diterbitkan bersama kalimat yang mendasarinya, dan validator memeriksa setiap
+            tenggat terhadap aturannya, sehingga setiap pembaca bisa menelusuri ulang dan menyanggah setiap tafsir.
+          </p>
+
+          <h2 id="preservation">9. Melestarikan bukti</h2>
+          <p>
+            Halaman berita bisa pindah, berubah, dan hilang. Mengikuti perhatian Berkeley Protocol pada pelestarian informasi digital
+            dari sumber terbuka <Cite k="berkeley" keys={R} />, setiap sumber di balik janji, instrumen, atau catatan disimpan
+            salinannya di Internet Archive.
+          </p>
+          <ul>
+            <li><strong>Caranya.</strong> Setelah setiap pemindaian terjadwal, <code>scripts/archive.mjs</code> mencari salinan yang sudah ada untuk setiap sumber yang belum diarsipkan dan, jika tidak ada, meminta salinan baru, beberapa per pemindaian dengan jeda di antaranya.</li>
+            <li><strong>Di mana terlihat.</strong> Salinan dan tanggalnya dicatat di samping sumbernya di data, dan setiap halaman yang menampilkan sumber itu menautkan salinannya di sebelahnya. Tautan asli tetap menjadi rujukan.</li>
+            <li><strong>Salinan yang belum ada.</strong> Validator memberi peringatan untuk setiap sumber yang belum punya salinan. Salinan yang belum ada tidak pernah menghalangi penerbitan dan tidak pernah disembunyikan.</li>
+            <li><strong>Batasan.</strong> Ada situs yang menolak diarsipkan, dan salinan menampilkan halaman seperti yang dilihat arsip, yang bisa berbeda dari yang dilihat pembaca di balik paywall atau setelah pembaruan langsung. Jika sumber asli berubah atau hilang, salinan itulah catatan tentang apa yang diucapkan.</li>
+          </ul>
+
+          <h2 id="legal-force">10. Menilai kekuatan hukum</h2>
           <p>
             Mengikat atau tidaknya sebuah instrumen ditentukan oleh undang-undang tentang pembentukan peraturan. Pasal 7 ayat (1)
             Undang-Undang Nomor 12 Tahun 2011 menetapkan hierarkinya: UUD 1945, Ketetapan MPR, Undang-Undang atau Perppu, Peraturan
@@ -707,7 +889,7 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             Rancangan sampai saat itu. Penilaian lengkap tiap instrumen ada di halaman <a href={href(lang, 'instruments/')}>Instrumen</a>.
           </p>
 
-          <h2 id="comparison">9. Kerangka perbandingan</h2>
+          <h2 id="comparison">11. Kerangka perbandingan</h2>
           <p>
             Uni Eropa menjadi titik acuan karena punya hukum AI mengikat yang paling lengkap, yaitu AI Act <Cite k="ai-act" keys={R} />,
             dan karena penulis hidup di bawah aturan itu. Perbandingan ini titik acuan, bukan anjuran agar Indonesia meniru Eropa. Aturan
@@ -768,7 +950,7 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             tidak melibatkan data pribadi.
           </p>
 
-          <h2 id="limits">10. Validitas dan keterbatasan</h2>
+          <h2 id="limits">12. Validitas dan keterbatasan</h2>
           <ul>
             <li><strong>Satu pengode.</strong> Satu orang mengodekan semua catatan, jadi keandalan antarpengode tidak bisa diukur. Penyeimbangnya adalah buku kode yang terbuka, pengodean yang terikat pada sumber yang tercantum, dan koreksi terbuka.</li>
             <li><strong>Hanya riset dokumen.</strong> Belum ada wawancara atau permohonan informasi. Catatan ini melihat apa yang dipublikasikan, bukan apa yang diputuskan di balik pintu.</li>
@@ -779,13 +961,13 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             <li><strong>Kebaruan.</strong> Setiap catatan akurat per tanggal terakhir dicek, yang ditampilkan di catatan itu.</li>
           </ul>
 
-          <h2 id="data">11. Reprodusibilitas dan pengelolaan data</h2>
+          <h2 id="data">13. Reprodusibilitas dan pengelolaan data</h2>
           <ul>
             <li><strong>Data terbuka.</strong> Setiap catatan, instrumen, dan tenggat disimpan sebagai berkas YAML biasa di <a href={SITE.repo}>repositori publik</a>, dengan lisensi CC BY 4.0. Kodenya berlisensi MIT.</li>
             <li>
               <strong>Skema.</strong> Catatan divalidasi dengan JSON Schema (draf 2020-12). Validator menambah pemeriksaan yang tidak bisa
               dinyatakan skema: id cocok dengan nama berkas dan tanggalnya, instrumennya ada, tanggalnya nyata, tidak ada sumber yang
-              tercantum dua kali, kutipan mengikuti keempat aturan, tenggat lengkap dan urut dari yang terbaru, dan tidak ada teks yang
+              tercantum dua kali, kutipan mengikuti keempat aturan, setiap janji mengikuti format yang diterbitkan dan tenggatnya sesuai aturannya, dan tidak ada teks yang
               memuat tanda pisah panjang.
             </li>
             <li><strong>Integrasi berkelanjutan.</strong> Setiap perubahan yang diunggah menjalankan validator dan membangun situs penuh. Data yang gagal validasi tidak akan terbit.</li>
@@ -793,7 +975,7 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             <li><strong>Pemantauan otomatis.</strong> Sebuah pemindai memeriksa sumber yang dipantau dua kali seminggu dan mencantumkan petunjuk yang belum ditinjau di <a href={href(lang, 'radar/')}>Radar</a>. Halaman <a href={href(lang, 'method/system/')}>Sistem teknis</a> menjelaskan seluruh alurnya.</li>
           </ul>
 
-          <h2 id="ethics">12. Etika penelitian</h2>
+          <h2 id="ethics">14. Etika penelitian</h2>
           <ul>
             <li><strong>Pejabat publik, bukan orang perseorangan.</strong> Catatan ini merekam apa yang dikatakan dan dilakukan pejabat dan lembaga dalam peran publik mereka. Catatan ini tidak mengidentifikasi orang perseorangan.</li>
             <li><strong>Penyamaran.</strong> Bila konten media sosial yang belum terverifikasi ditampilkan sebagai konteks, wajah dan nama akun disamarkan, dan gambarnya disimpan ulang untuk menghapus metadata.</li>
@@ -801,21 +983,21 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             <li><strong>Independensi.</strong> Monsoon Ledger adalah proyek independen dan bukan nasihat hukum.</li>
           </ul>
 
-          <h2 id="ai">13. Penggunaan AI</h2>
+          <h2 id="ai">15. Penggunaan AI</h2>
           <p>
             Saya sendiri yang meriset sumber, menulis, dan menyunting setiap catatan dan setiap Pendapat saya. Saya memakai Claude untuk
             membantu membuat draf, menerjemahkan, dan membangun situs ini. Teks terjemahan saya periksa sendiri, dan sumber aslinya selalu
             ditautkan supaya Anda bisa mengeceknya.
           </p>
 
-          <h2 id="corrections">14. Koreksi</h2>
+          <h2 id="corrections">16. Koreksi</h2>
           <p>
             Siapa pun bisa <a href={SITE.issues}>melaporkan kesalahan lewat GitHub</a> dengan menyertakan sumber. Kesalahan diperbaiki secara
             terbuka dan tercatat di riwayat publik, dan setiap koreksi dicatat beserta tanggalnya di <a href={SITE.changelog}>catatan perubahan</a>.
             Lihat halaman <a href={href(lang, 'about/')}>Tentang</a> untuk tahu siapa penulisnya.
           </p>
 
-          <h2 id="glossary">15. Glosarium</h2>
+          <h2 id="glossary">17. Glosarium</h2>
           <dl class="glossary">
             <dt>UU (Undang-Undang)</dt><dd>Aturan yang dibentuk DPR bersama Presiden.</dd>
             <dt>PP (Peraturan Pemerintah)</dt><dd>Peraturan untuk menjalankan undang-undang.</dd>

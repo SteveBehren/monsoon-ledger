@@ -19,7 +19,7 @@ export const COLOURS = {
   accent: '#5cc2cc',
   ink: '#e4e9ee',
   soft: '#a3aebb',
-  faint: '#6f7c8b',
+  faint: '#8190a0',
   red: '#ef7b7f',
   amber: '#e2b45c',
   green: '#6fcf9f',

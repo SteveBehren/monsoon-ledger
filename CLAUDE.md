@@ -35,7 +35,23 @@ npm run validate
 git add data && git commit -m "Add entry: ..." && git push
 ```
 
-When a deadline outcome changes, update `data/deadlines.yml` (newest first) and add a dated line to `CHANGELOG.md`. Update `last_checked` on an entry only when its sources were actually re-opened.
+When something happens to a promise, set `outcome_date` and `outcome_source_url` in `data/deadlines.yml`, update the one-line outcome text, and add a dated line to `CHANGELOG.md`. Update `last_checked` on an entry only when its sources were actually re-opened.
+
+## Promises (Janji vs Kenyataan)
+
+- `data/deadlines.yml` follows the Open Promise Ledger format in `docs/standard/v0.1/`. The validator checks it against `docs/standard/v0.1/promise.schema.json`. Change the format only by changing the spec, the schema and the examples together.
+- Every row has a `claim_type`: `dated` (a deadline that can pass), `conditional` (depends on an event, no date) or `status_claim` (progress, no deadline). When one statement holds a status claim and a dated target, they are two rows.
+- Derive deadlines only from the words in the source, with the rules in the spec: the latest plausible reading, the last day of a named period, calendar months from `date_said` clamped to month ends, and the deadline day counted in WIB. Record `deadline_rule`, `deadline`, `deadline_precision`, and the wording in `deadline_basis_en` and `deadline_basis_id`. The validator recomputes every deadline from its rule.
+- Never write or hand-set an outcome. `scripts/promises.mjs` computes met, missed, open or no deadline on the build day, for every page, the feeds, the cards and the validator. Do not add a second way to compute or count outcomes anywhere.
+- Headline counts are among dated promises only and always show the day they are as of.
+- Record a speaker's role only as the row's own source states it. List every new derivation for the author to confirm.
+- Each promise has a receipt at `/[lang]/promises/<key>/`, keyed by `promiseKey` (date said and speaker), shared with the ontology and the ledger anchor. Receipts never show a quote unless the source gives one and the quote rules allow it. Share cards come only from `scripts/make-share-images.mjs` at build time and always show their as-of day.
+
+## Evidence preservation
+
+- `scripts/archive.mjs` adds `archive_url` and `archived_at` beside sources in `data/deadlines.yml`, `data/instruments.yml` and the entries, and nothing else. It runs after each scheduled scan and must never block a scan or a build.
+- Missing archives are validator warnings, not failures. Never fake or guess an archive url; only record one the archive returned.
+- Wherever a source is shown, show its archived copy next to it.
 
 ## Build log
 
@@ -51,7 +67,7 @@ When a deadline outcome changes, update `data/deadlines.yml` (newest first) and 
 ## Monitoring layer (the Radar)
 
 - `.github/workflows/scan.yml` runs `npm run scan` every Monday and Thursday at 06:17 WIB and commits `data/radar.yml`, `data/scan-log.yml` and `data/watch/seen.json` to main.
-- The scanner only ever writes those three files. It never creates or edits entries, instruments or deadlines. Never change that.
+- The scanner only ever writes those three files. It never creates or edits entries, instruments or deadlines. Never change that. The archive step in the same workflow only adds archive fields beside sources (see Evidence preservation).
 - Radar leads are unreviewed. To review one, set `status` to `reviewed`, `dismissed` or `promoted` (with `promoted_to: <entry id>`). Promote only after reading the source and writing a full entry.
 - Sources and scoring live in `data/watch/sources.yml` and `data/watch/keywords.yml`. Test changes with `npm test` and `npm run scan -- --dry-run --no-claude`.
 - Claude triage runs only if the `ANTHROPIC_API_KEY` repository secret exists. Its summaries restate headlines and are labelled as machine summaries on the site.
@@ -61,6 +77,9 @@ When a deadline outcome changes, update `data/deadlines.yml` (newest first) and 
 - `data/schema.json`: the entry schema. `scripts/validate.mjs` adds checks the schema cannot express (id equals file name, instrument exists, quote rules, deadlines fields, no dashes).
 - `data/instruments.yml`, `data/deadlines.yml`: shared data.
 - `data/ontology.yml`, `scripts/ontology.mjs` (tests in `scripts/ontology.test.mjs`): the ontology layer. `data/build-log.yml`: the build log.
+- `scripts/promises.mjs` (tests in `scripts/promises.test.mjs`): deadline rules and computed outcomes. `scripts/archive.mjs` (tests in `scripts/archive.test.mjs`): evidence preservation.
+- `docs/standard/`: the promise format, its schema, examples and adopters. `kit/`: a data skeleton and guide for other countries, checked with `npm run validate -- --data kit/data`.
+- `scripts/make-share-images.mjs` and `scripts/fonts/` (Inter, OFL): every preview card and icon. The fonts are for images only; the site loads no fonts.
 - `data/radar.yml`, `data/scan-log.yml`, `data/watch/`: the monitoring layer. `scripts/scan.mjs` and `scripts/scan/` (tests in `scripts/scan/scan.test.mjs`, run with `npm test`).
 - `site/`: Astro static site, no runtime server, no client framework. UI strings in `site/src/lib/i18n.ts`, data loading in `site/src/lib/data.ts`.
 - Dependencies are installed in `site/node_modules` (`npm run setup`). Scripts resolve them from there.

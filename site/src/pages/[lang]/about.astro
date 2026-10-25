@@ -247,20 +247,46 @@ const h = (i: number) => ({ id: ids[i], text: toc[i] });
       <h2 id={h(5).id}>{h(5).text}</h2>
       {
         lang === 'en' ? (
-          <p>
-            The ledger keeps the original Indonesian wording next to an English reading, so a reader abroad can see exactly what was said.
-            It shows the evidence level on every claim, keeps a public log of corrections, and connects entries, instruments, promises,
-            officials and documents in one <a href={href(lang, 'ontology/')}>ontology</a>. A scanner checks the news twice a week, but only the
-            author can publish a claim. The whole build is recorded on the <a href={href(lang, 'method/system/')}>Technical system</a> page.
-          </p>
+          <>
+            <p>
+              The ledger keeps the original Indonesian wording next to an English reading, so a reader abroad can see exactly what was
+              said. It shows the evidence level on every claim, keeps a public log of corrections, and connects entries, instruments,
+              promises, officials and documents in one <a href={href(lang, 'ontology/')}>ontology</a>.
+            </p>
+            <p>
+              Two parts are meant to be reused. The <a href={href(lang, 'method/standard/')}>promise format</a> is an open, documented way
+              to record government promises with deadlines derived by published rules and outcomes computed rather than judged, with a
+              schema, worked examples and a kit for a ledger in another country. Every promise also has a permanent{' '}
+              <a href={href(lang, 'ledger/')}>receipt</a>: what was said, by whom, when it fell due and how late it is, with the source, a
+              preserved copy, citation formats and a card that stays accurate when shared.
+            </p>
+            <p>
+              A scanner checks the news twice a week, but only the author can publish a claim. Claude, an AI model, helps build the site,
+              draft and translate text for the author to review, and give an optional second opinion on scanner headlines; how it is used
+              is set out on the <a href={href(lang, 'method/system/')}>Technical system</a> page, together with the whole build history.
+            </p>
+          </>
         ) : (
-          <p>
-            Catatan ini menyimpan kata-kata asli dalam bahasa Indonesia di samping terjemahan bahasa Inggris, supaya pembaca di luar negeri tahu
-            persis apa yang diucapkan. Setiap klaim menampilkan tingkat buktinya, koreksi dicatat terbuka, dan catatan, instrumen, janji,
-            pejabat, serta dokumen dihubungkan dalam satu <a href={href(lang, 'ontology/')}>ontologi</a>. Pemindai memeriksa berita dua kali
-            seminggu, tetapi hanya penulis yang boleh menerbitkan klaim. Seluruh proses pembangunannya dicatat di halaman{' '}
-            <a href={href(lang, 'method/system/')}>Sistem teknis</a>.
-          </p>
+          <>
+            <p>
+              Catatan ini menyimpan kata-kata asli dalam bahasa Indonesia di samping terjemahan bahasa Inggris, supaya pembaca di luar
+              negeri tahu persis apa yang diucapkan. Setiap klaim menampilkan tingkat buktinya, koreksi dicatat terbuka, dan catatan,
+              instrumen, janji, pejabat, serta dokumen dihubungkan dalam satu <a href={href(lang, 'ontology/')}>ontologi</a>.
+            </p>
+            <p>
+              Ada dua bagian yang dimaksudkan untuk dipakai ulang. <a href={href(lang, 'method/standard/')}>Format janji</a> adalah cara
+              terbuka dan terdokumentasi untuk mencatat janji pemerintah, dengan tenggat yang diturunkan dari aturan yang diterbitkan dan
+              hasil yang dihitung, bukan dinilai, lengkap dengan skema, contoh nyata, dan kit untuk catatan di negara lain. Setiap janji
+              juga punya <a href={href(lang, 'ledger/')}>bukti janji</a> yang tetap: apa yang diucapkan, oleh siapa, kapan tenggatnya, dan
+              seberapa terlambat, lengkap dengan sumber, salinan arsip, format kutipan, dan kartu yang tetap akurat saat dibagikan.
+            </p>
+            <p>
+              Pemindai memeriksa berita dua kali seminggu, tetapi hanya penulis yang boleh menerbitkan klaim. Claude, sebuah model AI,
+              membantu membangun situs, membuat draf dan terjemahan untuk ditinjau penulis, dan memberi pendapat kedua yang opsional atas
+              judul temuan pemindai; cara pemakaiannya dijelaskan di halaman{' '}
+              <a href={href(lang, 'method/system/')}>Sistem teknis</a>, bersama seluruh riwayat pembangunannya.
+            </p>
+          </>
         )
       }
 

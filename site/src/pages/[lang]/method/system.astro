@@ -36,6 +36,8 @@ const toc = {
     ['repo', 'Repository map'],
     ['model', 'Data model'],
     ['scanner', 'The scanner'],
+    ['promises', 'Promises, receipts and cards'],
+    ['archive', 'Evidence archive'],
     ['automation', 'Schedule and deployment'],
     ['quality', 'Quality gates'],
     ['workflow', 'From lead to entry'],
@@ -51,6 +53,8 @@ const toc = {
     ['repo', 'Peta repositori'],
     ['model', 'Model data'],
     ['scanner', 'Pemindai'],
+    ['promises', 'Janji, bukti janji, dan kartu'],
+    ['archive', 'Arsip bukti'],
     ['automation', 'Jadwal dan penerbitan'],
     ['quality', 'Gerbang mutu'],
     ['workflow', 'Dari petunjuk ke catatan'],
@@ -68,8 +72,10 @@ const pipeline = {
     ['Scanner', 'Twice a week, GitHub Actions runs npm run scan. It fetches, parses, scores and deduplicates.'],
     ['Triage', 'Optional. If an API key is set, Claude gives a second opinion on each new headline.'],
     ['Radar', 'New leads are written to data/radar.yml and appear on the Radar page, marked unreviewed.'],
+    ['Archive', 'Every source without a preserved copy gets one in the Internet Archive, recorded next to the source.'],
     ['Author', 'The author opens the source, judges it, and either dismisses the lead or writes an entry.'],
-    ['Gates', 'Every change passes the schema, the validator, the tests and a full build.'],
+    ['Gates', 'Every change passes the schemas, the validator, the tests and a full build.'],
+    ['Outcomes', 'Each build computes every promise outcome as of that day and renders the receipts and their share cards.'],
     ['Site', 'A commit to main triggers a Vercel build. The static site updates within minutes.'],
   ],
   id: [
@@ -77,8 +83,10 @@ const pipeline = {
     ['Pemindai', 'Dua kali seminggu, GitHub Actions menjalankan npm run scan. Pemindai mengambil, mengurai, menilai, dan menyaring duplikat.'],
     ['Triase', 'Opsional. Bila kunci API dipasang, Claude memberi pendapat kedua untuk setiap judul baru.'],
     ['Radar', 'Petunjuk baru ditulis ke data/radar.yml dan tampil di halaman Radar dengan tanda belum ditinjau.'],
+    ['Arsip', 'Setiap sumber yang belum punya salinan disimpan di Internet Archive, dan salinannya dicatat di samping sumber itu.'],
     ['Penulis', 'Penulis membuka sumbernya, menilainya, lalu mengabaikan petunjuk itu atau menulis catatan.'],
     ['Gerbang', 'Setiap perubahan melewati skema, validator, pengujian, dan pembangunan situs penuh.'],
+    ['Hasil', 'Setiap pembangunan menghitung hasil semua janji per hari itu dan membuat halaman bukti janji beserta kartu pratinjaunya.'],
     ['Situs', 'Commit ke main memicu pembangunan di Vercel. Situs statis diperbarui dalam hitungan menit.'],
   ],
 }[lang];
@@ -99,7 +107,7 @@ const lede = {
 const repoMap = `data/
   entries/*.yml        one file per entry (the ledger itself)
   instruments.yml      laws, drafts and guidance, with dossier fields
-  deadlines.yml        public promises, newest first
+  deadlines.yml        public promises, newest first, in the promise format
   schema.json          JSON Schema for entries
   ontology.yml         institutions and curated, sourced links
   build-log.yml        every change asked for, shown below
@@ -108,11 +116,15 @@ const repoMap = `data/
   watch/sources.yml    what the scanner reads
   watch/keywords.yml   how it scores
   watch/seen.json      ids already seen, so leads never return
+docs/standard/v0.1/   the promise format: spec, JSON Schema, worked examples
+kit/                   a starting point for a ledger in another country
 scripts/
-  validate.mjs         schema and project rules, run before every build
+  validate.mjs         schemas and project rules, run before every build
+  promises.mjs         deadline rules and computed outcomes, used everywhere
+  archive.mjs          preserved copies of sources in the Internet Archive
   ontology.mjs         fuses all data into one graph of objects and links
-  ontology.test.mjs    tests for the graph and its link rules
-  make-share-images.mjs  icons and link preview cards
+  make-share-images.mjs  link preview cards and icons (resvg, fonts/)
+  *.test.mjs           tests for promises, archive and ontology
   scan.mjs             the monitoring layer
   scan/parse.mjs       RSS, Atom and HTML link parsing
   scan/score.mjs       scoring, deduplication, dash rule
@@ -148,14 +160,16 @@ site/                  Astro static site, no client framework
         lang === 'en' ? (
           <p>
             The design has one rule at its centre: automation may find things, but only the author may publish a claim. The scanner
-            writes to the Radar and nowhere else. Entries, instruments and deadlines change only through a human edit that passes the
-            same checks as every other change.
+            writes to the Radar and nowhere else, and the archiver only adds links to preserved copies beside sources. Entries,
+            instruments and promises change only through a human edit that passes the same checks as every other change. Promise
+            outcomes are never edited at all: they are computed.
           </p>
         ) : (
           <p>
             Desainnya berpusat pada satu aturan: otomatisasi boleh menemukan, tetapi hanya penulis yang boleh menerbitkan klaim. Pemindai
-            hanya menulis ke Radar. Catatan, instrumen, dan tenggat hanya berubah lewat suntingan manusia yang melewati pemeriksaan yang
-            sama dengan perubahan lain.
+            hanya menulis ke Radar, dan pengarsip hanya menambahkan tautan salinan arsip di samping sumber. Catatan, instrumen, dan janji
+            hanya berubah lewat suntingan manusia yang melewati pemeriksaan yang sama dengan perubahan lain. Hasil janji tidak pernah
+            disunting sama sekali: hasilnya dihitung.
           </p>
         )
       }
@@ -169,10 +183,11 @@ site/                  Astro static site, no client framework
           </thead>
           <tbody>
             <tr><td data-label={cols[0]}>Data</td><td data-label={cols[1]}>YAML files, JSON Schema 2020-12</td><td data-label={cols[2]}>{lang === 'en' ? 'Readable in a diff, editable by hand, versioned in git.' : 'Mudah dibaca di diff, bisa disunting manual, terekam di git.'}</td></tr>
-            <tr><td data-label={cols[0]}>{lang === 'en' ? 'Validation' : 'Validasi'}</td><td data-label={cols[1]}>Ajv 8, js-yaml 4, Node.js</td><td data-label={cols[2]}>{lang === 'en' ? 'Rules the schema cannot express run in a script before every build.' : 'Aturan yang tidak bisa dinyatakan skema dijalankan lewat skrip sebelum setiap build.'}</td></tr>
+            <tr><td data-label={cols[0]}>{lang === 'en' ? 'Validation' : 'Validasi'}</td><td data-label={cols[1]}>Ajv 8, js-yaml 4, Node.js</td><td data-label={cols[2]}>{lang === 'en' ? 'Entries and promises are checked against their published schemas. Rules a schema cannot express run in a script before every build.' : 'Catatan dan janji diperiksa dengan skema yang diterbitkan. Aturan yang tidak bisa dinyatakan skema dijalankan lewat skrip sebelum setiap build.'}</td></tr>
             <tr><td data-label={cols[0]}>{lang === 'en' ? 'Site' : 'Situs'}</td><td data-label={cols[1]}>Astro 7, static output</td><td data-label={cols[2]}>{lang === 'en' ? 'No server, no client framework, no tracking. Small scripts only for filters and the theme.' : 'Tanpa server, tanpa kerangka klien, tanpa pelacakan. Skrip kecil hanya untuk filter dan tema.'}</td></tr>
             <tr><td data-label={cols[0]}>{lang === 'en' ? 'Monitoring' : 'Pemantauan'}</td><td data-label={cols[1]}>Node.js scanner, GitHub Actions cron</td><td data-label={cols[2]}>{lang === 'en' ? 'Free, scheduled, logged, and every result is a reviewable commit.' : 'Gratis, terjadwal, tercatat, dan setiap hasilnya berupa commit yang bisa ditinjau.'}</td></tr>
             <tr><td data-label={cols[0]}>{lang === 'en' ? 'Triage' : 'Triase'}</td><td data-label={cols[1]}>Claude API through the official Anthropic SDK, structured JSON output</td><td data-label={cols[2]}>{lang === 'en' ? 'Optional second opinion on relevance. The scanner works without it.' : 'Pendapat kedua yang opsional tentang relevansi. Pemindai tetap bekerja tanpanya.'}</td></tr>
+            <tr><td data-label={cols[0]}>{lang === 'en' ? 'Share cards' : 'Kartu pratinjau'}</td><td data-label={cols[1]}>resvg-js, Inter (SIL Open Font License)</td><td data-label={cols[2]}>{lang === 'en' ? 'Cards drawn as SVG and rendered to PNG during the build, so every card matches the data it was built from. The font is used for the images only, never loaded by the site.' : 'Kartu digambar sebagai SVG lalu dirender menjadi PNG saat pembangunan, jadi setiap kartu sesuai dengan data saat dibuat. Fonnya hanya dipakai untuk gambar, tidak pernah dimuat situs.'}</td></tr>
             <tr><td data-label={cols[0]}>{lang === 'en' ? 'Hosting' : 'Hosting'}</td><td data-label={cols[1]}>Vercel, Node 24</td><td data-label={cols[2]}>{lang === 'en' ? 'Builds every push to main and serves static files.' : 'Membangun setiap push ke main dan menyajikan berkas statis.'}</td></tr>
           </tbody>
         </table>
@@ -187,14 +202,14 @@ site/                  Astro static site, no client framework
           <ul>
             <li><strong>Entry</strong> (<a href={file('data/schema.json')}>schema</a>): id, date, instrument, status, evidence level, titles and summaries in both languages, the four Safety lens codes, last checked date, EU comparison, the author's take, and at least one source with title, outlet, language and URL. An optional quote must be under 15 words.</li>
             <li><strong>Instrument</strong>: id, names, type, status, legal force, a source, and dossier fields: issuer, legal form, key points, EU counterpart, references, and whether the author has read it in full.</li>
-            <li><strong>Deadline</strong>: date said, who said it, the promise and the outcome in both languages, an outcome code, and the source.</li>
+            <li><strong>Promise</strong> (<a href={href(lang, 'method/standard/')}>format</a>, <a href={file('docs/standard/v0.1/promise.schema.json')}>schema</a>): date said, country, who said it and their role, the claim type, for dated promises a deadline rule, deadline and precision, the wording behind the deadline, the promise and what happened since in both languages, an optional outcome date with its source, the evidence level, and the source with its archived copy. There is no outcome field: the outcome is computed.</li>
             <li><strong>Lead</strong>: id (a hash of the normalised URL), date found, date published, headline, URL, outlet, country, language, source id, score, matched terms, an optional instrument hint, an optional Claude triage, and a review status: new, reviewed, promoted or dismissed.</li>
           </ul>
         ) : (
           <ul>
             <li><strong>Catatan</strong> (<a href={file('data/schema.json')}>skema</a>): id, tanggal, instrumen, status, tingkat bukti, judul dan ringkasan dalam dua bahasa, empat kode Lensa keselamatan, tanggal terakhir dicek, perbandingan Uni Eropa, pendapat penulis, dan paling sedikit satu sumber dengan judul, media, bahasa, dan URL. Kutipan opsional harus kurang dari 15 kata.</li>
             <li><strong>Instrumen</strong>: id, nama, jenis, status, kekuatan hukum, sumber, dan isian berkas: penerbit, bentuk hukum, pokok isi, padanan Uni Eropa, rujukan, dan apakah penulis sudah membacanya lengkap.</li>
-            <li><strong>Tenggat</strong>: tanggal diucapkan, siapa yang mengucapkan, janji dan hasilnya dalam dua bahasa, kode hasil, dan sumbernya.</li>
+            <li><strong>Janji</strong> (<a href={href(lang, 'method/standard/')}>format</a>, <a href={file('docs/standard/v0.1/promise.schema.json')}>skema</a>): tanggal diucapkan, negara, siapa yang mengucapkan dan jabatannya, jenis klaim, untuk janji bertenggat aturan tenggat, tenggat, dan ketepatannya, kalimat yang mendasari tenggat, janji dan apa yang terjadi sesudahnya dalam dua bahasa, tanggal hasil opsional beserta sumbernya, tingkat bukti, serta sumber beserta salinan arsipnya. Tidak ada kolom hasil: hasilnya dihitung.</li>
             <li><strong>Petunjuk</strong>: id (hash dari URL yang dinormalkan), tanggal ditemukan, tanggal terbit, judul, URL, media, negara, bahasa, id sumber, skor, kata yang cocok, petunjuk instrumen opsional, triase Claude opsional, dan status tinjauan: baru, sudah ditinjau, dijadikan catatan, atau diabaikan.</li>
           </ul>
         )
@@ -235,12 +250,56 @@ site/                  Astro static site, no client framework
         )
       }
 
-      <h2 id="automation">6. {toc[5][1]}</h2>
+      <h2 id="promises">6. {toc[5][1]}</h2>
+      {
+        lang === 'en' ? (
+          <ul>
+            <li><strong>One outcome module.</strong> <a href={file('scripts/promises.mjs')}>scripts/promises.mjs</a> derives deadlines from their rules and computes each promise's outcome (met, missed, open or no deadline), its days past or left, and the headline counts. The validator, the ontology, every page, the RSS feeds and the share cards all call it, so a number cannot differ between two places. Outcomes are computed in Western Indonesian Time and never stored.</li>
+            <li><strong>As of the build day.</strong> Every count states the day it was computed for. A small script in the page layout brings day counts on receipts up to the reader's day. If a deadline has passed since the build, the page keeps its build-day values, which agree with each other, until the next build, at least twice a week through the scan commit.</li>
+            <li><strong>Receipts.</strong> Each promise has a permanent page at <code>/en/promises/&lt;key&gt;/</code> and <code>/id/promises/&lt;key&gt;/</code>, where the key is the date said and the speaker, the same key as its ontology object. It shows the wording in Bahasa Indonesia and English, the deadline and its basis, the computed outcome and day count, the evidence, the source and its archived copy, citations in plain text, APA and BibTeX with the data version (the short hash of the last commit that changed data/), and the entries and instruments it connects to.</li>
+            <li><strong>Share cards.</strong> <a href={file('scripts/make-share-images.mjs')}>scripts/make-share-images.mjs</a> draws each card as SVG and renders it to PNG with resvg during the site build: one card per receipt per language, plus the site card. Each card shows its outcome, its day count and the day it was made. The same script regenerates the site icons. The full build takes seconds.</li>
+            <li><strong>Feeds.</strong> The RSS feeds get an item when a promise changes outcome, dated the day after a missed deadline or the day a promise was kept.</li>
+            <li><strong>Tests.</strong> <a href={file('scripts/promises.test.mjs')}>promises.test.mjs</a> covers leap years, month ends, months counted from the 31st, the deadline day itself, a promise kept on the deadline day, conditional and status claims, and the time zone.</li>
+          </ul>
+        ) : (
+          <ul>
+            <li><strong>Satu modul hasil.</strong> <a href={file('scripts/promises.mjs')}>scripts/promises.mjs</a> menurunkan tenggat dari aturannya dan menghitung hasil setiap janji (terpenuhi, terlewat, masih terbuka, atau tanpa tenggat), jumlah hari lewat atau tersisa, dan angka utama. Validator, ontologi, semua halaman, umpan RSS, dan kartu pratinjau memanggil modul ini, jadi angka tidak mungkin berbeda di dua tempat. Hasil dihitung menurut WIB dan tidak pernah disimpan.</li>
+            <li><strong>Per hari pembangunan.</strong> Setiap angka menyebut hari penghitungannya. Skrip kecil di tata letak halaman memperbarui jumlah hari di halaman bukti janji ke hari pembaca. Jika sebuah tenggat lewat setelah pembangunan, halaman tetap memakai angka hari pembangunan, yang saling sesuai, sampai pembangunan berikutnya, paling sedikit dua kali seminggu lewat commit pemindaian.</li>
+            <li><strong>Bukti janji.</strong> Setiap janji punya halaman tetap di <code>/en/promises/&lt;kunci&gt;/</code> dan <code>/id/promises/&lt;kunci&gt;/</code>, dengan kunci berupa tanggal diucapkan dan nama pembicara, sama dengan kunci objeknya di ontologi. Halaman itu menampilkan kata-kata dalam bahasa Indonesia dan Inggris, tenggat dan dasarnya, hasil yang dihitung dan jumlah harinya, bukti, sumber dan salinan arsipnya, kutipan dalam teks biasa, APA, dan BibTeX beserta versi datanya (hash pendek commit terakhir yang mengubah data/), serta catatan dan instrumen yang terhubung.</li>
+            <li><strong>Kartu pratinjau.</strong> <a href={file('scripts/make-share-images.mjs')}>scripts/make-share-images.mjs</a> menggambar setiap kartu sebagai SVG lalu merendernya menjadi PNG dengan resvg saat situs dibangun: satu kartu per bukti janji per bahasa, ditambah kartu situs. Setiap kartu menampilkan hasil, jumlah hari, dan hari kartu dibuat. Skrip yang sama membuat ulang ikon situs. Seluruh pembangunan hanya butuh beberapa detik.</li>
+            <li><strong>Umpan RSS.</strong> Umpan RSS mendapat satu item ketika hasil sebuah janji berubah, bertanggal sehari setelah tenggat yang terlewat atau hari janji ditepati.</li>
+            <li><strong>Pengujian.</strong> <a href={file('scripts/promises.test.mjs')}>promises.test.mjs</a> menguji tahun kabisat, akhir bulan, bulan yang dihitung dari tanggal 31, hari tenggat itu sendiri, janji yang ditepati tepat pada hari tenggat, janji bersyarat dan klaim kemajuan, serta zona waktu.</li>
+          </ul>
+        )
+      }
+
+      <h2 id="archive">7. {toc[6][1]}</h2>
+      {
+        lang === 'en' ? (
+          <ul>
+            <li><strong>What.</strong> <a href={file('scripts/archive.mjs')}>scripts/archive.mjs</a> (<code>npm run archive</code>) gives every source url in the promises, the instruments and the entries a preserved copy in the Internet Archive.</li>
+            <li><strong>How.</strong> It asks the Wayback Machine availability API for an existing snapshot first. If there is none, it requests one through Save Page Now, at most eight per run with a twelve second pause between requests.</li>
+            <li><strong>Where it writes.</strong> Only <code>archive_url</code> and <code>archived_at</code>, beside each source, by editing lines so comments and folded text stay exactly as they were. It never changes any other field.</li>
+            <li><strong>When.</strong> After every scheduled scan. It may fail without stopping the scan or the build; failures are logged in the workflow, and the validator warns about every source still without a copy.</li>
+            <li><strong>Tests.</strong> <a href={file('scripts/archive.test.mjs')}>archive.test.mjs</a> mocks the network and checks snapshot lookup, saving, rate limiting, failure handling, dry runs and that the file edits touch nothing else.</li>
+          </ul>
+        ) : (
+          <ul>
+            <li><strong>Apa.</strong> <a href={file('scripts/archive.mjs')}>scripts/archive.mjs</a> (<code>npm run archive</code>) menyimpan salinan setiap url sumber janji, instrumen, dan catatan di Internet Archive.</li>
+            <li><strong>Caranya.</strong> Skrip ini lebih dulu menanyakan salinan yang sudah ada ke API ketersediaan Wayback Machine. Jika tidak ada, skrip meminta salinan baru lewat Save Page Now, paling banyak delapan per pemindaian dengan jeda dua belas detik di antaranya.</li>
+            <li><strong>Apa yang ditulis.</strong> Hanya <code>archive_url</code> dan <code>archived_at</code>, di samping setiap sumber, dengan menyunting baris sehingga komentar dan teks lipat tetap persis seperti semula. Kolom lain tidak pernah diubah.</li>
+            <li><strong>Kapan.</strong> Setelah setiap pemindaian terjadwal. Skrip ini boleh gagal tanpa menghentikan pemindaian atau pembangunan; kegagalannya tercatat di alur kerja, dan validator memberi peringatan untuk setiap sumber yang belum punya salinan.</li>
+            <li><strong>Pengujian.</strong> <a href={file('scripts/archive.test.mjs')}>archive.test.mjs</a> memalsukan jaringan dan memeriksa pencarian salinan, penyimpanan, pembatasan laju, penanganan kegagalan, uji coba tanpa menulis, dan bahwa suntingan berkas tidak menyentuh hal lain.</li>
+          </ul>
+        )
+      }
+
+      <h2 id="automation">8. {toc[7][1]}</h2>
       {
         lang === 'en' ? (
           <ul>
             <li><strong>When.</strong> Every Monday and Thursday at 06:17 Western Indonesian Time (cron <code>17 23 * * 0,3</code> in UTC), so fresh leads are waiting at the start of the working day in Jakarta. Twice a week matches how often Indonesian AI policy news actually moves, without flooding the Radar.</li>
-              <li><strong>What runs.</strong> The <a href={file('.github/workflows/scan.yml')}>scan workflow</a> installs dependencies, runs the tests, runs the scan, validates the data and builds the site. Only if all of that passes does it commit radar.yml, scan-log.yml and seen.json to main.</li>
+              <li><strong>What runs.</strong> The <a href={file('.github/workflows/scan.yml')}>scan workflow</a> installs dependencies, runs the tests, runs the scan, archives sources, validates the data and builds the site. Only if the validation and the build pass does it commit radar.yml, scan-log.yml, seen.json and any new archive links to main.</li>
             <li><strong>Publishing.</strong> The commit triggers Vercel, which builds and serves the new static site. No server is involved at any point.</li>
             <li><strong>On pull requests.</strong> Changes to the scanner run it as a dry run against the live sources, without Claude and without committing, so a change is tested on real feeds before it is merged.</li>
             <li><strong>On demand.</strong> The workflow can also be started by hand from the GitHub Actions tab.</li>
@@ -248,7 +307,7 @@ site/                  Astro static site, no client framework
         ) : (
           <ul>
             <li><strong>Kapan.</strong> Setiap Senin dan Kamis pukul 06.17 WIB (cron <code>17 23 * * 0,3</code> dalam UTC), supaya petunjuk baru sudah menunggu di awal hari kerja di Jakarta. Dua kali seminggu sesuai dengan seberapa sering berita kebijakan AI Indonesia benar-benar bergerak, tanpa membanjiri Radar.</li>
-            <li><strong>Apa yang dijalankan.</strong> <a href={file('.github/workflows/scan.yml')}>Alur kerja pemindaian</a> memasang dependensi, menjalankan pengujian, menjalankan pemindaian, memvalidasi data, dan membangun situs. Hanya bila semuanya lolos, alur kerja meng-commit radar.yml, scan-log.yml, dan seen.json ke main.</li>
+            <li><strong>Apa yang dijalankan.</strong> <a href={file('.github/workflows/scan.yml')}>Alur kerja pemindaian</a> memasang dependensi, menjalankan pengujian, menjalankan pemindaian, mengarsipkan sumber, memvalidasi data, dan membangun situs. Hanya bila validasi dan pembangunan lolos, alur kerja meng-commit radar.yml, scan-log.yml, seen.json, dan tautan arsip baru ke main.</li>
             <li><strong>Penerbitan.</strong> Commit itu memicu Vercel, yang membangun dan menyajikan situs statis yang baru. Tidak ada server yang terlibat.</li>
             <li><strong>Pada pull request.</strong> Perubahan pada pemindai menjalankannya sebagai uji coba terhadap sumber asli, tanpa Claude dan tanpa commit, supaya perubahan diuji pada umpan nyata sebelum digabung.</li>
             <li><strong>Sesuai permintaan.</strong> Alur kerja ini juga bisa dijalankan manual dari tab GitHub Actions.</li>
@@ -256,26 +315,32 @@ site/                  Astro static site, no client framework
         )
       }
 
-      <h2 id="quality">7. {toc[6][1]}</h2>
+      <h2 id="quality">9. {toc[8][1]}</h2>
       {
         lang === 'en' ? (
           <p>
-            Every push, by the author or by the scanner, passes four gates in <a href={file('.github/workflows/ci.yml')}>CI</a>: the scanner tests, the
-            validator, the JSON Schema and a full site build. The validator checks entries, instruments, deadlines, the watched sources and
-            every Radar lead (ids, dates, URLs, status codes, countries, instrument references), and rejects any em or en dash anywhere in
-            the project. The checks applied to entries are listed on the <a href={href(lang, 'method/#data')}>Research protocol</a> page.
+            Every push, by the author or by the scanner, passes four gates in <a href={file('.github/workflows/ci.yml')}>CI</a>: the tests (scanner,
+            promises, ontology and archive), the validator, the JSON Schemas and a full site build. The validator checks entries,
+            instruments, promises, the watched sources and every Radar lead. Promises are checked against the published promise schema,
+            and every deadline is recomputed from its rule. The worked examples in the format's documentation are checked the same way.
+            Sources without an archived copy are reported as warnings, never as failures. Any em or en dash anywhere in the project is
+            rejected. With <code>npm run validate -- --data &lt;folder&gt;</code> the same validator checks only a promise ledger's data folder,
+            such as the kit. The checks applied to entries are listed on the <a href={href(lang, 'method/#data')}>Research protocol</a> page.
           </p>
         ) : (
           <p>
-            Setiap push, oleh penulis maupun pemindai, melewati empat gerbang di <a href={file('.github/workflows/ci.yml')}>CI</a>: pengujian pemindai,
-            validator, JSON Schema, dan pembangunan situs penuh. Validator memeriksa catatan, instrumen, tenggat, sumber yang dipantau, dan
-            setiap petunjuk Radar (id, tanggal, URL, kode status, negara, rujukan instrumen), dan menolak tanda pisah panjang di mana pun di
-            proyek ini. Pemeriksaan untuk catatan dijelaskan di halaman <a href={href(lang, 'method/#data')}>Protokol penelitian</a>.
+            Setiap push, oleh penulis maupun pemindai, melewati empat gerbang di <a href={file('.github/workflows/ci.yml')}>CI</a>: pengujian (pemindai,
+            janji, ontologi, dan arsip), validator, JSON Schema, dan pembangunan situs penuh. Validator memeriksa catatan, instrumen, janji,
+            sumber yang dipantau, dan setiap petunjuk Radar. Janji diperiksa dengan skema janji yang diterbitkan, dan setiap tenggat
+            dihitung ulang dari aturannya. Contoh di dokumentasi format diperiksa dengan cara yang sama. Sumber tanpa salinan arsip
+            dilaporkan sebagai peringatan, bukan kegagalan. Tanda pisah panjang di mana pun di proyek ini ditolak. Dengan{' '}
+            <code>npm run validate -- --data &lt;folder&gt;</code> validator yang sama hanya memeriksa folder data sebuah catatan janji, misalnya
+            kit. Pemeriksaan untuk catatan dijelaskan di halaman <a href={href(lang, 'method/#data')}>Protokol penelitian</a>.
           </p>
         )
       }
 
-      <h2 id="workflow">8. {toc[7][1]}</h2>
+      <h2 id="workflow">10. {toc[9][1]}</h2>
       {
         lang === 'en' ? (
           <ol>
@@ -296,7 +361,7 @@ site/                  Astro static site, no client framework
         )
       }
 
-      <h2 id="claude">9. {toc[8][1]}</h2>
+      <h2 id="claude">11. {toc[10][1]}</h2>
       {
         lang === 'en' ? (
           <>
@@ -365,13 +430,13 @@ site/                  Astro static site, no client framework
         </ol>
       </div>
 
-      <h2 id="maintenance">10. {toc[9][1]}</h2>
+      <h2 id="maintenance">12. {toc[11][1]}</h2>
       {
         lang === 'en' ? (
           <ul>
             <li><strong>Twice a week, automatic.</strong> The scan runs, the Radar updates and the scan history records it.</li>
             <li><strong>Weekly, the author.</strong> Review the Radar, dismiss or promote each new lead, and write entries for what holds up.</li>
-            <li><strong>When an outcome changes.</strong> Update data/deadlines.yml and add a dated line to the changelog.</li>
+            <li><strong>When something happens to a promise.</strong> Set its outcome_date and outcome_source_url in data/deadlines.yml, update the one-line outcome text, and add a dated line to the changelog. The outcome itself is computed. A new promise gets a row with its claim type, deadline rule and the wording behind it.</li>
             <li><strong>Monthly.</strong> Run <code>npm run links</code>, re-open the sources of entries listed under "due for re-checking" on the Radar, and update their last checked dates.</li>
             <li><strong>When coverage drifts.</strong> Add or adjust sources and terms in data/watch/. The pull request dry run shows the effect on live feeds before merging.</li>
           </ul>
@@ -379,14 +444,14 @@ site/                  Astro static site, no client framework
           <ul>
             <li><strong>Dua kali seminggu, otomatis.</strong> Pemindaian berjalan, Radar diperbarui, dan riwayat pemindaian mencatatnya.</li>
             <li><strong>Mingguan, penulis.</strong> Tinjau Radar, abaikan atau jadikan catatan setiap petunjuk baru, dan tulis catatan untuk yang bertahan.</li>
-            <li><strong>Bila hasil janji berubah.</strong> Perbarui data/deadlines.yml dan tambahkan baris bertanggal di catatan perubahan.</li>
+            <li><strong>Bila sesuatu terjadi pada sebuah janji.</strong> Isi outcome_date dan outcome_source_url di data/deadlines.yml, perbarui keterangan hasilnya, lalu tambahkan baris bertanggal di catatan perubahan. Hasilnya sendiri dihitung. Janji baru dicatat dalam baris baru beserta jenis klaim, aturan tenggat, dan kalimat yang mendasarinya.</li>
             <li><strong>Bulanan.</strong> Jalankan <code>npm run links</code>, buka ulang sumber catatan yang tercantum sebagai "perlu dicek ulang" di Radar, dan perbarui tanggal terakhir dicek.</li>
             <li><strong>Bila cakupan bergeser.</strong> Tambah atau ubah sumber dan istilah di data/watch/. Uji coba pada pull request menunjukkan dampaknya pada umpan nyata sebelum digabung.</li>
           </ul>
         )
       }
 
-      <h2 id="security">11. {toc[10][1]}</h2>
+      <h2 id="security">13. {toc[12][1]}</h2>
       {
         lang === 'en' ? (
           <ul>
@@ -407,7 +472,7 @@ site/                  Astro static site, no client framework
         )
       }
 
-      <h2 id="limits">12. {toc[11][1]}</h2>
+      <h2 id="limits">14. {toc[13][1]}</h2>
       {
         lang === 'en' ? (
           <ul>
@@ -416,6 +481,7 @@ site/                  Astro static site, no client framework
             <li><strong>Google News links.</strong> News search results link through Google News, which redirects to the outlet. The outlet name is recorded so the original can be found.</li>
             <li><strong>Official sites.</strong> Some government pages render content with JavaScript or block automated requests. Those sources fail visibly in the scan history rather than silently.</li>
             <li><strong>Machine summaries.</strong> Claude's one line restates a headline. It is not verified and is labelled that way.</li>
+            <li><strong>Archive coverage.</strong> Some sites refuse the Internet Archive, and Save Page Now limits anonymous requests. Unarchived sources stay flagged until a later run succeeds.</li>
           </ul>
         ) : (
           <ul>
@@ -424,17 +490,21 @@ site/                  Astro static site, no client framework
             <li><strong>Tautan Google News.</strong> Hasil pencarian berita ditautkan lewat Google News, yang mengalihkan ke media aslinya. Nama media dicatat supaya sumber aslinya bisa ditemukan.</li>
             <li><strong>Situs resmi.</strong> Sebagian halaman pemerintah memuat isinya dengan JavaScript atau memblokir permintaan otomatis. Sumber seperti itu tercatat gagal di riwayat pemindaian, tidak diam-diam.</li>
             <li><strong>Ringkasan mesin.</strong> Satu kalimat dari Claude hanya mengulang judul. Kalimat itu belum diverifikasi dan diberi label demikian.</li>
+            <li><strong>Cakupan arsip.</strong> Ada situs yang menolak Internet Archive, dan Save Page Now membatasi permintaan tanpa akun. Sumber yang belum diarsipkan tetap ditandai sampai pemindaian berikutnya berhasil.</li>
           </ul>
         )
       }
 
-      <h2 id="run">13. {toc[12][1]}</h2>
+      <h2 id="run">15. {toc[14][1]}</h2>
       <pre class="code" tabindex="0"><code>{`git clone ${SITE.repo}
 cd monsoon-ledger
 npm run setup          # install dependencies (Node 22.23.4 or newer)
-npm test               # scanner tests on synthetic fixtures
-npm run validate       # schema and project rules
+npm test               # scanner, promise, ontology and archive tests
+npm run validate       # schemas and project rules
+npm run validate -- --data kit/data     # check a promise ledger folder only
 npm run scan -- --dry-run --no-claude   # live scan, writes nothing
+npm run archive -- --dry-run            # check archive coverage, writes nothing
+node scripts/make-share-images.mjs      # regenerate the site icons
 npm run dev            # local site at http://localhost:4321`}</code></pre>
       <p>
         {lang === 'en' ? 'Last scan recorded: ' : 'Pemindaian terakhir yang tercatat: '}

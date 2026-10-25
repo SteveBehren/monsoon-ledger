@@ -2279,14 +2279,24 @@ main {
 }
 
 @media (max-width: 60rem) {
+  /* One column in reading order: wording, deadline, outcome, what happened, evidence, links, citations. */
   .receipt-grid {
     grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
   }
 
+  .receipt-main,
   .receipt-side {
-    position: static;
-    order: -1;
+    display: contents;
   }
+
+  .receipt-words { order: 1; }
+  .receipt-deadline { order: 2; }
+  .receipt-stamp { order: 3; }
+  .receipt-since { order: 4; }
+  .receipt-proof { order: 5; }
+  .receipt-links { order: 6; }
+  .receipt-cite { order: 7; }
 
   .rd-facts {
     grid-template-columns: minmax(0, 1fr);

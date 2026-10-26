@@ -1,0 +1,56 @@
+---
+// The numbered reference list of an analysis paper, read from its sources file.
+// Each entry links back to every place the text cites it, and shows its archived copy if one exists.
+// In print, the full url is shown after each title (see the print styles).
+import type { PaperSource } from '../lib/analysis';
+import { fmtDate, type Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+  sources: PaperSource[];
+  counts: Map<number, number>;
+}
+
+const { lang, sources, counts } = Astro.props;
+const copy =
+  lang === 'en'
+    ? { title: 'References', accessed: 'accessed', archived: 'archived copy', saved: 'saved', back: (k: number) => `Back to citation ${k}`, uncited: 'not cited in this text' }
+    : { title: 'Daftar pustaka', accessed: 'diakses', archived: 'salinan arsip', saved: 'disimpan', back: (k: number) => `Kembali ke kutipan ${k}`, uncited: 'tidak dikutip dalam teks ini' };
+---
+<section class="refs paper-refs" aria-labelledby="refs-h">
+  <h2 id="refs-h">{copy.title}</h2>
+  <ol>
+    {
+      sources.map((s) => {
+        const k = counts.get(s.n) ?? 0;
+        return (
+          <li id={`ref-${s.n}`} value={s.n}>
+            <span class="ref-title">{s.title}</span>{' '}
+            <a class="ref-url" href={s.url}>{s.url}</a>
+            <span class="ref-accessed">
+              {' '}({copy.accessed} {fmtDate(lang, s.accessed)})
+            </span>
+            {s.archive_url && (
+              <>
+                {' '}
+                <a class="ref-archive" href={s.archive_url}>{copy.archived}</a>, {copy.saved} {s.archived_at}
+              </>
+            )}
+            {k > 0 ? (
+              <span class="ref-back">
+                {' '}
+                {Array.from({ length: k }, (_, i) => (
+                  <a href={`#cite-${s.n}-${i + 1}`} aria-label={copy.back(i + 1)}>
+                    <span aria-hidden="true">&#8617;{k > 1 ? i + 1 : ''}</span>
+                  </a>
+                ))}
+              </span>
+            ) : (
+              <span class="ref-uncited"> ({copy.uncited})</span>
+            )}
+          </li>
+        );
+      })
+    }
+  </ol>
+</section>

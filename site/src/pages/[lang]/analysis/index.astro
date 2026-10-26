@@ -1,0 +1,132 @@
+---
+// The Analysis index: longer written work, with open questions and the planned next paper.
+// Papers are read from writing/analysis (English) and writing/analisis (Bahasa Indonesia).
+import Base from '../../../layouts/Base.astro';
+import '../../../styles/analysis.css';
+import { getPaperIds, getPaper, hasPaper } from '../../../lib/analysis';
+import { ui, href, fmtDate, SITE, type Lang } from '../../../lib/i18n';
+
+export function getStaticPaths() {
+  return [{ params: { lang: 'en' } }, { params: { lang: 'id' } }];
+}
+
+const lang = Astro.params.lang as Lang;
+const t = ui[lang];
+const papers = getPaperIds()
+  .map((id) => ({ id, en: getPaper(id, 'en'), local: hasPaper(id, lang) ? getPaper(id, lang, href('en', `analysis/${id}/`)) : null }))
+  .sort((a, b) => b.en.meta.number - a.en.meta.number);
+
+const copy =
+  lang === 'en'
+    ? {
+        title: 'Analysis',
+        lede: 'Longer written work behind the ledger. Each paper cites its sources by number, states the day its facts were checked, and logs every change after publication.',
+        papers: 'Papers',
+        read: (n: number) => `${n} minute read`,
+        published: 'Published',
+        factsAsOf: 'facts as of',
+        partial: 'Bahasa Indonesia: draft translation of the key sections',
+        questions: 'Open questions',
+        questionsLede: 'These are questions, not findings. The papers raise them and do not answer them. Evidence that bears on any of them is welcome.',
+        list: [
+          'When an AI agent built abroad acts on an Indonesian system, which body should receive the notice: the national cyber agency (BSSN), the digital ministry, or the data protection institution?',
+          'Can a ministerial announcement alone set up a working AI incident intake point, or does it need a presidential regulation behind it?',
+          'Will the signed AI ethics regulation name who receives incident reports, and will it cover general-purpose models?',
+          'How can a rule that asks for every incident to be reported sort the reports, so that a small team is not buried in noise?',
+          'What notice window would a cross-border notification norm for frontier developers need to be useful to the affected country?',
+          'Will the data protection institution exist before sanctions under Government Regulation 33/2026 begin on 16 January 2027?',
+          'How will the Constitutional Court decide case 236/PUU-XXIV/2026, and what would its ruling change for the institution?',
+          'Should misaligned agent activity that causes neither a security breach nor serious harm count as a reportable incident, and under which category?',
+        ],
+        corrections: 'Corrections and review',
+        correctionsText:
+          'Papers are published as versions. When a fact is wrong, the paper is corrected, the change is listed on the paper and in the changelog with its date, and the version number goes up. Review from people who know these laws, systems or incidents is welcome through the repository.',
+        correctionLink: 'Report a correction',
+        allCorrections: 'All corrections',
+        planned: 'Planned',
+        next: 'Analysis 02',
+        nextTitle: 'Incident reporting: a literature map',
+        nextNote: 'Planned. No date set.',
+      }
+    : {
+        title: 'Analisis',
+        lede: 'Tulisan panjang di balik catatan ini. Setiap makalah mengutip sumbernya dengan nomor, menyebut hari faktanya diperiksa, dan mencatat setiap perubahan setelah terbit.',
+        papers: 'Makalah',
+        read: (n: number) => `${n} menit membaca`,
+        published: 'Terbit',
+        factsAsOf: 'fakta per',
+        partial: 'Bahasa Indonesia: terjemahan draf untuk bagian-bagian utama',
+        questions: 'Pertanyaan terbuka',
+        questionsLede: 'Ini pertanyaan, bukan temuan. Makalah memunculkannya tanpa menjawabnya. Bukti yang berkaitan dengan pertanyaan mana pun akan sangat membantu.',
+        list: [
+          'Ketika agen AI buatan luar negeri bertindak di sistem Indonesia, badan mana yang seharusnya menerima pemberitahuannya: Badan Siber dan Sandi Negara (BSSN), kementerian digital, atau lembaga pelindungan data?',
+          'Apakah pengumuman menteri saja cukup untuk membentuk titik penerimaan laporan insiden AI yang berjalan, atau perlu peraturan presiden di belakangnya?',
+          'Apakah regulasi etika AI yang nanti ditandatangani akan menyebut siapa penerima laporan insiden, dan apakah regulasi itu mencakup model serbaguna?',
+          'Bagaimana aturan yang meminta semua insiden dilaporkan bisa memilah laporan, supaya tim kecil tidak kewalahan?',
+          'Berapa lama jangka waktu pemberitahuan yang dibutuhkan dalam norma pemberitahuan lintas batas bagi pengembang AI garda depan supaya berguna bagi negara yang terdampak?',
+          'Apakah lembaga pelindungan data sudah ada sebelum sanksi berdasarkan Peraturan Pemerintah 33/2026 mulai berlaku pada 16 Januari 2027?',
+          'Bagaimana Mahkamah Konstitusi akan memutus perkara 236/PUU-XXIV/2026, dan apa yang akan berubah bagi lembaga itu?',
+          'Apakah aktivitas agen yang tidak selaras, yang tidak menimbulkan pembobolan keamanan maupun kerugian serius, perlu dihitung sebagai insiden yang wajib dilaporkan, dan masuk kategori apa?',
+        ],
+        corrections: 'Koreksi dan tinjauan',
+        correctionsText:
+          'Makalah diterbitkan dalam versi. Kalau ada fakta yang keliru, makalah dikoreksi, perubahannya dicantumkan di makalah dan di catatan perubahan beserta tanggalnya, dan nomor versinya naik. Tinjauan dari orang yang memahami hukum, sistem, atau insiden ini sangat diharapkan lewat repositori.',
+        correctionLink: 'Laporkan koreksi',
+        allCorrections: 'Semua koreksi',
+        planned: 'Direncanakan',
+        next: 'Analisis 02',
+        nextTitle: 'Pelaporan insiden: peta literatur',
+        nextNote: 'Direncanakan. Belum ada tanggal.',
+      };
+const issueUrl = `${SITE.issues}/new?template=correction.yml`;
+---
+<Base lang={lang} path="analysis/" title={copy.title} description={copy.lede} nav="analysis">
+  <header class="page-head">
+    <p class="kicker">{t.nav.analysis}</p>
+    <h1>{copy.title}</h1>
+    <p class="lede">{copy.lede}</p>
+  </header>
+
+  <section class="analysis-list" aria-labelledby="papers-h">
+    <h2 id="papers-h" class="label">{copy.papers}</h2>
+    <ol class="paper-cards">
+      {
+        papers.map(({ id, en, local }) => {
+          const p = local ?? en;
+          const number = String(en.meta.number).padStart(2, '0');
+          return (
+            <li class="paper-card panel">
+              <p class="kicker">{lang === 'en' ? 'Analysis' : 'Analisis'} {number}</p>
+              <h3>
+                <a href={href(local ? lang : 'en', `analysis/${id}/`)}>{p.meta.title}</a>
+              </h3>
+              <p class="pc-sub">{p.meta.subtitle}</p>
+              <p>{p.meta.summary}</p>
+              <p class="pc-meta">
+                {copy.published} <time datetime={String(en.meta.published)}>{fmtDate(lang, String(en.meta.published))}</time> · {copy.factsAsOf} {fmtDate(lang, String(en.meta.facts_as_of))} · {copy.read(en.minutes)}
+              </p>
+              {local?.meta.partial && <p class="pc-note">{copy.partial}</p>}
+            </li>
+          );
+        })
+      }
+      <li class="paper-card paper-card--planned panel">
+        <p class="kicker">{copy.next} · {copy.planned}</p>
+        <h3>{copy.nextTitle}</h3>
+        <p class="pc-meta">{copy.nextNote}</p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="doc-body analysis-questions" aria-labelledby="questions-h">
+    <h2 id="questions-h">{copy.questions}</h2>
+    <p>{copy.questionsLede}</p>
+    <ol>{copy.list.map((q) => <li>{q}</li>)}</ol>
+  </section>
+
+  <section class="doc-body" aria-labelledby="review-h">
+    <h2 id="review-h">{copy.corrections}</h2>
+    <p>{copy.correctionsText}</p>
+    <p><a href={issueUrl}>{copy.correctionLink}</a> · <a href={href(lang, 'corrections/')}>{copy.allCorrections}</a></p>
+  </section>
+</Base>

@@ -7,6 +7,8 @@ import yaml from 'js-yaml';
 import { buildOntology, OBJECT_TYPES, RELATIONS, promiseAnchor as anchor, promiseKey as key } from '../../../scripts/ontology.mjs';
 import { getDeadlines, getEntries, getInstruments, TODAY, type Deadline } from './data';
 import { REFERENCES } from './references';
+// @ts-ignore: plain JavaScript module shared with the validator.
+import { ontologyPapers } from '../../../scripts/analysis.mjs';
 
 const DATA = path.resolve(process.cwd(), '..', 'data');
 
@@ -40,6 +42,7 @@ export function getOntology(): { nodes: OntologyNode[]; links: OntologyLink[] } 
     ontology: load('ontology.yml'),
     leads: radar.leads ?? [],
     references: REFERENCES,
+    papers: ontologyPapers(path.resolve(process.cwd(), '..')),
     today: TODAY,
   });
   return { nodes, links };

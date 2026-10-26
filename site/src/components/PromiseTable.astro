@@ -1,0 +1,70 @@
+---
+// The paper's promise table, generated from data/deadlines.yml with outcomes computed by
+// scripts/promises.mjs on the paper's facts day. Each row cites its source by the paper's
+// reference number and links to the promise's receipt.
+import { fmtDate, href, pick, type Lang } from '../lib/i18n';
+import { speaker } from '../lib/data';
+import type { PaperPromise } from '../lib/analysis';
+
+interface Props {
+  lang: Lang;
+  asOf: string;
+  rows: PaperPromise[];
+  /** Caption text from the paper, such as "Table A1. ...". */
+  caption: string;
+  captionId: string;
+}
+
+const { lang, asOf, rows, caption, captionId } = Astro.props;
+const copy =
+  lang === 'en'
+    ? {
+        th: ['Said on', 'Who', 'Promise', 'Deadline used', `Outcome, ${fmtDate(lang, asOf)}`],
+        none: { conditional: 'None (conditional)', status_claim: 'None (status claim)', dated: '' },
+        missed: (n: number) => `Missed, ${n} days`,
+        open: (n: number) => `Open, ${n} days left`,
+        met: 'Met',
+        noDeadline: 'No deadline',
+        receipt: 'receipt',
+      }
+    : {
+        th: ['Diucapkan', 'Oleh', 'Janji', 'Tenggat yang dipakai', `Hasil, ${fmtDate(lang, asOf)}`],
+        none: { conditional: 'Tidak ada (bersyarat)', status_claim: 'Tidak ada (klaim kemajuan)', dated: '' },
+        missed: (n: number) => `Terlewat, ${n} hari`,
+        open: (n: number) => `Masih terbuka, ${n} hari lagi`,
+        met: 'Terpenuhi',
+        noDeadline: 'Tanpa tenggat',
+        receipt: 'bukti',
+      };
+const outcome = (p: PaperPromise) =>
+  p.outcome === 'missed' ? copy.missed(p.days_past ?? 0) : p.outcome === 'open' ? copy.open(p.days_remaining ?? 0) : p.outcome === 'met' ? copy.met : copy.noDeadline;
+---
+<div class="table-scroll" role="region" aria-labelledby={captionId} tabindex="0">
+  <table class="paper-promises">
+    <caption id={captionId}>{caption}</caption>
+    <thead>
+      <tr>{copy.th.map((h) => <th scope="col">{h}</th>)}</tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((p) => (
+          <tr>
+            <td class="nowrap">{fmtDate(lang, p.row.date_said)}</td>
+            <td>{speaker(p.row, lang)}</td>
+            <td>
+              {pick(lang, p.row.promised_en, p.row.promised_id)}
+              {p.cite ? (
+                <sup class="cite">[<a href={`#ref-${p.cite.n}`} id={p.cite.id}>{p.cite.n}</a>]</sup>
+              ) : (
+                <> (<a href={p.row.source_url}>{lang === 'en' ? 'source' : 'sumber'}</a>)</>
+              )}{' '}
+              <a class="pp-receipt" href={href(lang, `promises/${p.key}/`)}>{copy.receipt}</a>
+            </td>
+            <td class="nowrap">{p.row.deadline ? fmtDate(lang, p.row.deadline) : copy.none[p.row.claim_type]}</td>
+            <td>{outcome(p)}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>

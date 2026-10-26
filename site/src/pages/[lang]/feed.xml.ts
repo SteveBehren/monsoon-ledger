@@ -3,6 +3,7 @@ import { getEntries, getPromises, TODAY } from '../../lib/data';
 // @ts-ignore: plain JavaScript module shared with the validator.
 import { toTime, fromTime } from '../../../../scripts/promises.mjs';
 import { ui, pick, fmtDate, SITE, LANGS, type Lang } from '../../lib/i18n';
+import { getPaperIds, getPaperMeta } from '../../lib/analysis';
 
 export const getStaticPaths: GetStaticPaths = () => LANGS.map((lang) => ({ params: { lang } }));
 
@@ -58,7 +59,24 @@ export const GET: APIRoute = ({ params }) => {
     ];
   });
 
-  const items = [...entryItems, ...outcomeItems]
+  // One item per analysis paper, in the reader's language where that text exists.
+  const paperItems = getPaperIds().map((id) => {
+    const m = getPaperMeta(id, lang) ?? getPaperMeta(id, 'en')!;
+    const link = `${SITE.url}/${getPaperMeta(id, lang) ? lang : 'en'}/analysis/${id}/`;
+    const asOf = lang === 'en' ? `Facts as of ${fmtDate(lang, String(m.facts_as_of))}.` : `Fakta per ${fmtDate(lang, String(m.facts_as_of))}.`;
+    return {
+      date: String(m.published),
+      xml: `    <item>
+      <title>${esc(`${m.title}: ${m.subtitle}`)}</title>
+      <link>${link}</link>
+      <guid isPermaLink="true">${link}</guid>
+      <pubDate>${new Date(`${m.published}T00:00:00Z`).toUTCString()}</pubDate>
+      <description>${esc(`${m.summary} ${asOf}`)}</description>
+    </item>`,
+    };
+  });
+
+  const items = [...entryItems, ...outcomeItems, ...paperItems]
     .sort((a, b) => b.date.localeCompare(a.date))
     .map((i) => i.xml)
     .join('\n');

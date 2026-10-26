@@ -10,6 +10,7 @@ import path from 'node:path';
 import { ROOT, DATA, ENTRIES, siteRequire, readYaml, entryFiles, isRealDate } from './lib.mjs';
 import { buildOntology } from './ontology.mjs';
 import { deriveDeadline, promiseKey, todayWIB } from './promises.mjs';
+import { paperIds, loadPaper, loadSources, checkPaper, checkSources, extractQuotes, ontologyPapers } from './analysis.mjs';
 
 const Ajv2020 = siteRequire('ajv/dist/2020').default;
 const ajv = new Ajv2020({ allErrors: true, strict: true });
@@ -232,10 +233,46 @@ function projectChecks() {
       }
       if (entry.quote.source_url) {
         const other = quotedSources.get(entry.quote.source_url);
-        if (other) fail(file, `this source is already quoted in ${other}, use at most one quote per source`);
-        quotedSources.set(entry.quote.source_url, name);
+        if (other) fail(file, `this source is already quoted in ${other.where}, use at most one quote per source`);
+        quotedSources.set(entry.quote.source_url, { where: name, text: String(entry.quote.original ?? '') });
       }
     }
+  }
+
+  // Analysis papers: front matter, numbered sources, citations and the quote rules.
+  // A source quoted in an entry may be quoted in a paper only with the same words.
+  const papers = KIT ? [] : paperIds();
+  const promiseUrls = (Array.isArray(deadlines) ? deadlines : []).map((d) => d?.source_url).filter(Boolean);
+  const entryIds = new Set(loadedEntries.map((e) => e.id));
+  for (const id of papers) {
+    const en = loadPaper(id, 'en');
+    const sourcesFile = path.join(ROOT, en.meta.sources ?? `data/analysis/${id}.sources.yml`);
+    let sources = [];
+    try {
+      sources = loadSources(sourcesFile);
+    } catch (err) {
+      fail(sourcesFile, `cannot read the sources: ${err.message.split('\n')[0]}`);
+    }
+    for (const problem of checkSources(sources)) fail(sourcesFile, problem);
+    (Array.isArray(sources) ? sources : []).forEach((src, i) => checkArchive(sourcesFile, `source ${i + 1}`, src));
+    const texts = [['en', en], ['id', loadPaper(id, 'id')]].filter(([, doc]) => doc);
+    for (const [lang, doc] of texts) {
+      const { problems, cited } = checkPaper(doc, Array.isArray(sources) ? sources : [], { lang, id, promiseUrls });
+      for (const problem of problems) fail(doc.file, problem);
+      if (lang === 'en') {
+        for (const s of sources) if (s?.n && !cited.has(s.n)) fail(sourcesFile, `source ${s.n} is never cited in the English text`);
+      }
+      for (const q of extractQuotes(doc.body)) {
+        const url = sources.find((s) => s.n === q.src)?.url;
+        const entryQuote = url && quotedSources.get(url);
+        if (q.kind !== 'statute' && entryQuote && entryQuote.text.trim().toLowerCase() !== q.text.trim().toLowerCase()) {
+          fail(doc.file, `source ${q.src} is already quoted in ${entryQuote.where} with other words, use at most one quote per source`);
+        }
+      }
+    }
+    for (const e of en.meta.discusses?.entries ?? []) if (!entryIds.has(e)) fail(en.file, `discusses entry "${e}", which does not exist`);
+    for (const i of en.meta.discusses?.instruments ?? []) if (!instrumentIds.has(i)) fail(en.file, `discusses instrument "${i}", which does not exist`);
+    if (en.meta.docx && !fs.existsSync(path.join(ROOT, 'site', 'public', en.meta.docx))) fail(en.file, `docx "${en.meta.docx}" is not in site/public`);
   }
 
   // Build log: one row per change the author asked for, newest first.
@@ -303,10 +340,10 @@ function projectChecks() {
   });
 
   const references = Object.fromEntries([...referenceKeys].map((k) => [k, { text: k }]));
-  const graph = buildOntology({ entries: loadedEntries, instruments, deadlines, ontology, leads: radarLeads, references, today: TODAY });
+  const graph = buildOntology({ entries: loadedEntries, instruments, deadlines, ontology, leads: radarLeads, references, papers: ontologyPapers(), today: TODAY });
   for (const problem of graph.problems) fail(ontologyFile, problem);
 
-  return `${files.length} entries, ${radarLeads.length} radar leads, ontology ${graph.nodes.length} objects and ${graph.links.length} links, ${buildLog.length} build log rows`;
+  return `${files.length} entries, ${papers.length} analysis paper(s), ${radarLeads.length} radar leads, ontology ${graph.nodes.length} objects and ${graph.links.length} links, ${buildLog.length} build log rows`;
 }
 const projectSummary = KIT ? null : projectChecks();
 
@@ -314,7 +351,7 @@ const projectSummary = KIT ? null : projectChecks();
 const BANNED = new RegExp(`[${String.fromCharCode(0x2013)}${String.fromCharCode(0x2014)}]`);
 const SKIP_DIRS = new Set(['.git', 'node_modules', 'dist', '.astro', '.vercel']);
 const SKIP_FILES = new Set(['package-lock.json']);
-const TEXT_EXT = /\.(ya?ml|json|md|mjs|js|ts|astro|css|html|xml|txt|svg)$|^\.gitkeep$|^LICENSE$/;
+const TEXT_EXT = /\.(ya?ml|json|md|mjs|js|ts|astro|css|html|xml|txt|svg|cff)$|^\.gitkeep$|^LICENSE$|^CODEOWNERS$/;
 
 function scan(dir) {
   for (const item of fs.readdirSync(dir, { withFileTypes: true })) {

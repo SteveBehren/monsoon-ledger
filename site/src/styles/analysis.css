@@ -1,0 +1,440 @@
+/* Analysis papers and the Analysis index. Loaded only by those pages. */
+
+.paper-head .paper-byline {
+  margin: 0.75rem 0 0;
+  font-size: 0.88rem;
+  color: var(--text-soft);
+}
+
+.paper-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+
+.paper-grid {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  gap: 3rem;
+  align-items: start;
+}
+
+.paper-side {
+  position: sticky;
+  top: 5rem;
+  display: grid;
+  gap: 1rem;
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+}
+
+.paper-toc ol {
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.84rem;
+}
+
+.paper-toc li {
+  margin: 0;
+}
+
+.paper-toc a {
+  display: block;
+  padding: 0.28rem 0 0.28rem 0.75rem;
+  border-left: 1px solid var(--line);
+  color: var(--text-soft);
+  text-decoration: none;
+}
+
+.paper-toc a:hover,
+.paper-toc a:focus-visible {
+  color: var(--text);
+  border-left-color: var(--accent);
+}
+
+.paper-toc--narrow {
+  display: none;
+  margin-bottom: 1.5rem;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.paper-toc--narrow summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.facts-box {
+  padding: 0.9rem 1rem;
+  font-size: 0.84rem;
+  color: var(--text-soft);
+}
+
+.facts-box h2 {
+  margin: 0 0 0.4rem;
+  color: var(--text);
+}
+
+.facts-box p {
+  margin: 0 0 0.5rem;
+}
+
+.paper-body {
+  max-width: var(--measure);
+}
+
+.paper-body > :first-child,
+.paper-body > .paper-toc + h2 {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.paper-body h2,
+.paper-body h3 {
+  scroll-margin-top: 5rem;
+}
+
+.paper-body blockquote {
+  margin: 1.5rem 0;
+  padding: 0.9rem 1.1rem;
+  border-left: 2px solid var(--accent);
+  background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.paper-body blockquote p {
+  margin: 0 0 0.5rem;
+}
+
+.paper-body blockquote .tr {
+  color: var(--text-soft);
+  font-size: 0.92rem;
+}
+
+.paper-body blockquote footer {
+  font-size: 0.82rem;
+  color: var(--text-faint);
+}
+
+.paper-body blockquote.statute {
+  border-left-color: var(--text-faint);
+  font-family: var(--mono);
+  font-size: 0.86rem;
+}
+
+.paper-body blockquote.statute .tr,
+.paper-body blockquote.statute footer {
+  font-family: var(--sans);
+}
+
+.paper-body q {
+  font-style: normal;
+}
+
+.draft-note {
+  margin: 0 0 1rem;
+  padding: 0.5rem 0.8rem;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-sm);
+  font-size: 0.84rem;
+  color: var(--text-soft);
+}
+
+.draft-note--page {
+  margin-top: 1rem;
+  max-width: var(--measure);
+}
+
+/* Tables scroll sideways inside a labelled, focusable region instead of widening the page. */
+.table-scroll {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.table-scroll:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.table-scroll table {
+  width: 100%;
+  min-width: 34rem;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+.table-scroll caption {
+  padding: 0.7rem 0.9rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text);
+  border-bottom: 1px solid var(--line);
+}
+
+.table-scroll th,
+.table-scroll td {
+  padding: 0.55rem 0.8rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+}
+
+.table-scroll th {
+  background: var(--surface-2);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.table-scroll tr:last-child td {
+  border-bottom: 0;
+}
+
+.table-scroll .nowrap {
+  white-space: nowrap;
+}
+
+.pp-receipt {
+  font-size: 0.78rem;
+}
+
+/* Figure 1: days past the deadline */
+.paper-figure {
+  margin: 1.75rem 0;
+}
+
+.pd-chart {
+  width: 100%;
+  height: auto;
+  font-family: var(--sans);
+  font-size: 13px;
+}
+
+.pd-chart text {
+  fill: var(--text-soft);
+}
+
+.pd-chart .pd-who {
+  fill: var(--text);
+}
+
+.pd-chart .pd-due,
+.pd-chart .pd-tick text,
+.pd-chart .pd-axis {
+  font-size: 11.5px;
+  fill: var(--text-faint);
+}
+
+.pd-chart .pd-asof {
+  font-weight: 600;
+  fill: var(--text);
+}
+
+.pd-chart .pd-grid {
+  stroke: var(--line);
+}
+
+.pd-chart .pd-zero {
+  stroke: var(--text-soft);
+  stroke-width: 1.5;
+}
+
+.pd-chart .pd-zero-label {
+  font-size: 11.5px;
+}
+
+.pd-missed .pd-bar {
+  fill: var(--red);
+}
+
+.pd-open .pd-bar {
+  fill: var(--text-faint);
+}
+
+.pd-met .pd-bar {
+  fill: var(--green);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pd-bar {
+    transform-box: fill-box;
+    transform-origin: left center;
+    animation: pd-grow var(--slow) var(--ease) both;
+  }
+
+  .pd-open .pd-bar {
+    transform-origin: right center;
+  }
+
+  @keyframes pd-grow {
+    from {
+      transform: scaleX(0);
+    }
+  }
+}
+
+.paper-figure figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.84rem;
+  color: var(--text-soft);
+}
+
+.paper-changes ul {
+  font-size: 0.88rem;
+}
+
+.paper-version {
+  color: var(--text-soft);
+  font-size: 0.88rem;
+}
+
+.paper-refs li .ref-title {
+  color: var(--text);
+}
+
+.ref-accessed,
+.ref-uncited {
+  color: var(--text-faint);
+}
+
+.ref-back a {
+  margin-left: 0.25rem;
+  text-decoration: none;
+}
+
+/* Analysis index */
+.paper-cards {
+  display: grid;
+  gap: 1rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.paper-card {
+  padding: 1.2rem 1.3rem;
+}
+
+.paper-card h3 {
+  margin: 0.2rem 0 0.4rem;
+  font-size: 1.35rem;
+}
+
+.paper-card .pc-sub {
+  color: var(--text-soft);
+}
+
+.paper-card .pc-meta,
+.paper-card .pc-note {
+  margin: 0.4rem 0 0;
+  font-size: 0.84rem;
+  color: var(--text-faint);
+}
+
+.paper-card--planned {
+  border-style: dashed;
+  background: transparent;
+}
+
+.analysis-questions ol {
+  padding-left: 1.4rem;
+}
+
+.analysis-questions li {
+  margin-bottom: 0.6rem;
+}
+
+@media (max-width: 60rem) {
+  .paper-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+
+  .paper-side {
+    position: static;
+    max-height: none;
+    order: 2;
+  }
+
+  .paper-toc--wide {
+    display: none;
+  }
+
+  .paper-toc--narrow {
+    display: block;
+  }
+}
+
+@media print {
+  :root,
+  :root[data-theme='dark'] {
+    --bg: #fff;
+    --surface: #fff;
+    --surface-2: #f2f2f2;
+    --line: #ccc;
+    --line-strong: #999;
+    --text: #000;
+    --text-soft: #222;
+    --text-faint: #444;
+    --accent: #000;
+    --red: #555;
+  }
+
+  .paper-side,
+  .paper-actions,
+  .paper-toc,
+  .cite-copy,
+  .ref-back,
+  .skip-link {
+    display: none !important;
+  }
+
+  .paper-grid {
+    display: block;
+  }
+
+  .paper-body {
+    max-width: none;
+  }
+
+  .paper-body a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.8em;
+    overflow-wrap: anywhere;
+  }
+
+  .paper-refs .ref-url::after,
+  .paper-body .cite a::after {
+    content: none;
+  }
+
+  .table-scroll {
+    overflow: visible;
+    border: 0;
+  }
+
+  .table-scroll table {
+    min-width: 0;
+  }
+
+  .pd-bar {
+    animation: none;
+  }
+
+  blockquote,
+  figure,
+  table {
+    break-inside: avoid;
+  }
+
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+}

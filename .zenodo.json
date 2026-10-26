@@ -1,0 +1,17 @@
+{
+  "title": "Monsoon Ledger",
+  "upload_type": "software",
+  "description": "A public, bilingual tracker of how Indonesia governs AI. It checks what officials promise about AI regulation against what happens, records the evidence level of every claim, and publishes analysis papers on AI incident reporting. Code under MIT. Data and writing under CC BY 4.0.",
+  "creators": [
+    {
+      "name": "Tanjung, Stephen Behren"
+    }
+  ],
+  "license": "MIT",
+  "keywords": ["AI governance", "incident reporting", "Indonesia", "frontier AI", "accountability"],
+  "related_identifiers": [
+    { "identifier": "https://github.com/SteveBehren/monsoon-ledger", "relation": "isSupplementTo", "scheme": "url" },
+    { "identifier": "https://monsoonledger.vercel.app", "relation": "isDocumentedBy", "scheme": "url" }
+  ],
+  "notes": "The data and the writing in this repository are licensed under CC BY 4.0 (LICENSE-CONTENT.md). The code is licensed under MIT (LICENSE)."
+}

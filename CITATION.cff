@@ -1,0 +1,27 @@
+# Citation metadata for the Monsoon Ledger repository (Citation File Format 1.2.0).
+# GitHub shows a "Cite this repository" button from this file.
+cff-version: 1.2.0
+message: "If you use Monsoon Ledger data, code or writing, please cite it as below."
+type: software
+title: "Monsoon Ledger"
+abstract: >-
+  A public, bilingual tracker of how Indonesia governs AI. It checks what officials promise
+  about AI regulation against what happens, records the evidence level of every claim, and
+  publishes analysis papers on AI incident reporting.
+authors:
+  - family-names: Tanjung
+    given-names: Stephen Behren
+    # TODO author: add ORCID if you have one, as orcid: "https://orcid.org/0000-0000-0000-0000"
+repository-code: "https://github.com/SteveBehren/monsoon-ledger"
+url: "https://monsoonledger.vercel.app"
+# The code is under MIT. The data and the writing are under CC BY 4.0 (see LICENSE-CONTENT.md).
+license:
+  - MIT
+  - CC-BY-4.0
+keywords:
+  - AI governance
+  - incident reporting
+  - Indonesia
+  - frontier AI
+  - accountability
+date-released: "2026-10-27"

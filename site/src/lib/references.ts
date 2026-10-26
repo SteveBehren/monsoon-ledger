@@ -69,7 +69,7 @@ export const REFERENCES = {
     url: 'https://pasal.id/peraturan/uu/uu-no-27-tahun-2022/pasal-46',
   },
   'pdp-deadline': {
-    text: 'ANTARA (2024). Masih ada waktu, Presiden Jokowi bentuk Komisi PDP (batas waktu pembentukan lembaga 17 Oktober 2024).',
+    text: 'ANTARA (2024). Masih ada waktu, Presiden Jokowi bentuk Komisi PDP.',
     url: 'https://www.antaranews.com/berita/4343699/masih-ada-waktu-presiden-jokowi-bentuk-komisi-pdp',
   },
   'uu-kip': {

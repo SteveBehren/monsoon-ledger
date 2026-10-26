@@ -41,6 +41,8 @@ my_take: >
 sources:
   - title: Komdigi on the task force for the AI regulations
     url: https://www.antaranews.com/berita/5802305/pemerintah-siapkan-gugus-tugas-kawal-implementasi-regulasi-ai
+    archive_url: https://web.archive.org/web/20261026011000/https://www.antaranews.com/berita/5802305/pemerintah-siapkan-gugus-tugas-kawal-implementasi-regulasi-ai
+    archived_at: 2026-10-26
     outlet: ANTARA
     language: id
   - title: Komdigi says the two AI regulations await the President's signature
@@ -49,21 +51,31 @@ sources:
     language: id
   - title: Minister calls the AI regulation a priority to sign in 2026
     url: https://www.cnnindonesia.com/teknologi/20260126203143-185-1321329/menkomdigi-sebut-perpres-ai-segera-disahkan-presiden-awal-tahun-ini
+    archive_url: https://web.archive.org/web/20260420003055/https://www.cnnindonesia.com/teknologi/20260126203143-185-1321329/menkomdigi-sebut-perpres-ai-segera-disahkan-presiden-awal-tahun-ini
+    archived_at: 2026-04-20
     outlet: CNN Indonesia
     language: id
   - title: Komdigi expects the AI regulation on the President's desk early 2026
     url: https://teknologi.bisnis.com/read/20251217/84/1937372/regulasi-ai-tunggu-tanda-tangan-prabowo-ditarget-terbit-awal-2026
+    archive_url: https://web.archive.org/web/20260209135544/https://teknologi.bisnis.com/read/20251217/84/1937372/regulasi-ai-tunggu-tanda-tangan-prabowo-ditarget-terbit-awal-2026
+    archived_at: 2026-02-09
     outlet: Bisnis.com
     language: id
   - title: Komdigi says the AI roadmap and ethics guidelines launch this month
     url: https://teknologi.bisnis.com/read/20250916/84/1911831/komdigi-pastikan-roadmap-dan-pedoman-etika-ai-meluncur-bulan-ini
+    archive_url: https://web.archive.org/web/20250916174555/https://teknologi.bisnis.com/read/20250916/84/1911831/komdigi-pastikan-roadmap-dan-pedoman-etika-ai-meluncur-bulan-ini
+    archived_at: 2025-09-16
     outlet: Bisnis.com
     language: id
   - title: Komdigi plans to release the AI roadmap in June 2025
     url: https://teknologi.bisnis.com/read/20250617/101/1885548/komdigi-rilis-peta-jalan-ai-bulan-ini-jaga-keseimbangan-inovasi-dan-perlindungan
+    archive_url: https://web.archive.org/web/20250708102232/https://teknologi.bisnis.com/read/20250617/101/1885548/komdigi-rilis-peta-jalan-ai-bulan-ini-jaga-keseimbangan-inovasi-dan-perlindungan
+    archived_at: 2025-07-08
     outlet: Bisnis.com
     language: id
   - title: Minister targets a binding AI rule within three months
     url: https://teknologi.bisnis.com/read/20250113/101/1831117/menkomdigi-targetkan-aturan-penggunaan-ai-rampung-april-2025
+    archive_url: https://web.archive.org/web/20250122125816/https://teknologi.bisnis.com/read/20250113/101/1831117/menkomdigi-targetkan-aturan-penggunaan-ai-rampung-april-2025
+    archived_at: 2025-01-22
     outlet: Bisnis.com
     language: id

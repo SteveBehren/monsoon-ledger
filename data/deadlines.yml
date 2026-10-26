@@ -26,6 +26,8 @@
   outcome_id: Masih disebut rancangan
   evidence: official-statement
   source_url: https://www.antaranews.com/berita/5802305/pemerintah-siapkan-gugus-tugas-kawal-implementasi-regulasi-ai
+  archive_url: https://web.archive.org/web/20261026011000/https://www.antaranews.com/berita/5802305/pemerintah-siapkan-gugus-tugas-kawal-implementasi-regulasi-ai
+  archived_at: 2026-10-26
 
 # TODO: search summaries of this source also report a target to finish both regulations this
 # year. If the article says so, add it as a separate dated row (deadline_rule: end 2026).
@@ -61,6 +63,8 @@
   outcome_id: Masih rancangan per 21 Oktober 2026
   evidence: official-statement
   source_url: https://www.cnnindonesia.com/teknologi/20260126203143-185-1321329/menkomdigi-sebut-perpres-ai-segera-disahkan-presiden-awal-tahun-ini
+  archive_url: https://web.archive.org/web/20260420003055/https://www.cnnindonesia.com/teknologi/20260126203143-185-1321329/menkomdigi-sebut-perpres-ai-segera-disahkan-presiden-awal-tahun-ini
+  archived_at: 2026-04-20
 
 - date_said: 2025-12-16
   country: ID
@@ -79,6 +83,8 @@
   outcome_id: Tidak terbit pada semester pertama 2026. Masih rancangan per 21 Oktober 2026
   evidence: official-statement
   source_url: https://teknologi.bisnis.com/read/20251217/84/1937372/regulasi-ai-tunggu-tanda-tangan-prabowo-ditarget-terbit-awal-2026
+  archive_url: https://web.archive.org/web/20260209135544/https://teknologi.bisnis.com/read/20251217/84/1937372/regulasi-ai-tunggu-tanda-tangan-prabowo-ditarget-terbit-awal-2026
+  archived_at: 2026-02-09
 
 - date_said: 2025-09-16
   country: ID
@@ -97,6 +103,8 @@
   outcome_id: Tidak terbit sebagai aturan yang mengikat bulan itu. Keduanya masih rancangan per 21 Oktober 2026
   evidence: official-statement
   source_url: https://teknologi.bisnis.com/read/20250916/84/1911831/komdigi-pastikan-roadmap-dan-pedoman-etika-ai-meluncur-bulan-ini
+  archive_url: https://web.archive.org/web/20250916174555/https://teknologi.bisnis.com/read/20250916/84/1911831/komdigi-pastikan-roadmap-dan-pedoman-etika-ai-meluncur-bulan-ini
+  archived_at: 2025-09-16
 
 - date_said: 2025-06-17
   country: ID
@@ -115,6 +123,8 @@
   outcome_id: Tidak ada peta jalan yang terbit pada Juni 2025. Masih rancangan per 21 Oktober 2026
   evidence: official-statement
   source_url: https://teknologi.bisnis.com/read/20250617/101/1885548/komdigi-rilis-peta-jalan-ai-bulan-ini-jaga-keseimbangan-inovasi-dan-perlindungan
+  archive_url: https://web.archive.org/web/20250708102232/https://teknologi.bisnis.com/read/20250617/101/1885548/komdigi-rilis-peta-jalan-ai-bulan-ini-jaga-keseimbangan-inovasi-dan-perlindungan
+  archived_at: 2025-07-08
 
 - date_said: 2025-01-13
   country: ID
@@ -133,3 +143,5 @@
   outcome_id: Belum ada aturan AI yang mengikat. Masih rancangan per 21 Oktober 2026
   evidence: official-statement
   source_url: https://teknologi.bisnis.com/read/20250113/101/1831117/menkomdigi-targetkan-aturan-penggunaan-ai-rampung-april-2025
+  archive_url: https://web.archive.org/web/20250122125816/https://teknologi.bisnis.com/read/20250113/101/1831117/menkomdigi-targetkan-aturan-penggunaan-ai-rampung-april-2025
+  archived_at: 2025-01-22

@@ -1,4 +1,593 @@
 # Written by npm run scan. Leads are unreviewed: they are not entries and not verified.
 # To review one, set status to reviewed, promoted or dismissed. Promote by writing an entry.
-updated: null
-leads: []
+updated: "2026-10-26T01:08:59Z"
+leads:
+  - id: "24396821e3"
+    found: "2026-10-26"
+    published: "2026-10-20"
+    title: Indonesia Siapkan Dua Perpres AI, Menkomdigi Meutya Hafid Tegaskan Kedaulatan Digital dan Kendali Nasional atas Teknologi
+    url: https://news.google.com/rss/articles/CBMi4wFBVV95cUxQTkdoQnJhcVU2X2o2TWw3SWxVN2ZQNVZhblJueDFUSlFkenpVQkZIOXA1U01BcThoR2VPU2RBN0JPWl8xeDJua09lWk5HcmpqTWF4QjVyUU5MUmhobFFIcEZNYmZvV3ZqMkRkaTcyMlVFb0tWQko1eXlEYzZoY05jLThOdV9QR3dOdzEtTTJrTG1oR0duT0dJdnR0RjVvMVg0OGNaYUxjQl9IWnpQVDZBOW0yV0FvOTBvbUJ1MFJkeEFDYThQWVJYMFM1TF9JTUJWcHF5V1lqQnk0Z0k4RE8tVktvRQ?oc=5
+    outlet: detik suara rakyat
+    country: ID
+    language: id
+    source: gn-id-ai-regulation
+    score: 8
+    terms:
+      - AI
+      - perpres
+      - komdigi
+      - menkomdigi
+      - meutya hafid
+    status: new
+  - id: abc907a7e5
+    found: "2026-10-26"
+    published: "2026-09-29"
+    title: Deepfake Makin Sulit Dibedakan, Komdigi Dorong Tata Kelola AI Bertanggung Jawab - disway.id
+    url: https://news.google.com/rss/articles/CBMirAFBVV95cUxPXzk0eFB5M182Rkl2ZXlXUWkxR1ktMTZFYmVNS2MtSzZzQTh3bmJ2RTVaaGtma0ViN0NGVWxuNXRmdlRfTVFyZkdaZ2ktcFdLRWFBT3FEbTJ3cFRiNUhmMUhkYmZHVWU0OFBUdmpKUXZ4S1pzX2h4WFBFNng0UnN0MU5kbXVSNlBJMTM0NDh2Wi14dmF1MVVXT0VNNWx4UTBIUHRZRkVKS0h3bl9X0gGrAUFVX3lxTE5Zc1g1ZVhWaXpicWYzaE5vQnV3Z1IyYXdjVG1WazlQelBkMGNuQnRzcjVRbzRnVlAtdTV1SklhclpHV3dJZjhhei1HWGw2RURRMkhWRnppaExIUTVXVFN6V0xvTXFfT0lVMmZCR3Fxa1I5aG5CY2dZVVFtRmZ2TUtkY0VZaUp0Q0dheHVmbDRHNUh0M1piNm82cWNuNWpDQjRkVDJENHBvRUxBMA?oc=5
+    outlet: Disway
+    country: ID
+    language: id
+    source: gn-id-komdigi-ai
+    score: 7
+    terms:
+      - deepfake
+      - AI
+      - tata kelola
+      - komdigi
+    status: new
+  - id: bc7afb6463
+    found: "2026-10-26"
+    published: "2026-09-28"
+    title: Perpres Peta Jalan AI dan Etika AI sebagai panduan adopsi AI pemerintah
+    url: https://news.google.com/rss/articles/CBMisAFBVV95cUxPV3RvdVFtOWFNbmQtc0M5QTN0WUdETEU1eVVfUmp3QWJPaTYtQWUzX0dMWkFXM2hBOFE0UU9DM0tGd1BCcDdYemx0MGxleHpyaDNOX3VkSjlObG1fTXdCSFdrV1FvZ0FYQ2VBOWN2aXNJNXB5bzBzR2lrak1ub2ZENGxybU1OTS1fajNVWXNiWTVrVVlpcjZBQm52Q19yYWY4aTQzcU83VndIQ2Y1ZXJOZQ?oc=5
+    outlet: GovInsider
+    country: ID
+    language: id
+    source: gn-id-ai-regulation
+    score: 7
+    terms:
+      - AI
+      - perpres
+      - etika
+      - peta jalan
+    instrument: draft-perpres-ai-ethics
+    status: new
+  - id: 9f9aad9d72
+    found: "2026-10-26"
+    published: "2026-10-20"
+    title: Komdigi Siapkan Aturan Label Konten AI, Video dan Gambar Buatan Kecerdasan Buatan Wajib Ditandai?
+    url: https://news.google.com/rss/articles/CBMi0AFBVV95cUxQYUxTYXM0NkJRMl9ILXZEWWVyb2tBZVd4SXZacmhmMnRVMndIWWJhcEJuYUxPU2ZHSFhHRGR4LVdHbWhESWFicnAyMFBhazlhcEMwTUp1ZlZwNmhUaFZzSUpxWThtbzd5SldJSmw2cEZuRjJjZlN0ajZWZlJsamNheGJ3Rk1aaDZ0YnBPSlNKMlBROFQ5SUVLUXhxR29HQmh0UkdPTURvMURMQlJpbWwwQXc3M2t6MUt3c3VzSmtnM29fLW9SYmdfSlZGYUg5dW14?oc=5
+    outlet: Radar Cirebon Televisi
+    country: ID
+    language: id
+    source: gn-id-ai-regulation
+    score: 6
+    terms:
+      - kecerdasan buatan
+      - AI
+      - komdigi
+    status: new
+  - id: 060ff5f691
+    found: "2026-10-26"
+    published: "2026-10-19"
+    title: Estetika Kecerdasan Artifisial dan Etika Muhammadiyah
+    url: https://news.google.com/rss/articles/CBMikAFBVV95cUxNT2RxMmsweGp3SDB4QjI1Ynp3ZUtNVFVMTW9ONjU0UGZmVDNBNXRwTE9lUENmM21MV2RjODNkdV9kUGY1V1dCdDlTS3RJZDNZVTRFQWstMnBpdUJxOUtmRUtXY0RkakhRWU9rS2dlN3JkNkZ2cV9MR0xCOGRLQi15VF94TGtPOTA5WTNBWEhQRVg?oc=5
+    outlet: Suara Muhammadiyah
+    country: ID
+    language: id
+    source: gn-id-ai-regulation
+    score: 5
+    terms:
+      - kecerdasan artifisial
+      - etika
+    instrument: draft-perpres-ai-ethics
+    status: new
+  - id: 0891bc43f7
+    found: "2026-10-26"
+    published: "2026-10-17"
+    title: Berita Kini - Deepfake Makin Sulit Dikenali, Kemkomdigi Kaji Aturan Label Konten AI
+    url: https://news.google.com/rss/articles/CBMia0FVX3lxTE1LNFJxZGw0UElNQzg1eVE0bUMzaXotdDV4Ty1YMFhCZl9LNGlBUElrM3FIcTRvMExHLTdTQ2NVVTlVRkwxa0pDYUlSNWpEbjBhZ3FyZmI4ajBJYVBZajNmY2M5bEdEZnNWRjNF?oc=5
+    outlet: Komdigi
+    country: ID
+    language: id
+    source: gn-id-komdigi-ai
+    score: 5
+    terms:
+      - deepfake
+      - AI
+      - komdigi
+    status: new
+  - id: 0a8258cd90
+    found: "2026-10-26"
+    published: "2026-10-21"
+    title: Forum Etika Global Rumuskan Tata Kelola AI yang Bertanggung Jawab
+    url: https://news.google.com/rss/articles/CBMirgFBVV95cUxNZE1xOWtXdjRtYXZUSmp2bzdReklxbXNxUFVTcUJaV0ZtUDhNeVV3VW9iS056WkQ5WUFuMHgzcjVaR1gwR2k0WjZkamg0SGpLVkR5UmZiQW5hbmRKTlNpaGFNVXdscWQ0elFGVllvQ2dtem1NR1dPOGJjX2hDdFJITWxaV05hcHZsbXh3UDJ3Qm4yenhWaXlrYl81XzUwOWRxeGpKUmNwWFNzSTctLVE?oc=5
+    outlet: Media Indonesia
+    country: ID
+    language: id
+    source: gn-id-ai-regulation
+    score: 5
+    terms:
+      - AI
+      - etika
+      - tata kelola
+    status: new
+  - id: 15de645a27
+    found: "2026-10-26"
+    published: "2026-10-20"
+    title: Pemerintah Siapkan Aturan Etika dan Peta Jalan AI Nasional
+    url: https://news.google.com/rss/articles/CBMibkFVX3lxTE1RY1lkcnNOeTJudEFScHM3Ym5MUW9RZGNNOEdsc3ZjaDdpNEg1LU1HNFd2dFBGR0JoUkJlUnpSRzlEMF90QzhjdzJydkhLc1REUXoyWl93V2VLSjBGRjVTYk4tam1PM3ZfMTFhdWxn?oc=5
+    outlet: SuaraGarut.ID
+    country: ID
+    language: id
+    source: gn-id-ai-regulation
+    score: 5
+    terms:
+      - AI
+      - etika
+      - peta jalan
+    instrument: draft-perpres-ai-roadmap
+    status: new
+  - id: 2a51d94470
+    found: "2026-10-26"
+    published: "2026-10-23"
+    title: Lingnan University co-hosts 2026 Summit on AI Ethics and Governance; Vice-President Prof Xin Yao advocates AI governance grounded in ESG and sustainable development
+    url: https://news.google.com/rss/articles/CBMizgFBVV95cUxQaFJmMzdDRU5wS25NanNaZXY4YlFJVlJra0tub1Y4cldtbTBXNnR2ZE9JcDVwR25MT1J6NFVOUXJZM1p2NEdPYU83XzFhR29HVjRjcE5BRTdVbGhYaDRJVkRYSHdlRkNXOGJWandUSU5pQmJ4LWRpNWx6bWNnbDRRa3dqR3NEM2Z6OEU2eUl0eEtISHN6UG1MMmVPZ25CWlU3ajREOU1MdHJDbVctYXhFS3dXWTBvYWNIOEM4TDJpUGNuN3djX1RiZXlHWUpyZw?oc=5
+    outlet: Asia Research News |
+    country: TH
+    language: en
+    source: gn-th-ai
+    score: 5
+    terms:
+      - AI
+      - ethics
+      - governance
+    status: new
+  - id: 2cc8b1545b
+    found: "2026-10-26"
+    published: "2026-10-07"
+    title: Dorong Responsible AI, Kemkomdigi Tekankan Etika Pancasila pada LLM
+    url: https://news.google.com/rss/articles/CBMiqAFBVV95cUxQVHNXaGFPeVZWdzVOUHUyTlIyODFOUWpGZHh5b3g5WU1jcVRYV0FPMVpkai1NQTJtanlHeGpPVHlNdk5KenpIZ242VWxhNlF6di0yMnJHbmdHd1FCLW5nMXNYZ2swa21HalNSQWgtU3Q3WGNVZExYR0Y2QWRmZFZ0Rm9MWkYwMmNrQ2VNMS1Rdkh2VUtuSHJlZlVwYnlsZTh4Vmk2ZVdpNzA?oc=5
+    outlet: RRI.co.id
+    country: ID
+    language: id
+    source: gn-id-ai-regulation
+    score: 5
+    terms:
+      - AI
+      - etika
+      - komdigi
+    status: new
+  - id: 450472f28d
+    found: "2026-10-26"
+    published: "2026-10-20"
+    title: Indonesia Siapkan Aturan Etika AI dan Peta Jalan Nasional
+    url: https://news.google.com/rss/articles/CBMiU0FVX3lxTE5IUE5rZFBLR29lNllOWDFSWXZaZTBjZ3lyNXNNTE5lb2dTRW01cldhYWdPaFd0a2daMUJxbEFGRWZxX3RCZHFDdGlTVko4RElLWVJv?oc=5
+    outlet: شبكة تواصل الإخبارية
+    country: ID
+    language: id
+    source: gn-id-ai-regulation
+    score: 5
+    terms:
+      - AI
+      - etika
+      - peta jalan
+    instrument: draft-perpres-ai-ethics
+    status: new
+  - id: "5135516884"
+    found: "2026-10-26"
+    published: "2026-09-29"
+    title: Komdigi Soroti Bahaya Deepfake, AI Diminta Tak Dipakai untuk Mengaburkan Kebenaran - malang.disway.id
+    url: https://news.google.com/rss/articles/CBMixAFBVV95cUxOWkxtUVZPWU9tTGstSjBxY2QycGRVUVdiX1IyMXNPdWtwWGVEWmZBZWpVVHBnUVV6RjBTSnFtaGJpMmtGOE5mWUlFY0Z2Z3p3cUFnTl9LdHVSaGh3cTVReEZGVHRIclN6U1BsaDctQmZSWWZFanF4MGFCdHpmNk9mMGFRYjMzSkZPZm80OXBDdy1JSlpwdnQwZVl0cEhnajBsNkxVOUloZnNwR18yT1RBTGxqOWZGQ3FVV0E4d2JsdlQxREVZ0gG3AUFVX3lxTE1paW1zUVZZZ05uR0hWY0FEdC1TMjdLZWNseVZFMWZLNzdyQ2UwTTlxS0N1LXFwU2lNVkI2YXQ2RVlBSHN5dzRPRV9fclZTZE1KV2hodDBRYUowTV91SUd3blRYWGJLV3V6ZVkyam80eXJUWDMzMWF1TnNIQTAzLWpvcEV5MFNjTmxmM2wxenRZdzlSNTRYY0JmaTNpRklBWGt3UzlNYVZXTnFLSVdhZXAybmlpTDVzTQ?oc=5
+    outlet: Disway Malang
+    country: ID
+    language: id
+    source: gn-id-komdigi-ai
+    score: 5
+    terms:
+      - deepfake
+      - AI
+      - komdigi
+    status: new
+  - id: 6096a67bc5
+    found: "2026-10-26"
+    published: "2026-10-12"
+    title: Komdigi Susun Peta Jalan AI Nasional 2026-2029, Lima Sektor Prioritas
+    url: https://news.google.com/rss/articles/CBMikAFBVV95cUxPWFBuV0loanNnQmhvd0t2LXdocUxVWXFENzRabVFBeG0wZkpiTGh2WDQwc01kNTRZbjhLVmFOellUV1ZQWUNkX21nRVo4SjNOcjFlZFpYUWl6THRuNGQyc3E1X3ZJaEdnRHpDRjVqRE9sN05xT0Rxb1I5M1kxRGx4SjlNZk9ZeWR3QWcyME5hSk4?oc=5
+    outlet: Editor.id
+    country: ID
+    language: id
+    source: gn-id-ai-regulation
+    score: 5
+    terms:
+      - AI
+      - peta jalan
+      - komdigi
+    instrument: draft-perpres-ai-roadmap
+    status: new
+  - id: 7fb88543c1
+    found: "2026-10-26"
+    published: "2026-10-14"
+    title: Komdigi Minta Platform dan Pengembang AI Bertanggung Jawab Deteksi Deepfake
+    url: https://news.google.com/rss/articles/CBMiyAFBVV95cUxPb21SLXZ2eDRFZnJmS1FnbXNvMmRCUXl0bXRkel9sOVZVUEJ4dnpuWE94Q0dackF0QXR4anJXamwzSmxPX0N3cjJzWnZkOEdsZzNSbEhCQ0ljbk51UWNDMzZoTy1sOGx3ZnhfN0h6RUZGN2tWOE9tVlB5MU5FMGp3Yi1RYVVJbm9IeFU1NWpRR3R4dkRzU0tOd1ZDdFA1dnU0M29WZVJ2czlNTEFDNDVjTGpvRW9Ya2dXRnZyZ1pBYUJNVW14cWVvSg?oc=5
+    outlet: Bisnis Tekno
+    country: ID
+    language: id
+    source: gn-id-komdigi-ai
+    score: 5
+    terms:
+      - deepfake
+      - AI
+      - komdigi
+    status: new
+  - id: 84a690b1a7
+    found: "2026-10-26"
+    published: "2026-10-18"
+    title: Deepfake Makin Canggih, Kemkomdigi Kaji Aturan Penanda Konten Buatan AI
+    url: https://news.google.com/rss/articles/CBMisAFBVV95cUxPWXZITFFoVThJZjVFYTJ1X0ZrUWwxcWxVYVVIdG9tNVpKVGZvY1dSUFlYSUN0T1lpQkJxT0JUNXR2RmZoeGtudklhVXF4cFlUdFpnTG1zLTZkMHZ3cF9Ha2hCNS1lQzZiWWxaUEFTZzZVZjRrMFhOLWZXcV9IMGR4a3Q5Z05fclcxRjFjUmRQdEd0ZUhLa0dqWTVPOWN5Z0RwZTlRaVR3V01fd3B3MzVRVQ?oc=5
+    outlet: Berita Nasional - Media Pencerah Bangsa
+    country: ID
+    language: id
+    source: gn-id-ai-regulation
+    score: 5
+    terms:
+      - deepfake
+      - AI
+      - komdigi
+    status: new
+  - id: 8de646bedf
+    found: "2026-10-26"
+    published: "2026-09-28"
+    title: "Beyond the AI Hype: How ASEAN Can Ensure Artificial Intelligence Serves Everyday Workers"
+    url: https://news.google.com/rss/articles/CBMiX0FVX3lxTE1qSnFrVWhnQTJVMGVPeUhsWmRyV19Od1k4QVNJUXlVMklhdDdlamFjZjRDczgwMjJMa3pTM2Rrb2hxcFVHbldhZWZZYlBwMk5uLVd3X2dIZGhIWWpRV0ow?oc=5
+    outlet: Nation Thailand
+    country: ASEAN
+    language: en
+    source: gn-asean-ai
+    score: 5
+    terms:
+      - artificial intelligence
+      - AI
+      - ASEAN
+    status: new
+  - id: 9b61563521
+    found: "2026-10-26"
+    published: "2026-10-07"
+    title: "Peta Jalan AI Nasional Difinalisasi, Wamen Komdigi Nezar Patria: Jadi Acuan Tiap Sektor"
+    url: https://news.google.com/rss/articles/CBMiygFBVV95cUxQR3VVUXByRS1qNW5sV0tVZ3hyWUdmaHVpR3FWRnIzTVIzNlh4OXZQWDhRM2RmTTVjVHVSQ3pwZWxDSWNoSjNJQy00amZqalJMUnVyZS0tSVNvb0I0X0VYeVJ2QnR3M0dnTHZTRmFNeTRoWmdnNVZqOVU3YnZMU1JPbDctY3FWbHp1eEJ0TE9iSGhIdmlpUk5SNGh1Rmp1UmF0QWszZk9XbUlWbjNNWlM3aGl4SmVNM0lSYVVkNmhseDBZWEh5ZDQ1cGN3?oc=5
+    outlet: bataviapos.id
+    country: ID
+    language: id
+    source: gn-id-ai-regulation
+    score: 5
+    terms:
+      - AI
+      - peta jalan
+      - komdigi
+    instrument: draft-perpres-ai-roadmap
+    status: new
+  - id: a053ec9d45
+    found: "2026-10-26"
+    published: "2026-10-19"
+    title: Komdigi Siapkan Aturan Label Konten AI, Deepfake Makin Sulit Dibedakan dari Asli
+    url: https://news.google.com/rss/articles/CBMitAFBVV95cUxPOU5UcjlHT1R2MDYyX3B2ZFc3Vkc3UVkxN19CRnQzbS1xUUFUcnhOcWEzREhkRWhJTEN0a0UxRzUzVFRJLXlYUlBFMFllcW5FenVrakJnUkVWemhnN2IwM3NQaUc1UU13T0EwVER0ZmE2cmFwMFg0T05wSEZtS0RIRnJwNjhuRzF3VXFJYU1SVmVmSmxnZ3pHVUh1NWU0QzlLSURrTnRRRnFYY0hucnd0R1FOamo?oc=5
+    outlet: gebrak.id
+    country: ID
+    language: id
+    source: gn-id-ai-regulation
+    score: 5
+    terms:
+      - deepfake
+      - AI
+      - komdigi
+    status: new
+  - id: c14d7af9e5
+    found: "2026-10-26"
+    published: "2026-10-15"
+    title: Jaga Integritas Ilmiah di Era Kecerdasan Artifisial, Guru Besar UIN Jakarta Dorong Pembaruan Etika Akademik Perguruan Tinggi
+    url: https://news.google.com/rss/articles/CBMi5gFBVV95cUxQVi1ZWVBwcF9DU3ZRZS1lMGpac2NzejJZU0Z0Ui03S2E3NkRTRzh6M0dpcGFjdnI3UnBORFlZbUY0ajMxS1pzQUdFRHdqRWZLMDd5ZGxSTnFDS1o3cEpmNkZ3bWR0T0hnWHpvelIyM0pHY2tLVm9MRWFLeUlYYUNvWm5TZXhxQXBFSTNvN08xd2VQYlNSdDVVTnVVeTZCZjdQbXYwLXVuVVRRU25zMnhFZzB0RVZSZlpXR0tLZzJYSUtESWgtSGxVdG9QNlJySW5paHhESEV4Tm5ON01MVm9ncGxTaFhNZw?oc=5
+    outlet: UIN Jakarta
+    country: ID
+    language: id
+    source: gn-id-ai-regulation
+    score: 5
+    terms:
+      - kecerdasan artifisial
+      - etika
+    status: new
+  - id: c1ae422363
+    found: "2026-10-26"
+    published: "2026-10-19"
+    title: Komdigi Kaji Aturan Pelabelan Konten Kecerdasan Artifisial
+    url: https://news.google.com/rss/articles/CBMiZkFVX3lxTFB5al8zMlo4ckp4MXNIc09HUG96NHNVajhlcklnRFZvT1l1TmRjVkhXRXNOZFNlSmN1YVVMc1YxVDk2ejF2cWRJdmgyNnU1NktsbFNMbjdDZnYzTG0xZTBkb2JHVzJoUQ?oc=5
+    outlet: Lensa Hukum
+    country: ID
+    language: id
+    source: gn-id-ai-regulation
+    score: 5
+    terms:
+      - kecerdasan artifisial
+      - komdigi
+    status: new
+  - id: d32c5dd2ba
+    found: "2026-10-26"
+    published: "2026-10-19"
+    title: Komdigi Resmi Gelar Bali Tech Week 2026, Dorong Ekonomi Digital & Tata Kelola AI - kumparan.com
+    url: https://news.google.com/rss/articles/CBMixwFBVV95cUxNUnZ2UEc2N3dyM1BaWTZfQzZTYmtzUTZiY2lrajEzRUpQanJuVW54eHlwM0tqZkdoOWVOa1M3UUpsTUlRckpfb1B2OUIxOERVSzUyMXkya1k2SzdfdUFYYmhPSFlGUkxHM0pKZWJ6M2xJS0daSzdPQTdrQU1odmtEczZKbU1UdHU4cTZtcnhWQ2RMZGVXeXFHSWQ4MlVCQnRLbzZoVmtBYWgtaGZVU010NkNDOHJHeU1la1A5SFMwZEV1NmVsRHV30gHPAUFVX3lxTE9KQ1RxZ0FEZm1ESlpzMkJ4NkcyVmxRZ0lKUWFHelpGeExzUzFVUTBueDEtUXg3Uk9TZXBadWNHSGV3VlZlak43emd0ZllocWt5aVptVTdLVXotMEJrcjdmMGdHX0pIblJ0LThpMGY4alV0WF84djByQlpYU2pwOHZEQmJkQ3lpWkkyd3A2YnVKTlNaRkJ4TjduOXpRVEtvbjhTWV9tM0UyTUF1cFFpUWN5dTE5MWFmalB5b2cwazVYOGg4bXZSZU9ER1cxdGplUQ?oc=5
+    outlet: Kumparan.com
+    country: ID
+    language: id
+    source: gn-id-komdigi-ai
+    score: 5
+    terms:
+      - AI
+      - tata kelola
+      - komdigi
+    status: new
+  - id: f666793503
+    found: "2026-10-26"
+    published: "2026-10-19"
+    title: Komdigi Mengkaji Regulasi Label Konten Hasil AI
+    url: https://news.google.com/rss/articles/CBMioAFBVV95cUxQY1I3U24wUWV5UUVuaVlDS0JwdGJ4U3lYSlRiRDZLNDdqcWw2dlpqRTMtbUJZdVNYNGNnSHZJUENGS1JRQWMyd2NPdEhfeGRmaThjSDIwaHNvZ1NuMTN5czc3aGR4ZnVsclpoUm1ZNUZCcTR6RjhuTjkxSHBsdjQ3bXY5ZEVfT3FEMlpndU1GUnBEckVraGI5aWVqd2ZCWkUz?oc=5
+    outlet: Bloomberg Technoz
+    country: ID
+    language: id
+    source: gn-id-ai-regulation
+    score: 5
+    terms:
+      - AI
+      - regulasi
+      - komdigi
+    status: new
+  - id: 00dafaa272
+    found: "2026-10-26"
+    published: "2026-10-05"
+    title: AI Governance Bill To Be Tabled In Parliament Early Next Year
+    url: https://news.google.com/rss/articles/CBMiqgFBVV95cUxNRk9rbUtzS2V6bm9hYjZUVThUeE8zanUxSGllY3RJVHhUWkdJQkFYal9pY2dXWlY1SGRTRVg3S0p6TnRMSWVDRlFWZWVoZnRvamt3UjNTUHBaUkZ0NzBKNERqWDNicEFfTWNkSVdrTE44czBNNEx4Sy15alJLSnBjZW9GVHlZSzg2bHNCWlJ5ZnpoVVFFc3VxUEZrYUZIR28tbzJDZndKZ050dw?oc=5
+    outlet: BusinessToday Malaysia
+    country: MY
+    language: en
+    source: gn-my-ai
+    score: 4
+    terms:
+      - AI
+      - bill
+      - governance
+    status: new
+  - id: 3f14cc4afb
+    found: "2026-10-26"
+    published: "2026-10-02"
+    title: ASEAN Boards Flag Tech As Top Priority, But Just 7% Have Formal AI Governance
+    url: https://news.google.com/rss/articles/CBMivAFBVV95cUxQeThOeElVUWwtZE9kVXJ4ZGxkTWk4Y3puNWtUbVNoUi1uSVppMDY0VnRtRGN2ekZqVGhWcmhBaTZhYVB2aGVkdldRaUF2VVBzekpCeE5BRjZ2YzBsYWM1eEh5V2dSdU9acjgtOHRNdFg2RFdQYjNxdlY3ZE5HQ01YRHZHS05FR0xEMTVJTFhHWkdZRjFuTGxLbkxZSm9qeDVXV3lYUFBqQ2pqTnlzd1JwRUNvOTNhLWo4MmtuMQ?oc=5
+    outlet: BusinessToday Malaysia
+    country: ASEAN
+    language: en
+    source: gn-asean-ai
+    score: 4
+    terms:
+      - AI
+      - governance
+      - ASEAN
+    status: new
+  - id: 49e2f85383
+    found: "2026-10-26"
+    published: "2026-10-13"
+    title: President Marcos Upbeat On ASEAN’s Potential Role In Artificial Intelligence Development
+    url: https://news.google.com/rss/articles/CBMiqwFBVV95cUxObFFnVnpCa1JuZi14Z2V0bWtOUjdRZ0tNNzUtV1g4SGwyeXFUSWxCUUREUy1rdXRzbGZRbzV0cVlEdDV5RVRuRFZMNmdHRk51TkUxbWhvV1V3c1VmX2loTGhpNkdmSWFfallncnlVU0RZNTlBODJ3YXRNNTRiMlBqRWt2UEF6anhaaXE1dG1UQ0NLclNMazY5aG55ZFhqMGlTS2lGdHBtOXNoaGM?oc=5
+    outlet: pageone.ph
+    country: ASEAN
+    language: en
+    source: gn-asean-ai
+    score: 4
+    terms:
+      - artificial intelligence
+      - ASEAN
+    status: new
+  - id: 5113b93024
+    found: "2026-10-26"
+    published: "2026-10-08"
+    title: A Trump-Xi AI hotline is not governance. ASEAN must build its own
+    url: https://news.google.com/rss/articles/CBMilAFBVV95cUxOaS1pZkVURlVzeVNBOHZPVVlCUnQxbXNmOUU3YzZ6SllJYmc4MzVrbk5XcHNYeFBGMEZzQVYzVExZeGlEM3pDbzVQemlMMWNJZ3VpUXlIQkZIc2ZoekxvZkRJenJIUnBKcGFYYllfWTkyVWt2N09IM1AyUGZ6ZXoyWHFXOG5JR1lRanVtTUpmVnNLNHZj?oc=5
+    outlet: Asia News Network
+    country: ASEAN
+    language: en
+    source: gn-asean-ai
+    score: 4
+    terms:
+      - AI
+      - governance
+      - ASEAN
+    status: new
+  - id: 587c2aa3d9
+    found: "2026-10-26"
+    published: "2026-09-28"
+    title: Mafindo Jayapura Gelar Kelas Kecerdasan Artifisial AI Goes To School, Bekali Guru Dengan Ketrampilan AI Dalam Pembelajaran - Lintas Papua
+    url: https://news.google.com/rss/articles/CBMiggJBVV95cUxQU1FHaWU3S2Q5Y0dCOEJWWDVOcndsdm9OWmdnaEp2bV9tLVVFNUE2ZlE2NzROazI4ZnVQZHR4WXA0MHBaZGNtdlZibGV1bUVUd20zTFc2WlFXZGRPYXpKSUFIbEZteHlwcWEzRHRieERSbzdaWDFITVN2ZkJmeVFZQjFlbms2M1NETGo4cTgxa2FPc180OWF6UFZ3dDhDZmZJZ0s4M2VsTkYtdmVpSk1vWllqZVdhZE5VMDFvdXRuUzV1cHVkeEwwczZ4TXVzM1o4b1JnMHRBUFVRWklrZ21OQmNXWURDVGg4Mjdma3BSaXd6QzIwUFNxMXVHYUMtUVRBQ0HSAYcCQVVfeXFMTVROSGlqdksyb0dpUTJMb3BYZW5GZTd1bmQwRDByaVFsaDFkWFFOeE5wcmgxRnNQdXV6U210ZGJkNWhFSzZ2bTFXdTU3ZnIzT2ppdjlEd1JpNndtVDJGNE00Vjh3dnpfM21HWDI0NHhCWWZsZ3lsZVRXWEZmazJuY0ozVlRWUFczTlpsMWJQNHhPcUFzVHBFaHJhRkN2Vk8xWUV5aTh1Z3RZZWp1dFRLSTFRaXhoWGdQR29yb3M5UDl0OHFzMERPZmtaODRISFVBdUYzaXRmaE0yQndBRHpWWDlKb2hPYXM2ZE15N1psTW1uaEdYeXBQbTNMLTdTdUl0MllpSWdDNGs?oc=5
+    outlet: Lintas Papua
+    country: ID
+    language: id
+    source: gn-id-ai-regulation
+    score: 4
+    terms:
+      - kecerdasan artifisial
+      - AI
+    status: new
+  - id: 6964d3fec9
+    found: "2026-10-26"
+    published: "2026-10-15"
+    title: Mengawal pelindungan data pribadi dari regulasi ke pengawasan
+    url: https://news.google.com/rss/articles/CBMisgFBVV95cUxNMjltSkVQTGZQcXFrNEtYMk9LN3poT2FaMmxFd2lybWJNUE5EamFWMjZoMXhSZ3drYzV2Q0VUVnR3MWtnQVVoZUpwek5maUhGcmlTY0swZEVxTWNoenZpcnNMaXp3ampnR2l0LXlrZTFROXljRXVvVXloZ3lDRVM2X0FrN0s2OExHLXc0WnBHbEtqVkpPMUExSURHYU0zZlAzUENyNFV2QlpXYmxYUVFoT3pB0gGoAUFVX3lxTE9CR3ZmQ0dFZnNEalYzYUduM2U4TDB2OTlUbnN5dUwwTGJsaTVPTk03T0lYdEJUVV9feFRQMWZkZ2hjUXpoQ2lYVXpDWWpvOFExX2xybFRrQTVoUkpIS0pCOWVPb2JmVXJtbW5PaEJhTDliSXRWUWl6YVBzTDR5SXNDX2ZmZi0yNjV4Sk9lT0Q0VE9XQ3JFTzRCQnBxRTFmOG8tZE14dFNzUw?oc=5
+    outlet: ANTARA News
+    country: ID
+    language: id
+    source: gn-id-pdp
+    score: 4
+    terms:
+      - regulasi
+      - pelindungan data pribadi
+    instrument: uu-pdp-27-2022
+    status: new
+  - id: 69a5bf37b3
+    found: "2026-10-26"
+    published: "2026-10-07"
+    title: "MAS AI Risk Management Guidelines: Turning AI governance into operational reality for financial institutions"
+    url: https://news.google.com/rss/articles/CBMilwFBVV95cUxOXzhadWpzOW9ZWGtnb0NBVEU5ODV5NlNkNVdrWnM1eUZnci13YVpRZWNIZUs0QU8xVUxPSVlNWnFqRVIxNmZmS3p0VHp2Z0YzZU9DMzhmbzFKY0RDU1hEck1fZzRQY1d1aUJXazZESndmUW84bGktZmZvM3NYVEVwaHdnNlJMTzE5YUIzV0dyXzlrWmxzRWtj?oc=5
+    outlet: PwC
+    country: SG
+    language: en
+    source: gn-sg-ai
+    score: 4
+    terms:
+      - AI
+      - governance
+      - guideline
+    status: new
+  - id: 69f0b58e19
+    found: "2026-10-26"
+    published: "2026-10-12"
+    title: ASEAN’s AI opportunity depends on trustworthy governance
+    url: https://news.google.com/rss/articles/CBMimwFBVV95cUxPQTFFZ0tSWW5GNWlVOThXQ1NTWHJQRmFMbWxYUVNJSmRQWnhRa3NjYjVBeGNYUER4N2Y1WEo3Uk9aRVh0cHhscXNiUWtkZHIxbjNqcnhVUWhabkhjdTdTSTA5ZU1UUlJjM1Z4V0oxcUNDNnFNV1FzRS1NYTlVYmpDYmxINlBnbXd5OFdRa2RiMFVSYndlaG9TZVg4RQ?oc=5
+    outlet: GovInsider
+    country: ASEAN
+    language: en
+    source: gn-en-indonesia-ai
+    score: 4
+    terms:
+      - AI
+      - governance
+      - ASEAN
+    status: new
+  - id: "7313170262"
+    found: "2026-10-26"
+    published: "2026-10-07"
+    title: Indonesia weighs child-safety protections in AI governance framework
+    url: https://news.google.com/rss/articles/CBMisAFBVV95cUxPdVRYRmF1dHZkemxDYlZGc3haVklyelRBRXdtYzJHSzhtY1ZNd2l4WXNuc1VKblVUdTBkOWRkRHExYVVjNDJQWjc0ZGQ1OFVteXVmRHY1dFBPT3VBbzh1a2h0ejc4UVpHZUNFX1NVOGRtR3A0bVhlVXhsWWdjc2FIQ2Y1SWVhRks3MHZzUHZLUm9ONDRzb1NSYnVWbkpyRkJlemNEbTVtVWVsdnZvRTZyYdIBWkFVX3lxTE1MaVgyc3U5SkZESFlDdVRlSWUxRUNtVV9ybGFEbmRQMmx2Vzl4X1lBYTJQTWtKTW80ekQzZ2EwTHczQXYyRXI0RjJ1MmdlSXhkZlJoWnMtMl9nQQ?oc=5
+    outlet: MLex
+    country: ID
+    language: en
+    source: gn-en-indonesia-ai
+    score: 4
+    terms:
+      - AI
+      - governance
+      - framework
+    status: new
+  - id: 805e3c1d90
+    found: "2026-10-26"
+    published: "2026-10-10"
+    title: The overlap between Singapore copyright law and AI governance
+    url: https://news.google.com/rss/articles/CBMiiwFBVV95cUxNczJlTnF6LWxBNFZBVkd2c0pBdWhHWXAzbGlHRjVmNHdLcjNtRXdKVk01WmtMTHlPTUdwZHBuaG8xU0g1bHhkQ2I4MGVXc0VFd2w3U1VwaTY3UTRDYlNTcFYxNVNnY2w4NlJxRC1qU2xPcXlSQlBlYmRUUkM0cnpmcVVYb3l4dnNYX2lV?oc=5
+    outlet: International Bar Association | IBA
+    country: SG
+    language: en
+    source: gn-sg-ai
+    score: 4
+    terms:
+      - AI
+      - law
+      - governance
+    status: new
+  - id: 86c1230cb2
+    found: "2026-10-26"
+    published: "2026-10-04"
+    title: AI Governance Bill expected in Dewan Rakyat early next year, says Gobind
+    url: https://news.google.com/rss/articles/CBMiuwFBVV95cUxPX3laRGtEcTVfc28zQW9TaldULU5FVzFMejV1Z0ZfY1BlTHdpdm05UzVuTVBlaG9pbEVLN29vellVN1VUTEpKVkVBVUtzRHNhaFFSb0xhZUVrSld0SHE3aWRtQi1XdVJIbGp2UlBKWFQ2QWU3by1aT3YxdVEwNUhWdHhtNEthQ0czMS1kMkJabVhXNW16V2RhVFM3a2R0OVAwN19NRjZZakVtZ1B6eXdRZDFEbUZSTWhldzR30gHAAUFVX3lxTE43T0RwOVdnSU1PRDAwUFVnNVFpZmxkSUZDSTVwTUZnYVoyYVlZWFRDcVRnZk8yY2JVZ3ViaC1neEUwbkU4eG11TG9OZmVNMGwwaWVWWnNkZ1pXMFdRNUVfUkVCUjNlNVZWSHh3cDJ4UG9qZ0MxMU1ZTlNBTXphWTl2azRWU3A5YmZVUkNMUDJnNks5M2dsOTdBWVBVVllaVHozRkNiSmRDcGIzczY3MU9rbUpCZERoRXJWYktPWklpYQ?oc=5
+    outlet: NST Online
+    country: MY
+    language: en
+    source: gn-en-indonesia-ai
+    score: 4
+    terms:
+      - AI
+      - bill
+      - governance
+    status: new
+  - id: 9f1b1cbae7
+    found: "2026-10-26"
+    published: "2026-10-15"
+    title: ASEAN Statement Calls on Nations to Safeguard Journalism Against Artificial Intelligence
+    url: https://news.google.com/rss/articles/CBMi2AFBVV95cUxORW8wXzJIU1JzNlRUdnVORzZ0WmhTM3NuN3pOX2g1aHQ0QW1tcUZmYzBpMVZ3MXBGWFVNdEpuNTE2MEIyRFlEb3NmSHhGcFdSR2w4WnZOcFNQa3RIbDM2WnRaMWVaSjBHQnRvZEMtUmk4ZlNyU1BoTmd4bXFfeUNtV3ZrTm14YVlkWG9INnBycXBGSlJMOXJUcExiWWYzNlZLVF9fbTZ1U2dlUU9wMHJGMHpwUHl4Z3IyeDFWRmdfUjFTYjZ5aDBMV0xjQmpQcUlDSmFUa2dDQlA?oc=5
+    outlet: Thailand Business News
+    country: ASEAN
+    language: en
+    source: gn-asean-ai
+    score: 4
+    terms:
+      - artificial intelligence
+      - ASEAN
+    status: new
+  - id: a737ddb504
+    found: "2026-10-26"
+    published: "2026-10-21"
+    title: Gugus Tugas Kecerdasan Artifisial Nasional Diperkenalkan di Peruri Digital Summit 2026
+    url: https://news.google.com/rss/articles/CBMioAFBVV95cUxPNFF0ZHdaN05BUXlPSm5nQlZYTkwtcXFnak01OGc0ZkVZblJ3VjJqd0xySUtMZmFTbmRzS25YNjBweGtqQUQyZ2xvOWQ4Mkxsb0g2RDZzQVVVVTVJZ0k2ZUhDZ2RrSHdXMXgzeVdGeS1MQXVaM0I1ZHR4MmVCbnVqYUpuanN3UWVLejJqSkhUdFZuX0RXOUxWeWRZa05Rc1J3?oc=5
+    outlet: Head Topics
+    country: ID
+    language: id
+    source: gn-id-ai-regulation
+    score: 4
+    terms:
+      - kecerdasan artifisial
+      - gugus tugas
+    instrument: draft-perpres-ai-roadmap
+    status: new
+  - id: c65c573c07
+    found: "2026-10-26"
+    published: "2026-10-20"
+    title: Indonesia Siapkan Perpres AI, Meutya Hafid Pastikan Tak Hambat Inovasi
+    url: https://news.google.com/rss/articles/CBMivAFBVV95cUxNVFpLbDlVc25sdVhIOEJIQkdTdUVWQ1BPUXNFYVlfODU5LTl2X2phZ21VQmh1bFgwbWh2M18xbHVLUEc2cTZ0cU1kX2t0N20xWEVzUi1QMlU4NDVGMjBTbXVaeG9LMGlOd0lvX2dRek1IVEFFbXMtZ09HenlpRXpmQ2pQXzltVG9GMDBYdi1LajBEV3ZkdmsxQTRadWw3ZS0waVZRc1VYblNJYjJGek1hVklDM1NsaGtELWRGcg?oc=5
+    outlet: Kompas.com
+    country: ID
+    language: id
+    source: gn-id-ai-regulation
+    score: 4
+    terms:
+      - AI
+      - perpres
+      - meutya hafid
+    status: new
+  - id: c98a94a8be
+    found: "2026-10-26"
+    published: "2026-10-21"
+    title: "Implementasi UU PDP Pasca Terbitnya PP 33/2026: Menata Kepatuhan, Tata Kelola Data, dan Eksposur Hukum Korporasi"
+    url: https://news.google.com/rss/articles/CBMihgJBVV95cUxNYTlSMVFJLUNqSzRZX1NMSHM1VTVZalRldjZsT1pVc0J5VWpuaTNRc21VSmtZc0JnUDNMU1lKMnJaRE5IQUZzODJ2eU15d0l0bHJFeDNhRzdpNzlfcl9DdU1ZaF9QTGRzeVpPUzZGWTcxMFExSGNVWjJGVTVkYUNaOHViX0pabXJUUUlZa3huenZNQUVUdFVHTlM3X0d5NnRlSHA5ZWZoSGdjZ21rSTBHb2w3OVQxVmFCWGlXZC1GMkZSX1hNZUpkSUNTMU1vWi1abDlXa0xqSmlOOVI4NEI3VG5vRGJtM21hU3NfZWt1Ri1weEVHbGFkSDdFUHU3enN2RTQxSVhB?oc=5
+    outlet: Hukumonline
+    country: ID
+    language: id
+    source: gn-id-pdp
+    score: 4
+    terms:
+      - tata kelola
+      - UU PDP
+    instrument: gr-33-2026
+    status: new
+  - id: d286af6688
+    found: "2026-10-26"
+    published: "2026-10-05"
+    title: "Gobind: AI Governance Bill to be tabled in Parliament early 2027"
+    url: https://news.google.com/rss/articles/CBMiUEFVX3lxTE84Mk1rZFdiSjhKcG1RV0lpcjN4ZGNIX3lXT2FfMDBOQ2MweGVXbG95SlA5U0kxa0dMdnNpZFNHbFFTMnBIQXlzWnNfUVEzQXVU?oc=5
+    outlet: The Edge Malaysia
+    country: MY
+    language: en
+    source: gn-my-ai
+    score: 4
+    terms:
+      - AI
+      - bill
+      - governance
+    status: new
+  - id: e23cb75212
+    found: "2026-10-26"
+    published: "2026-10-05"
+    title: AI Governance Bill delayed to early next year
+    url: https://news.google.com/rss/articles/CBMiqgFBVV95cUxOeGo1RGJwY0QxMzIxOEk4RkNOXzNEekhZZ1hDYVVJSmFnRzAtQzFOWkFOdW1nNnVvMEg4WjV4NXBjWWhkMGFaRFdRc2RJUU9YSjc0SFVJR3YtdzIxdUMzRjFjUFFfV3lKZzZ0Um5Qd3hvRmNBd2tVWHU3b3dvME9RaWdVYmhnZzktX05aRUM0ZGx2bUptd2JSeER2VWV6LXJnSzlXN3hJeTVJQQ?oc=5
+    outlet: Free Malaysia Today
+    country: MY
+    language: en
+    source: gn-my-ai
+    score: 4
+    terms:
+      - AI
+      - bill
+      - governance
+    status: new

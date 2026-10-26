@@ -50,5 +50,7 @@ my_take: >
 sources:
   - title: Komdigi explains its consultation with the US on the draft AI regulation
     url: https://www.antaranews.com/berita/5612117/kemkomdigi-jelaskan-isi-konsultasi-dengan-as-soal-rancangan-perpres-ai
+    archive_url: https://web.archive.org/web/20260908122207/https://www.antaranews.com/berita/5612117/kemkomdigi-jelaskan-isi-konsultasi-dengan-as-soal-rancangan-perpres-ai
+    archived_at: 2026-09-08
     outlet: ANTARA
     language: id

@@ -27,3 +27,4 @@ Lines can carry tags in brackets after the date. The site reads them: `[correcti
 
 - 2026-10-27: Added a reading list for the analysis papers. The International AI Safety Report 2026 is being read; the CLTR (2024), CSET (2025), OECD (2025) and Sidhu et al. (2026) reports are planned. An item moves to the main list only when it is finished and has the author's notes.
 - 2026-10-27: Added a Corrections page that lists every changelog line tagged as a correction, a two-page printable brief of Analysis 01, contribution guidelines, a code of conduct, a security policy and issue forms for corrections, sources and promises. The footer now links the research pages.
+- 2026-10-27: The About page has a new section, "Where this is going" ("Arah ke depan"), on the direction of the project. Nothing else about the author changed.

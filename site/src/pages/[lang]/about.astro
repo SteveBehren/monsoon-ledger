@@ -48,9 +48,9 @@ const languages = [
 
 const toc =
   lang === 'en'
-    ? ['Abstract', 'Background', 'The problem', 'Objectives', 'Scope and limits', 'Contribution', 'About the author', 'Why Indonesian first', 'Why the name']
-    : ['Abstrak', 'Latar belakang', 'Masalah', 'Tujuan', 'Cakupan dan batasan', 'Kontribusi', 'Tentang penulis', 'Kenapa bahasa Indonesia lebih dulu', 'Kenapa namanya Monsoon Ledger'];
-const ids = ['abstract', 'background', 'problem', 'objectives', 'scope', 'contribution', 'author', 'language', 'name'];
+    ? ['Abstract', 'Background', 'The problem', 'Objectives', 'Scope and limits', 'Contribution', 'About the author', 'Why Indonesian first', 'Why the name', 'Where this is going']
+    : ['Abstrak', 'Latar belakang', 'Masalah', 'Tujuan', 'Cakupan dan batasan', 'Kontribusi', 'Tentang penulis', 'Kenapa bahasa Indonesia lebih dulu', 'Kenapa namanya Monsoon Ledger', 'Arah ke depan'];
+const ids = ['abstract', 'background', 'problem', 'objectives', 'scope', 'contribution', 'author', 'language', 'name', 'direction'];
 const h = (i: number) => ({ id: ids[i], text: toc[i] });
 ---
 <Base lang={lang} path="about/" title={t.nav.about} nav="about" description={lang === 'en' ? 'Why Monsoon Ledger exists, what it sets out to do, and who writes it.' : 'Mengapa Monsoon Ledger ada, apa tujuannya, dan siapa penulisnya.'}>
@@ -414,6 +414,27 @@ const h = (i: number) => ({ id: ids[i], text: toc[i] });
           <p>
             Musim hujan sudah diramalkan dan diumumkan jauh sebelum datang. Aturan AI di Indonesia juga begitu: diumumkan, diberi tanggal,
             lalu diumumkan lagi. Buku catatan ini merekam apa yang dijanjikan dan apa yang benar-benar terjadi.
+          </p>
+        )
+      }
+
+      <!-- TODO author: confirm wording -->
+      <h2 id={h(9).id}>{h(9).text}</h2>
+      {
+        lang === 'en' ? (
+          <p>
+            Monsoon Ledger started as a way to check what governments promise about AI against what happens. The longer question
+            underneath it is what a country needs in place to notice, report and respond when advanced AI systems fail. I want to work
+            on that full time, on AI safety and governance, and I am building the evidence in public as I go: this ledger, the analysis
+            papers, the incident reference and the reading list. Corrections and criticism make the work better, and are welcome.
+          </p>
+        ) : (
+          <p>
+            Monsoon Ledger berawal dari keinginan membandingkan janji pemerintah soal AI dengan kenyataannya. Pertanyaan yang lebih
+            panjang di baliknya adalah apa yang perlu dimiliki sebuah negara supaya bisa mengetahui, melaporkan, dan menanggapi ketika
+            sistem AI yang canggih gagal. Saya ingin mengerjakan ini sepenuhnya, di bidang keselamatan dan tata kelola AI, dan saya
+            membangun buktinya secara terbuka: ledger ini, makalah analisis, rujukan insiden, dan daftar bacaan. Koreksi dan kritik
+            membuat karya ini lebih baik, dan saya sambut dengan senang hati.
           </p>
         )
       }

@@ -1,0 +1,199 @@
+---
+// The safety lens: seven questions asked of every entry, the definitions used to answer them,
+// what would change each row, and how the questions relate to the threat models in Analysis 01.
+// Values come from the entries; rules from scripts/lens.mjs. Nothing here is computed by hand.
+import Base from '../../layouts/Base.astro';
+import { getEntries, getInstruments, lensOf, lensTone, LENS_FIELDS, TODAY, type Entry, type LensField } from '../../lib/data';
+import { ui, href, pick, fmtDate, LANGS, type Lang } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const t = ui[lang];
+const entries = getEntries();
+const instruments = getInstruments();
+const asOf = entries.reduce((max, e) => (e.lens_checked && e.lens_checked > max ? e.lens_checked : max), '');
+// Checked on 26 October 2026 against the ministry's official list of draft regulations (JDIH Komdigi).
+const DRAFTS_CHECKED = '2026-10-26';
+const paperEn = href('en', 'analysis/nobody-to-call/');
+
+const valueLabel = (field: LensField, v: string) =>
+  field === 'enforcement' ? t.enforcement[v as keyof typeof t.enforcement] : field === 'recipient' ? t.recipient[v as keyof typeof t.recipient] : t.yesNo[v as keyof typeof t.yesNo];
+
+const copy =
+  lang === 'en'
+    ? {
+        title: 'Safety lens',
+        lede: 'Seven questions asked of every entry, about what the instrument says on incidents, uses, models, enforcement, who receives reports, borders and frontier AI. Each coded value names its source.',
+        asOf: (d: string) => `Lens values as of ${fmtDate(lang, d)}.`,
+        tableCaption: 'Safety lens by entry. Unclear means no cited source settles the question yet.',
+        entry: 'Entry',
+        change: 'What would change this row',
+        definitions: 'Definitions',
+        defs: [
+          ['Yes', 'A cited source states it.'],
+          ['No', 'A cited source states the opposite, or the full text has been read and it is absent. Absence in a press summary is not no.'],
+          ['Unclear', 'The default, until a source settles it. Unclear is not no.'],
+        ],
+        enforcementDef: 'Enforcement is binding, soft (for example self-assessment, no sanctions), none, or unclear.',
+        recipientDef:
+          'Who receives reports is named and operating (a named body that exists and works), named but not set up, not named, or unclear.',
+        validator: 'The validator rejects a coded value without a basis sentence, and a "no" taken from a press report.',
+        drafts: `The draft texts of the AI roadmap and AI ethics regulations were not published as of ${fmtDate(lang, DRAFTS_CHECKED)}: neither appeared on the ministry's official list of draft regulations. Lens values for those drafts come from officials' statements.`,
+        threat: 'How the lens maps to threat models',
+        threatCaption: 'Threat models, first signals and the lens questions that matter most',
+        threatLede: 'This mapping uses only the claims of Analysis 01. It shows which questions matter for which kind of risk, not how likely any risk is.',
+        threatHead: ['Threat model, as in Analysis 01', 'Where the first signal tends to appear', 'Lens questions that matter most'],
+        threatRows: [
+          ['Misuse at scale', 'Unusual account activity and intrusions at targets, seen by the developer or the targets.', ['incident_reporting', 'enforcement'] as LensField[]],
+          ['Misaligned agent action in the wild', 'Out-of-scope actions on third-party systems, often seen first by the third party or outside researchers, sometimes abroad.', ['recipient', 'cross_border', 'incident_reporting'] as LensField[]],
+          ['Loss of control', 'Not observed, and judged beyond current systems. Signals would likely be weak, scattered and partly outside the developer\'s logs.', ['frontier_scope', 'incident_reporting', 'recipient'] as LensField[]],
+        ],
+        threatNote: 'Source: Analysis 01, Section 3 and Table 2. The classification is the author\'s assessment.',
+        readPaper: 'Read Analysis 01',
+        changeText: {
+          draftText: 'Publication of the draft text.',
+          fullText: 'A full reading of the published text.',
+          body: 'The named body being set up.',
+          amend: 'A new or amended text.',
+        },
+      }
+    : {
+        title: 'Lensa keselamatan',
+        lede: 'Tujuh pertanyaan untuk setiap catatan, tentang isi instrumen soal insiden, penggunaan, model, penegakan, penerima laporan, lintas batas, dan AI garda depan. Setiap nilai yang dikodekan menyebut sumbernya.',
+        asOf: (d: string) => `Nilai lensa per ${fmtDate(lang, d)}.`,
+        tableCaption: 'Lensa keselamatan per catatan. Belum jelas berarti belum ada sumber yang menjawab pertanyaannya.',
+        entry: 'Catatan',
+        change: 'Yang bisa mengubah baris ini',
+        definitions: 'Definisi',
+        defs: [
+          ['Ya', 'Sumber yang dikutip menyatakannya.'],
+          ['Tidak', 'Sumber yang dikutip menyatakan sebaliknya, atau naskah lengkapnya sudah dibaca dan hal itu tidak ada. Tidak disebut dalam ringkasan berita tidak sama dengan tidak.'],
+          ['Belum jelas', 'Nilai bawaan, sampai ada sumber yang menjawabnya. Belum jelas tidak sama dengan tidak.'],
+        ],
+        enforcementDef: 'Penegakan bernilai mengikat, lunak (misalnya penilaian mandiri tanpa sanksi), tidak ada, atau belum jelas.',
+        recipientDef:
+          'Penerima laporan bernilai disebut dan sudah berjalan (badan yang disebut, sudah ada, dan bekerja), disebut tetapi belum dibentuk, tidak disebut, atau belum jelas.',
+        validator: 'Validator menolak nilai yang dikodekan tanpa kalimat dasar, dan nilai tidak yang diambil dari berita.',
+        drafts: `Naskah rancangan Perpres peta jalan AI dan Perpres etika AI belum dipublikasikan per ${fmtDate(lang, DRAFTS_CHECKED)}: keduanya tidak ada dalam daftar resmi rancangan peraturan kementerian. Nilai lensa untuk rancangan itu berasal dari pernyataan pejabat.`,
+        threat: 'Hubungan lensa dengan model ancaman',
+        threatCaption: 'Model ancaman, sinyal pertama, dan pertanyaan lensa yang paling penting',
+        threatLede: 'Pemetaan ini hanya memakai klaim dalam Analisis 01. Pemetaan ini menunjukkan pertanyaan mana yang penting untuk jenis risiko apa, bukan seberapa besar kemungkinan risikonya.',
+        threatHead: ['Model ancaman, seperti dalam Analisis 01', 'Tempat sinyal pertama biasanya muncul', 'Pertanyaan lensa yang paling penting'],
+        threatRows: [
+          ['Penyalahgunaan berskala besar', 'Aktivitas akun yang tidak biasa dan penyusupan di sasaran, terlihat oleh pengembang atau sasarannya.', ['incident_reporting', 'enforcement'] as LensField[]],
+          ['Tindakan agen yang tidak selaras di dunia nyata', 'Tindakan di luar tugas pada sistem pihak ketiga, sering lebih dulu terlihat oleh pihak ketiga atau peneliti luar, kadang di luar negeri.', ['recipient', 'cross_border', 'incident_reporting'] as LensField[]],
+          ['Hilangnya kendali', 'Belum teramati, dan dinilai di luar kemampuan sistem saat ini. Sinyalnya kemungkinan lemah, tersebar, dan sebagian di luar catatan pengembang.', ['frontier_scope', 'incident_reporting', 'recipient'] as LensField[]],
+        ],
+        threatNote: 'Sumber: Analisis 01, bagian 3 dan tabel 2 (dalam bahasa Inggris). Klasifikasinya adalah penilaian penulis.',
+        readPaper: 'Baca Analisis 01',
+        changeText: {
+          draftText: 'Naskah rancangannya dipublikasikan.',
+          fullText: 'Naskah yang dipublikasikan dibaca lengkap.',
+          body: 'Badan yang disebut benar-benar dibentuk.',
+          amend: 'Naskah baru atau perubahan naskah.',
+        },
+      };
+
+/** What would change a row, derived from the entry and its instrument, never written by hand. */
+function wouldChange(e: Entry): string[] {
+  const inst = instruments.find((i) => i.id === e.instrument);
+  const out: string[] = [];
+  const unclear = LENS_FIELDS.some((f) => lensOf(e, f) === 'unclear');
+  if (inst?.status === 'draft' && !inst.read_in_full) out.push(copy.changeText.draftText);
+  else if (unclear && !inst?.read_in_full) out.push(copy.changeText.fullText);
+  if (lensOf(e, 'recipient') === 'named_not_established') out.push(copy.changeText.body);
+  if (!out.length) out.push(copy.changeText.amend);
+  return out;
+}
+---
+<Base lang={lang} path="safety/" title={copy.title} description={copy.lede}>
+  <header class="page-head">
+    <p class="kicker">{t.safetyLens}</p>
+    <h1>{copy.title}</h1>
+    <p class="lede">{copy.lede}</p>
+    <p class="label-note">{copy.asOf(asOf || TODAY)}</p>
+  </header>
+
+  <section aria-labelledby="lens-table-h">
+    <h2 id="lens-table-h" class="visually-hidden">{copy.tableCaption}</h2>
+    <div class="table-scroll" role="region" aria-labelledby="lens-caption" tabindex="0">
+      <table class="lens-v2">
+        <caption id="lens-caption">{copy.tableCaption} {copy.asOf(asOf || TODAY)}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{copy.entry}</th>
+            {LENS_FIELDS.map((f) => <th scope="col" title={t.topicQuestion[f]}>{t.topic[f]}</th>)}
+            <th scope="col">{copy.change}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            entries.map((e) => (
+              <tr>
+                <th scope="row">
+                  <a href={href(lang, `entries/${e.id}/`)}>{pick(lang, e.title_en, e.title_id)}</a>
+                  <span class="hint">{t.evidence[e.evidence]}</span>
+                </th>
+                {LENS_FIELDS.map((f) => (
+                  <td>
+                    <span class="lens-value">
+                      <span class={`mark mark--${lensTone(lensOf(e, f))}`} aria-hidden="true" />
+                      {valueLabel(f, lensOf(e, f))}
+                    </span>
+                  </td>
+                ))}
+                <td>{wouldChange(e).join(' ')}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="doc-body" aria-labelledby="definitions">
+    <h2 id="definitions">{copy.definitions}</h2>
+    <dl class="defs">
+      {
+        copy.defs.map(([term, def]) => (
+          <>
+            <dt>{term}</dt>
+            <dd>{def}</dd>
+          </>
+        ))
+      }
+    </dl>
+    <p>{copy.enforcementDef}</p>
+    <p>{copy.recipientDef}</p>
+    <p>{copy.validator}</p>
+    <p>{copy.drafts}</p>
+  </section>
+
+  <section class="doc-body" aria-labelledby="threat-h">
+    <h2 id="threat-h">{copy.threat}</h2>
+    <p>{copy.threatLede}</p>
+    <div class="table-scroll" role="region" aria-labelledby="threat-caption" tabindex="0">
+      <table>
+        <caption id="threat-caption">{copy.threatCaption}</caption>
+        <thead>
+          <tr>{copy.threatHead.map((h) => <th scope="col">{h}</th>)}</tr>
+        </thead>
+        <tbody>
+          {
+            copy.threatRows.map(([model, signal, fields]) => (
+              <tr>
+                <th scope="row">{model as string}</th>
+                <td>{signal as string}</td>
+                <td>{(fields as LensField[]).map((f) => t.topic[f]).join(', ')}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="label-note">{copy.threatNote} <a href={`${paperEn}#3-why-this-belongs-in-a-loss-of-control-conversation`} hreflang="en">{copy.readPaper}</a></p>
+  </section>
+</Base>

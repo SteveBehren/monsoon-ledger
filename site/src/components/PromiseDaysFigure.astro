@@ -1,0 +1,136 @@
+---
+// Figure: each dated promise, measured in days against its deadline on the paper's facts day.
+// Outcomes come from scripts/promises.mjs (through the paper loader), never from the text.
+// Missed promises draw to the right of the deadline line, an open one draws grey to the left.
+// The same numbers are in a visually hidden table for screen readers.
+// @ts-ignore: plain JavaScript module shared with the validator.
+import { splitWho } from '../../../scripts/promises.mjs';
+import { fmtDate, MONTHS, type Lang } from '../lib/i18n';
+import type { PaperPromise } from '../lib/analysis';
+
+interface Props {
+  lang: Lang;
+  asOf: string;
+  rows: PaperPromise[];
+  /** Caption HTML from the paper, with its citations already linked. */
+  caption: string;
+  id?: string;
+}
+
+const { lang, asOf, rows: all, caption, id = 'figure-1' } = Astro.props;
+const rows = all.filter((p) => p.row.claim_type === 'dated' && p.row.deadline).reverse();
+const short = (iso: string) => {
+  const [y, m, d] = iso.split('-').map(Number);
+  return `${d} ${MONTHS[lang].short[m - 1]} ${y}`;
+};
+const value = (p: PaperPromise) => (p.outcome === 'open' ? -(p.days_remaining ?? 0) : p.days_past ?? 0);
+
+const copy =
+  lang === 'en'
+    ? {
+        title: 'Days past the deadline for each dated promise',
+        desc: (n: number, missed: number) =>
+          `${n} dated promises to issue Indonesia's AI regulations, as of ${fmtDate(lang, asOf)}. ${missed} have passed their deadline. The open promise is shown in grey, left of the deadline line.`,
+        axis: 'Days past the deadline',
+        deadline: 'deadline',
+        asOf: `As of ${fmtDate(lang, asOf)}`,
+        said: 'said',
+        due: 'due',
+        left: (n: number) => `open, ${n} days left`,
+        past: (n: number) => `${n} days`,
+        th: ['Said on', 'Who', 'Deadline', 'Outcome', 'Days'],
+        tableCaption: 'Data for the figure',
+      }
+    : {
+        title: 'Hari lewat tenggat untuk setiap janji bertenggat',
+        desc: (n: number, missed: number) =>
+          `${n} janji bertenggat untuk menerbitkan regulasi AI Indonesia, per ${fmtDate(lang, asOf)}. ${missed} sudah lewat tenggat. Janji yang masih terbuka berwarna abu-abu, di kiri garis tenggat.`,
+        axis: 'Hari lewat tenggat',
+        deadline: 'tenggat',
+        asOf: `Per ${fmtDate(lang, asOf)}`,
+        said: 'diucapkan',
+        due: 'tenggat',
+        left: (n: number) => `terbuka, ${n} hari lagi`,
+        past: (n: number) => `${n} hari`,
+        th: ['Diucapkan', 'Oleh', 'Tenggat', 'Hasil', 'Hari'],
+        tableCaption: 'Data untuk gambar ini',
+      };
+const outcomeWord = lang === 'en' ? { missed: 'Missed', open: 'Open', met: 'Met', 'no-deadline': 'No deadline' } : { missed: 'Terlewat', open: 'Masih terbuka', met: 'Terpenuhi', 'no-deadline': 'Tanpa tenggat' };
+
+// Layout, in SVG units. The scale runs from the largest open gap to the largest miss, in hundreds.
+const W = 740;
+const left = 300;
+const right = 700;
+const rowH = 44;
+const top = 34;
+const plotH = rows.length * rowH;
+const lo = Math.min(0, Math.floor(Math.min(...rows.map(value)) / 100) * 100);
+const hi = Math.max(100, Math.ceil(Math.max(...rows.map(value)) / 100) * 100);
+const x = (v: number) => left + ((v - lo) / (hi - lo)) * (right - left);
+const ticks: number[] = [];
+for (let v = lo; v <= hi; v += 100) ticks.push(v);
+const H = top + plotH + 46;
+const titleId = `${id}-title`;
+const descId = `${id}-desc`;
+const missed = rows.filter((p) => p.outcome === 'missed').length;
+---
+<figure class="paper-figure" id={id}>
+  <svg class="pd-chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby={`${titleId} ${descId}`}>
+    <title id={titleId}>{copy.title}</title>
+    <desc id={descId}>{copy.desc(rows.length, missed)}</desc>
+    <text class="pd-asof" x={right} y="16" text-anchor="end">{copy.asOf}</text>
+    {
+      ticks.map((v) => (
+        <g class="pd-tick">
+          <line x1={x(v)} x2={x(v)} y1={top - 6} y2={top + plotH} class={v === 0 ? 'pd-zero' : 'pd-grid'} />
+          <text x={x(v)} y={top + plotH + 18} text-anchor="middle">{v}</text>
+        </g>
+      ))
+    }
+    <text class="pd-zero-label" x={x(0) + 4} y={top - 10}>{copy.deadline}</text>
+    {
+      rows.map((p, i) => {
+        const v = value(p);
+        const y = top + i * rowH;
+        const x0 = x(Math.min(0, v));
+        const w = Math.max(2, Math.abs(x(v) - x(0)));
+        const { name } = splitWho(p.row.who);
+        return (
+          <g class={`pd-row pd-${p.outcome}`}>
+            <text class="pd-who" x={left - 12} y={y + 18} text-anchor="end">{name}, {copy.said} {short(p.row.date_said)}</text>
+            <text class="pd-due" x={left - 12} y={y + 34} text-anchor="end">{copy.due} {short(p.row.deadline!)}</text>
+            <rect class="pd-bar" x={x0} y={y + 10} width={w} height="20" rx="2" />
+            {p.outcome === 'open' ? (
+              <text class="pd-value" x={x0 + w + 6} y={y + 25}>{copy.left(p.days_remaining ?? 0)}</text>
+            ) : (
+              <text class="pd-value" x={x(v) + 6} y={y + 25}>{copy.past(v)}</text>
+            )}
+          </g>
+        );
+      })
+    }
+    <text class="pd-axis" x={(left + right) / 2} y={H - 6} text-anchor="middle">{copy.axis}</text>
+  </svg>
+  <div class="visually-hidden">
+  <table>
+    <caption>{copy.tableCaption}</caption>
+    <thead>
+      <tr>{copy.th.map((h) => <th scope="col">{h}</th>)}</tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((p) => (
+          <tr>
+            <td>{fmtDate(lang, p.row.date_said)}</td>
+            <td>{splitWho(p.row.who).name}</td>
+            <td>{fmtDate(lang, p.row.deadline!)}</td>
+            <td>{outcomeWord[p.outcome]}</td>
+            <td>{p.outcome === 'open' ? copy.left(p.days_remaining ?? 0) : copy.past(p.days_past ?? 0)}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+  </div>
+  {caption && <figcaption set:html={caption} />}
+</figure>

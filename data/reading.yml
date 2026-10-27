@@ -1,0 +1,50 @@
+# Reading list: what the author reads for the analysis papers, with notes once read.
+# status: planned, reading or read. A row marked read needs date_finished and notes in both
+# languages. Notes are the author's own words; Claude does not write them.
+# Schema: data/reading.schema.json. Checks: scripts/reading.mjs.
+
+- id: iasr-2026
+  title: International AI Safety Report 2026
+  authors: Bengio, Y. et al.
+  year: 2026
+  kind: report
+  url: https://internationalaisafetyreport.org/publication/2026-report-executive-summary
+  status: reading
+  # TODO author: add my_notes_en and my_notes_id, and date_finished, when you finish it.
+  used_in: [analysis:nobody-to-call]
+
+- id: cltr-2024
+  title: "AI incident reporting: Addressing a gap in the UK's regulation of AI"
+  authors: Shaffer Shane, T.
+  year: 2024
+  kind: report
+  url: https://www.longtermresilience.org/reports/ai-incident-reporting-addressing-a-gap-in-the-uks-regulation-of-ai/
+  status: planned
+  used_in: [analysis:nobody-to-call]
+
+- id: cset-2025
+  title: "AI Incidents: Key Components for a Mandatory Reporting Regime"
+  authors: Dixon, R. B. L. and Frase, H.
+  year: 2025
+  kind: report
+  url: https://cset.georgetown.edu/publication/ai-incidents-key-components-for-a-mandatory-reporting-regime/
+  status: planned
+  used_in: [analysis:nobody-to-call]
+
+- id: oecd-2025
+  title: Towards a common reporting framework for AI incidents
+  authors: OECD
+  year: 2025
+  kind: report
+  url: https://www.oecd.org/en/publications/towards-a-common-reporting-framework-for-ai-incidents_f326d4ac-en.html
+  status: planned
+  used_in: [analysis:nobody-to-call]
+
+- id: sidhu-2026
+  title: Open Problems in AI Incident Governance
+  authors: Sidhu, H. K. et al.
+  year: 2026
+  kind: preprint
+  url: https://arxiv.org/abs/2607.05163
+  status: planned
+  used_in: [analysis:nobody-to-call]

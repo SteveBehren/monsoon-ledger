@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions and discussion
+    url: https://github.com/SteveBehren/monsoon-ledger/discussions
+    about: For questions and ideas that are not a correction, a source or a promise.
+  - name: Security problem
+    url: https://github.com/SteveBehren/monsoon-ledger/security
+    about: Please report security problems privately, as SECURITY.md explains.

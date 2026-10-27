@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/SteveBehren/monsoon-ledger/data/frontier-incidents.schema.json",
+  "title": "Monsoon Ledger frontier incident reference",
+  "description": "data/frontier-incidents.yml. Context for the ledger, never counted in it. Day counts are computed by scripts/frontier.mjs and must not be typed here.",
+  "$defs": {
+    "date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "dateOrNull": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/date"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "text": {
+      "type": "string",
+      "pattern": "\\S"
+    }
+  },
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "name_en",
+      "name_id",
+      "developer",
+      "kind",
+      "activity_start",
+      "activity_end",
+      "developer_aware",
+      "first_public_disclosure",
+      "first_seen_by",
+      "notified_authority",
+      "notified_at",
+      "notice_channel_en",
+      "notice_channel_id",
+      "affected_countries",
+      "summary_en",
+      "summary_id",
+      "sources",
+      "evidence",
+      "last_checked"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+      },
+      "name_en": {
+        "$ref": "#/$defs/text"
+      },
+      "name_id": {
+        "$ref": "#/$defs/text"
+      },
+      "developer": {
+        "$ref": "#/$defs/text"
+      },
+      "kind": {
+        "enum": [
+          "misuse",
+          "misaligned_agent_action"
+        ]
+      },
+      "activity_start": {
+        "description": "First day of the activity on third-party systems.",
+        "$ref": "#/$defs/dateOrNull"
+      },
+      "activity_end": {
+        "description": "Last day of that activity.",
+        "$ref": "#/$defs/dateOrNull"
+      },
+      "developer_aware": {
+        "description": "The day the developer says it became aware.",
+        "$ref": "#/$defs/dateOrNull"
+      },
+      "first_public_disclosure": {
+        "$ref": "#/$defs/dateOrNull"
+      },
+      "first_seen_by": {
+        "enum": [
+          "developer",
+          "third_party",
+          "outside_researcher",
+          "unknown"
+        ]
+      },
+      "notified_authority": {
+        "description": "The public body that first received a notice, as the source names it.",
+        "oneOf": [
+          {
+            "$ref": "#/$defs/text"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "notified_at": {
+        "description": "The day that notice reached it.",
+        "$ref": "#/$defs/dateOrNull"
+      },
+      "notice_channel_en": {
+        "$ref": "#/$defs/text"
+      },
+      "notice_channel_id": {
+        "$ref": "#/$defs/text"
+      },
+      "affected_countries": {
+        "description": "ISO 3166-1 alpha-2 codes named by the sources, or null when the sources do not say.",
+        "oneOf": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z]{2}$"
+            },
+            "uniqueItems": true
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "summary_en": {
+        "$ref": "#/$defs/text"
+      },
+      "summary_id": {
+        "$ref": "#/$defs/text"
+      },
+      "sources": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "title",
+            "url",
+            "outlet",
+            "language"
+          ],
+          "properties": {
+            "title": {
+              "$ref": "#/$defs/text"
+            },
+            "url": {
+              "type": "string",
+              "pattern": "^https://\\S+$"
+            },
+            "outlet": {
+              "$ref": "#/$defs/text"
+            },
+            "language": {
+              "enum": [
+                "id",
+                "en"
+              ]
+            },
+            "archive_url": {
+              "type": "string",
+              "pattern": "^https://\\S+$"
+            },
+            "archived_at": {
+              "$ref": "#/$defs/date"
+            }
+          },
+          "dependentRequired": {
+            "archive_url": [
+              "archived_at"
+            ],
+            "archived_at": [
+              "archive_url"
+            ]
+          }
+        }
+      },
+      "evidence": {
+        "enum": [
+          "legal-text",
+          "official-statement",
+          "press-report"
+        ]
+      },
+      "last_checked": {
+        "$ref": "#/$defs/date"
+      }
+    }
+  }
+}

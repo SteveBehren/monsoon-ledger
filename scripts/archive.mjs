@@ -1,7 +1,9 @@
 // npm run archive
 //
-// Evidence preservation. For every source url in data/deadlines.yml, data/instruments.yml and
-// the entries, it records a preserved copy in the Internet Archive:
+// Evidence preservation. For every source url in data/deadlines.yml, data/instruments.yml, the
+// entries, the analysis sources (data/analysis/*.sources.yml) and the frontier incident reference
+// (data/frontier-incidents.yml), it records a preserved copy in
+// the Internet Archive:
 //   1. ask the Wayback Machine availability API whether a snapshot already exists;
 //   2. if not, request one through the public Save Page Now endpoint, politely rate limited;
 //   3. write archive_url and archived_at beside the source, in place, keeping every comment
@@ -68,16 +70,38 @@ export function setArchiveFields(text, key, url, archive) {
   return lines.join('\n');
 }
 
+// Where the sources sit in each kind of file, and the key that holds their url.
+const list = (data) => (Array.isArray(data) ? data : []);
+export const FILE_KINDS = {
+  entry: { rows: (data) => data?.sources ?? [], key: 'url' },
+  list: { rows: list, key: 'source_url' },
+  sources: { rows: list, key: 'url' },
+  nested: { rows: (data) => list(data).flatMap((row) => row?.sources ?? []), key: 'url' },
+};
+
 /** Every source in the given files: { file, key, url, archived }. */
 export function collectSources(files, readYaml) {
   const out = [];
   for (const { file, kind } of files) {
-    const data = readYaml(file);
-    const rows = kind === 'entry' ? data?.sources ?? [] : Array.isArray(data) ? data : [];
-    const key = kind === 'entry' ? 'url' : 'source_url';
-    for (const row of rows) if (row?.[key]) out.push({ file, key, url: row[key], archived: Boolean(row.archive_url) });
+    const { rows, key } = FILE_KINDS[kind];
+    for (const row of rows(readYaml(file))) if (row?.[key]) out.push({ file, key, url: row[key], archived: Boolean(row.archive_url) });
   }
   return out;
+}
+
+/** The files the archive step reads and writes. */
+export function archiveFiles({ DATA, ENTRIES, entryFiles }) {
+  const analysis = path.join(DATA, 'analysis');
+  return [
+    { file: path.join(DATA, 'deadlines.yml'), kind: 'list' },
+    { file: path.join(DATA, 'instruments.yml'), kind: 'list' },
+    ...(fs.existsSync(path.join(DATA, 'frontier-incidents.yml')) ? [{ file: path.join(DATA, 'frontier-incidents.yml'), kind: 'nested' }] : []),
+    ...entryFiles().map((f) => ({ file: path.join(ENTRIES, f), kind: 'entry' })),
+    ...(fs.existsSync(analysis) ? fs.readdirSync(analysis).filter((f) => f.endsWith('.sources.yml')).sort() : []).map((f) => ({
+      file: path.join(analysis, f),
+      kind: 'sources',
+    })),
+  ];
 }
 
 async function getJson(fetchImpl, url) {
@@ -153,11 +177,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
   const { DATA, ENTRIES, readYaml, entryFiles } = await import('./lib.mjs');
   const args = process.argv.slice(2);
   const maxArg = args.indexOf('--max-saves');
-  const files = [
-    { file: path.join(DATA, 'deadlines.yml'), kind: 'list' },
-    { file: path.join(DATA, 'instruments.yml'), kind: 'list' },
-    ...entryFiles().map((f) => ({ file: path.join(ENTRIES, f), kind: 'entry' })),
-  ];
+  const files = archiveFiles({ DATA, ENTRIES, entryFiles });
   const sources = collectSources(files, readYaml);
   console.log(`Archive: ${sources.length} sources, ${sources.filter((s) => !s.archived).length} without an archived copy.`);
   const result = await archiveAll({

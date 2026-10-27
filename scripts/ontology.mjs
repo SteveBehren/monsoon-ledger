@@ -7,6 +7,7 @@
 // link in data/ontology.yml carries a source the ledger already cites.
 
 import { slug, splitWho, promiseId, promiseKey, computePromise, todayWIB } from './promises.mjs';
+import { LENS_FIELDS } from './lens.mjs';
 
 /** Object types, in the order the explorer lists them. */
 export const OBJECT_TYPES = {
@@ -27,7 +28,8 @@ export const OBJECT_TYPES = {
 // one exists.
 export const RELATIONS = {
   concerns: { from: ['entry'], to: ['instrument'], basis: 'data', en: 'concerns', id: 'tentang' },
-  cites: { from: ['entry'], to: ['document'], basis: 'data', en: 'cites', id: 'mengutip' },
+  cites: { from: ['entry', 'document'], to: ['document'], basis: 'data', en: 'cites', id: 'mengutip' },
+  discusses: { from: ['document'], to: ['instrument'], basis: 'data', en: 'discusses', id: 'membahas' },
   evidenced_by: { from: ['promise'], to: ['document'], basis: 'data', en: 'is on record in', id: 'tercatat di' },
   made: { from: ['person'], to: ['promise'], basis: 'data', en: 'made', id: 'menyampaikan' },
   published_by: { from: ['document'], to: ['outlet'], basis: 'data', en: 'published by', id: 'diterbitkan oleh' },
@@ -85,7 +87,12 @@ function hostLabel(url) {
  *   only their key (the validator works that way).
  * @returns {{ nodes: object[], links: object[], problems: string[] }}
  */
-export function buildOntology({ entries, instruments, deadlines, ontology, leads = [], references = null, today = todayWIB() }) {
+/**
+ * `papers` are the analysis papers (scripts/analysis.mjs ontologyPapers): each becomes a document
+ * that cites its numbered sources and discusses the instruments its front matter lists, which
+ * are the instruments its text names. No other link is drawn from a paper.
+ */
+export function buildOntology({ entries, instruments, deadlines, ontology, leads = [], references = null, papers = [], today = todayWIB() }) {
   const nodes = new Map();
   const links = [];
   const problems = [];
@@ -106,6 +113,7 @@ export function buildOntology({ entries, instruments, deadlines, ontology, leads
   // Documents are keyed by url. Titles and outlets come from entry sources where they exist.
   const docTitles = new Map();
   for (const e of entries) for (const s of e.sources ?? []) if (!docTitles.has(s.url)) docTitles.set(s.url, s);
+  for (const p of papers) for (const s of p.sources ?? []) if (!docTitles.has(s.url)) docTitles.set(s.url, { title: s.title });
   const documentId = (url) => `document:${url}`;
   const addDocument = (url) => {
     const s = docTitles.get(url);
@@ -172,7 +180,15 @@ export function buildOntology({ entries, instruments, deadlines, ontology, leads
       type: 'entry',
       label: { en: e.title_en, id: e.title_id },
       href: `entries/${e.id}/`,
-      props: { date: e.date, status: e.status, evidence: e.evidence },
+      props: {
+        date: e.date,
+        status: e.status,
+        evidence: e.evidence,
+        // The safety lens, with the sentence that says which source supports each coded value.
+        ...Object.fromEntries(LENS_FIELDS.map((f) => [`lens_${f}`, e.safety_lens?.[f] ?? 'unclear'])),
+        ...(e.lens_basis_en ? { lens_basis_en: e.lens_basis_en, lens_basis_id: e.lens_basis_id } : {}),
+        ...(e.lens_checked ? { lens_checked: e.lens_checked } : {}),
+      },
     });
     addLink(`entry:${e.id}`, 'concerns', `instrument:${e.instrument}`);
     for (const s of e.sources ?? []) addLink(`entry:${e.id}`, 'cites', addDocument(s.url));
@@ -200,6 +216,22 @@ export function buildOntology({ entries, instruments, deadlines, ontology, leads
     addLink(person, 'made', pid, { source_url: d.source_url });
     const inst = aliasToInstitution.get(affiliation.toLowerCase());
     if (inst) addLink(person, 'member_of', `institution:${inst}`, { basis: 'data', source_url: d.source_url });
+  }
+
+  for (const p of papers) {
+    const id = `document:analysis:${p.id}`;
+    addNode({
+      id,
+      type: 'document',
+      label: { en: p.title_en, id: p.title_id ?? p.title_en },
+      href: `analysis/${p.id}/`,
+      props: { kind: 'analysis', published: p.published, facts_as_of: p.facts_as_of, version: p.version },
+    });
+    for (const i of p.instruments ?? []) {
+      if (!nodes.has(`instrument:${i}`)) problems.push(`analysis paper "${p.id}" discusses unknown instrument "${i}"`);
+      else addLink(id, 'discusses', `instrument:${i}`);
+    }
+    for (const s of p.sources ?? []) addLink(id, 'cites', addDocument(s.url));
   }
 
   for (const lead of leads) {

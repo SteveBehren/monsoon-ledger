@@ -14,10 +14,12 @@ interface Props {
   ogType?: 'website' | 'article';
   /** Path of a page-specific 1200 by 630 preview image. Defaults to the site card. */
   ogImage?: string;
-  nav?: 'home' | 'entries' | 'ledger' | 'instruments' | 'ontology' | 'radar' | 'method' | 'about';
+  nav?: 'home' | 'entries' | 'ledger' | 'instruments' | 'analysis' | 'ontology' | 'radar' | 'method' | 'about';
+  /** For example "noindex": kept reachable by its url, left out of search results. */
+  robots?: string;
 }
 
-const { lang, path, title, description, ogType = 'website', ogImage, nav } = Astro.props;
+const { lang, path, title, description, ogType = 'website', ogImage, nav, robots } = Astro.props;
 const t = ui[lang];
 const alt = other(lang);
 // Tabs show the page name first and the site name after it. Home shows the site name only.
@@ -28,10 +30,19 @@ const enUrl = new URL(href('en', path), SITE.url).href;
 const idUrl = new URL(href('id', path), SITE.url).href;
 
 // The brand links home, so Home is not repeated in the navigation.
+// Research pages sit in the footer, not the main navigation.
+const research = [
+  { key: 'safety', path: 'safety/' },
+  { key: 'incidents', path: 'incidents/' },
+  { key: 'reading', path: 'reading/' },
+  { key: 'corrections', path: 'corrections/' },
+] as const;
+
 const links = [
   { key: 'entries', path: 'entries/' },
   { key: 'ledger', path: 'ledger/' },
   { key: 'instruments', path: 'instruments/' },
+  { key: 'analysis', path: 'analysis/' },
   { key: 'ontology', path: 'ontology/' },
   { key: 'radar', path: 'radar/' },
   { key: 'method', path: 'method/' },
@@ -46,6 +57,7 @@ const links = [
     <title>{fullTitle}</title>
     <meta name="description" content={desc} />
     <meta name="author" content={SITE.author} />
+    {robots && <meta name="robots" content={robots} />}
     <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#0a0e13" />
     <script is:inline>
@@ -76,6 +88,7 @@ const links = [
       locale={t.ogLocale}
       altLocale={ui[alt].ogLocale}
     />
+    <slot name="head" />
   </head>
   <body>
     <a class="skip-link" href="#main">{t.skip}</a>
@@ -176,6 +189,12 @@ const links = [
             <h2>{t.footerExplore}</h2>
             <ul>
               {links.map((l) => <li><a href={href(lang, l.path)}>{t.nav[l.key]}</a></li>)}
+            </ul>
+          </div>
+          <div>
+            <h2>{t.footerResearch}</h2>
+            <ul>
+              {research.map((l) => <li><a href={href(lang, l.path)}>{t.footerPages[l.key]}</a></li>)}
             </ul>
           </div>
           <div>

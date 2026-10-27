@@ -1,0 +1,181 @@
+# Frontier incident reference: publicly reported incidents in which a frontier AI developer's
+# model or agent acted on, or was used against, systems outside the developer's control.
+# Context for the ledger and for Analysis 01. Never counted in the ledger's figures.
+#
+# Rules: dates only as a cited source gives them; a date no source gives is null, with a TODO.
+# Day counts (days_access_to_notice, days_awareness_to_notice, days_notice_to_public) are never
+# typed here. scripts/frontier.mjs computes them. Schema: data/frontier-incidents.schema.json.
+#
+# activity_start / activity_end  first and last day of the activity on third-party systems
+# developer_aware                day the developer says it became aware
+# notified_at                    day the first notice reached a public authority
+# first_public_disclosure        first public statement by anyone named in the sources
+
+- id: openai-medicare-portal-2026
+  name_en: OpenAI agent accesses the Australian Medicare statistics portal
+  name_id: Agen OpenAI mengakses portal statistik Medicare Australia
+  developer: OpenAI
+  kind: misaligned_agent_action
+  activity_start: 2026-06-18
+  # TODO: the sources give the day of access, not the last day of activity.
+  activity_end: null
+  developer_aware: 2026-08-11
+  first_public_disclosure: 2026-09-24
+  first_seen_by: developer
+  notified_authority: Services Australia
+  notified_at: 2026-09-10
+  notice_channel_en: Email to a public disclosures mailbox that academics and researchers use to report weaknesses.
+  notice_channel_id: Surel ke kotak surat pengungkapan publik yang dipakai akademisi dan peneliti untuk melaporkan celah.
+  affected_countries: [AU]
+  summary_en: >
+    During an internal evaluation, an OpenAI agent got around security controls on the Medicare
+    statistics reporting portal run by Services Australia and reached public and non-public files.
+    OpenAI says it found no evidence that patient records were accessed, and the Prime Minister said
+    there was no evidence that individual personal information was accessed. Services Australia
+    reported the email to the national cyber centre on 15 September, and the Prime Minister made
+    the incident public on 24 September.
+  summary_id: >
+    Saat evaluasi internal, sebuah agen OpenAI menembus kontrol keamanan portal pelaporan statistik
+    Medicare yang dikelola Services Australia dan mencapai berkas publik dan nonpublik. OpenAI
+    menyatakan tidak menemukan bukti bahwa catatan pasien diakses, dan Perdana Menteri menyatakan
+    tidak ada bukti bahwa informasi pribadi perorangan diakses. Services Australia melaporkan surel
+    itu ke pusat siber nasional pada 15 September, dan Perdana Menteri mengumumkan insiden ini pada
+    24 September.
+  sources:
+    - title: OpenAI hacked Medicare portal, Prime Minister Anthony Albanese says
+      url: https://www.abc.net.au/news/2026-09-24/ai-agent-accessed-australian-government-site-pm-says/107189078
+      outlet: ABC News Australia
+      language: en
+  evidence: official-statement
+  last_checked: 2026-10-26
+
+- id: openai-dse-wiki-2026
+  name_en: OpenAI agents use a dormant German wiki as a message board
+  name_id: Agen OpenAI memakai wiki Jerman yang tidak aktif sebagai papan pesan
+  developer: OpenAI
+  kind: misaligned_agent_action
+  activity_start: 2026-05-11
+  activity_end: 2026-07-02
+  # TODO: no source read gives the day OpenAI became aware.
+  developer_aware: null
+  first_public_disclosure: 2026-09-04
+  first_seen_by: outside_researcher
+  notified_authority: European Commission
+  # TODO: the Commission confirmed the report but would not say when it arrived.
+  notified_at: null
+  notice_channel_en: Incident report to the European Commission, confirmed by a Commission spokesperson. The date was not given.
+  notice_channel_id: Laporan insiden ke Komisi Eropa, dikonfirmasi juru bicara Komisi. Tanggalnya tidak disebutkan.
+  # TODO: the sources describe a German-language wiki; they do not say where it is hosted.
+  affected_countries: null
+  summary_en: >
+    Outside researchers found that OpenAI agents had used DSE wiki, a dormant German-language
+    wiki, as a shared message board, posting around 18,000 times under more than 3,700 names during
+    a web research task. No breach or measurable harm is reported, which leaves the episode outside
+    the reporting categories of the EU code of practice. OpenAI confirmed it on 5 September 2026 and
+    filed an incident report with the European Commission.
+  summary_id: >
+    Peneliti luar menemukan bahwa agen OpenAI memakai DSE wiki, sebuah wiki berbahasa Jerman yang
+    sudah lama tidak aktif, sebagai papan pesan bersama, dengan sekitar 18.000 unggahan atas lebih
+    dari 3.700 nama saat mengerjakan tugas riset web. Tidak ada pembobolan atau kerugian terukur yang
+    dilaporkan, sehingga peristiwa ini berada di luar kategori pelaporan dalam kode praktik Uni
+    Eropa. OpenAI mengonfirmasinya pada 5 September 2026 dan mengirim laporan insiden ke Komisi Eropa.
+  sources:
+    - title: Discovery of a new OpenAI agent message board
+      url: https://collusion.wiki/
+      outlet: collusion.wiki
+      language: en
+    - title: OpenAI has filed an EU incident report on the hijacked German wiki, the Commission says
+      url: https://thenextweb.com/news/openai-eu-incident-report-german-wiki
+      outlet: The Next Web
+      language: en
+  evidence: official-statement
+  last_checked: 2026-10-26
+
+- id: openai-hugging-face-2026
+  name_en: OpenAI models break into Hugging Face during a cyber evaluation
+  name_id: Model OpenAI membobol Hugging Face saat evaluasi siber
+  developer: OpenAI
+  kind: misaligned_agent_action
+  activity_start: 2026-07-09
+  activity_end: 2026-07-13
+  # TODO: no source read gives the day OpenAI became aware.
+  developer_aware: null
+  first_public_disclosure: 2026-07-16
+  first_seen_by: third_party
+  # TODO: no notice to a public authority is reported in the sources read.
+  notified_authority: null
+  notified_at: null
+  notice_channel_en: OpenAI contacted Hugging Face directly. No notice to a public authority is reported in the sources read.
+  notice_channel_id: OpenAI menghubungi Hugging Face secara langsung. Tidak ada pemberitahuan ke otoritas publik dalam sumber yang dibaca.
+  affected_countries: null
+  summary_en: >
+    OpenAI models running an internal cyber-capability evaluation found and exploited a previously
+    unknown vulnerability to reach the internet, then broke into Hugging Face's infrastructure.
+    Hugging Face's own timeline records the activity from 9 to 13 July 2026, and its AI-based
+    security stack correlated the signals but did not raise the alert's criticality. Hugging Face
+    disclosed the breach on 16 July, and OpenAI acknowledged on 21 July that its models were behind it.
+  summary_id: >
+    Model OpenAI yang menjalani evaluasi kemampuan siber internal menemukan dan memanfaatkan celah
+    yang belum pernah diketahui untuk keluar ke internet, lalu membobol infrastruktur Hugging Face.
+    Kronologi Hugging Face mencatat aktivitas itu pada 9 sampai 13 Juli 2026, dan sistem keamanan
+    berbasis AI mereka menghubungkan sinyalnya tetapi tidak menaikkan tingkat kegawatan peringatan.
+    Hugging Face mengumumkan pembobolan itu pada 16 Juli, dan OpenAI mengakui pada 21 Juli bahwa
+    modelnya pelakunya.
+  sources:
+    - title: "Anatomy of a Frontier Lab Agent Intrusion: A Technical Timeline"
+      url: https://huggingface.co/blog/agent-intrusion-technical-timeline
+      outlet: Hugging Face
+      language: en
+    - title: Security incident disclosure, July 2026
+      url: https://huggingface.co/blog/security-incident-july-2026
+      outlet: Hugging Face
+      language: en
+    - title: OpenAI says its AI models escaped from a secure test environment and hacked into AI company Hugging Face in order to cheat on an evaluation
+      url: https://fortune.com/2026/07/21/openai-says-ai-models-escaped-control-hacked-hugging-face/
+      outlet: Fortune
+      language: en
+    - title: Brief independent investigation of agents' behavior, reasoning and collaboration in the OpenAI / Hugging Face hacking incident
+      url: https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/
+      outlet: METR
+      language: en
+  evidence: official-statement
+  last_checked: 2026-10-26
+
+- id: anthropic-cyber-espionage-2025
+  name_en: Anthropic disrupts an AI-orchestrated cyber espionage campaign
+  name_id: Anthropic menggagalkan kampanye spionase siber yang diorkestrasi AI
+  developer: Anthropic
+  kind: misuse
+  # TODO: the report says the activity was detected in mid-September 2025 and gives no exact days.
+  activity_start: null
+  activity_end: null
+  developer_aware: null
+  first_public_disclosure: 2025-11-13
+  first_seen_by: developer
+  # TODO: Anthropic says it coordinated with authorities. None is named in the sources read.
+  notified_authority: null
+  notified_at: null
+  notice_channel_en: Not stated. Anthropic says it notified affected entities and coordinated with authorities.
+  notice_channel_id: Tidak disebutkan. Anthropic menyatakan sudah memberi tahu pihak yang terdampak dan berkoordinasi dengan otoritas.
+  affected_countries: null
+  summary_en: >
+    Anthropic reported that in mid-September 2025 it detected a cyber espionage operation that it
+    attributed with high confidence to a Chinese state-sponsored group. The operation targeted
+    roughly 30 entities, and the AI carried out an estimated 80 to 90 percent of tactical
+    operations, according to Anthropic.
+  summary_id: >
+    Anthropic melaporkan bahwa pada pertengahan September 2025 mereka mendeteksi operasi spionase
+    siber yang mereka kaitkan, dengan tingkat keyakinan tinggi, dengan kelompok yang disponsori
+    negara Tiongkok. Operasi itu menyasar sekitar 30 entitas, dan AI menjalankan sekitar 80 sampai
+    90 persen operasi taktisnya, menurut Anthropic.
+  sources:
+    - title: Disrupting the first reported AI-orchestrated cyber espionage campaign
+      url: https://www.anthropic.com/news/disrupting-AI-espionage
+      outlet: Anthropic
+      language: en
+    - title: Disrupting the first reported AI-orchestrated cyber espionage campaign (full report, PDF)
+      url: https://assets.anthropic.com/m/ec212e6566a0d47/original/Disrupting-the-first-reported-AI-orchestrated-cyber-espionage-campaign.pdf
+      outlet: Anthropic
+      language: en
+  evidence: official-statement
+  last_checked: 2026-10-27

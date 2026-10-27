@@ -1,7 +1,7 @@
 // npm test: the archive script, with the network mocked.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseWayback, setArchiveFields, archiveAll, findSnapshot, saveSnapshot } from './archive.mjs';
+import { parseWayback, setArchiveFields, archiveAll, findSnapshot, saveSnapshot, collectSources } from './archive.mjs';
 
 const json = (body, status = 200) => ({ ok: status < 400, status, json: async () => body, headers: new Map() });
 
@@ -119,4 +119,55 @@ test('a dry run writes nothing and already archived sources are not checked agai
   });
   assert.equal(result.checked, 1);
   assert.equal(wrote, false);
+});
+
+test('sources are collected from every kind of file the archive step reads', () => {
+  const files = {
+    'entry.yml': { sources: [{ url: 'https://a.example/1', archive_url: 'https://web.archive.org/web/1/x' }] },
+    'deadlines.yml': [{ source_url: 'https://a.example/2' }],
+    'paper.sources.yml': [{ n: 1, url: 'https://a.example/3' }, { n: 2, url: 'https://a.example/4' }],
+    'incidents.yml': [{ id: 'x', sources: [{ url: 'https://a.example/5' }] }, { id: 'y' }],
+  };
+  const out = collectSources(
+    [
+      { file: 'entry.yml', kind: 'entry' },
+      { file: 'deadlines.yml', kind: 'list' },
+      { file: 'paper.sources.yml', kind: 'sources' },
+      { file: 'incidents.yml', kind: 'nested' },
+    ],
+    (f) => files[f],
+  );
+  assert.deepEqual(
+    out.map((s) => [s.file, s.key, s.url, s.archived]),
+    [
+      ['entry.yml', 'url', 'https://a.example/1', true],
+      ['deadlines.yml', 'source_url', 'https://a.example/2', false],
+      ['paper.sources.yml', 'url', 'https://a.example/3', false],
+      ['paper.sources.yml', 'url', 'https://a.example/4', false],
+      ['incidents.yml', 'url', 'https://a.example/5', false],
+    ],
+  );
+});
+
+test('archive fields are added beside a numbered analysis source', () => {
+  const text = `- n: 1
+  key: a
+  url: https://a.example/3
+  accessed: 2026-10-26
+- n: 2
+  url: https://a.example/4
+`;
+  const out = setArchiveFields(text, 'url', 'https://a.example/3', { archive_url: 'https://web.archive.org/web/20261026000000/https://a.example/3', archived_at: '2026-10-26' });
+  assert.equal(
+    out,
+    `- n: 1
+  key: a
+  url: https://a.example/3
+  archive_url: https://web.archive.org/web/20261026000000/https://a.example/3
+  archived_at: 2026-10-26
+  accessed: 2026-10-26
+- n: 2
+  url: https://a.example/4
+`,
+  );
 });

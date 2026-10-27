@@ -1,0 +1,60 @@
+---
+// "Cite this": the same citation in plain text, APA and BibTeX, each with a copy button.
+// Used on promise receipts and analysis papers. The copy buttons stay hidden without JavaScript,
+// and the text stays selectable either way.
+import type { Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+  plain: string;
+  apa: string;
+  bibtex: string;
+  /** Heading id, unique on the page. */
+  id?: string;
+}
+
+const { lang, plain, apa, bibtex, id = 'cite-h' } = Astro.props;
+const copy =
+  lang === 'en'
+    ? { cite: 'Cite this', plain: 'Plain text', copy: 'Copy', copied: 'Copied' }
+    : { cite: 'Kutip halaman ini', plain: 'Teks biasa', copy: 'Salin', copied: 'Tersalin' };
+const blocks: [string, string][] = [
+  [copy.plain, plain],
+  ['APA', apa],
+  ['BibTeX', bibtex],
+];
+---
+<section class="receipt-cite cite-box" aria-labelledby={id}>
+  <h2 id={id}>{copy.cite}</h2>
+  {
+    blocks.map(([label, text]) => (
+      <div class="cite-block">
+        <div class="cite-bar">
+          <span class="label">{label}</span>
+          <button type="button" class="cite-copy" data-copy data-label-done={copy.copied} hidden>
+            {copy.copy}
+          </button>
+        </div>
+        <pre>{text}</pre>
+      </div>
+    ))
+  }
+  <slot />
+</section>
+
+<script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
+    button.hidden = false;
+    const label = button.textContent;
+    button.addEventListener('click', async () => {
+      const text = button.closest('.cite-block')?.querySelector('pre')?.textContent ?? '';
+      try {
+        await navigator.clipboard.writeText(text);
+        button.textContent = button.dataset.labelDone ?? label;
+        setTimeout(() => (button.textContent = label), 1600);
+      } catch {
+        // Clipboard blocked: the text stays selectable.
+      }
+    });
+  }
+</script>

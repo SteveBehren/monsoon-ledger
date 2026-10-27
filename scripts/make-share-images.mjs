@@ -152,6 +152,22 @@ export function receiptCard({ kicker, promised, said, outcome, stamp, count, asO
   );
 }
 
+/** An analysis paper: number, title, subtitle, and the day its facts were checked. */
+export function paperCard({ kicker, title, subtitle, byline, asOf, site }) {
+  const big = wrap(title, 64, 1000, { weight: 600, maxLines: 2 });
+  const top = 250;
+  const subY = top + big.length * 74 + 8;
+  const sub = wrap(subtitle, 28, 1000, { maxLines: 3 });
+  return frame(
+    `<text font-family="${FONT}" font-size="20" letter-spacing="2" fill="${C.accent}"><tspan x="72" y="176">${esc(kicker.toUpperCase())}</tspan></text>
+  <text font-family="${FONT}" font-weight="600" font-size="64" fill="${C.ink}">${tspans(big, 72, top, 74)}</text>
+  <text font-family="${FONT}" font-size="28" fill="${C.soft}">${tspans(sub, 72, subY, 38)}</text>
+  <text x="72" y="${subY + sub.length * 38 + 34}" font-family="${FONT}" font-size="22" fill="${C.faint}">${esc(byline)}</text>
+  <text x="1128" y="584" text-anchor="end" font-family="${FONT}" font-size="20" fill="${C.faint}">${esc(asOf)}</text>`,
+    site,
+  );
+}
+
 /**
  * Renders an SVG string to a PNG buffer. The caller passes the Resvg class from
  * @resvg/resvg-js and the font folder, so this file works from the build and from the CLI.

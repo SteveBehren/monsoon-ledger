@@ -5,6 +5,7 @@
 import Base from '../../../layouts/Base.astro';
 import Stamp from '../../../components/Stamp.astro';
 import Evidence from '../../../components/Evidence.astro';
+import CiteBox from '../../../components/CiteBox.astro';
 import { getPromises, getEntries, getInstruments, speaker, TODAY, DATA_VERSION, type PromiseRow } from '../../../lib/data';
 import { getOntology, promiseAnchor } from '../../../lib/ontology';
 import { ui, href, pick, fmtDate, SITE, LANGS, type Lang } from '../../../lib/i18n';
@@ -66,10 +67,6 @@ const copy =
         archived: 'Archived copy',
         archivedOn: 'saved',
         noArchive: 'No archived copy yet. The archive script runs with each scheduled scan.',
-        cite: 'Cite this',
-        plain: 'Plain text',
-        copyBtn: 'Copy',
-        copied: 'Copied',
         version: 'Data version',
         related: 'Connected in the ledger',
         relatedEntries: 'Entries citing the same report',
@@ -103,10 +100,6 @@ const copy =
         archived: 'Salinan arsip',
         archivedOn: 'disimpan',
         noArchive: 'Belum ada salinan arsip. Skrip arsip berjalan bersama setiap pemindaian terjadwal.',
-        cite: 'Kutip halaman ini',
-        plain: 'Teks biasa',
-        copyBtn: 'Salin',
-        copied: 'Tersalin',
         version: 'Versi data',
         related: 'Terhubung di catatan ini',
         relatedEntries: 'Catatan yang mengutip laporan yang sama',
@@ -188,29 +181,11 @@ const description = `${who}, ${fmtDate(lang, p.date_said)}: ${promised}. ${outco
           <p>{pick(lang, p.outcome_en, p.outcome_id)}</p>
         </section>
 
-        <section class="receipt-cite" aria-labelledby="cite-h">
-          <h2 id="cite-h">{copy.cite}</h2>
-          {
-            [
-              [copy.plain, citePlain],
-              ['APA', citeApa],
-              ['BibTeX', citeBib],
-            ].map(([label, text]) => (
-              <div class="cite-block">
-                <div class="cite-bar">
-                  <span class="label">{label}</span>
-                  <button type="button" class="cite-copy" data-copy data-label-done={copy.copied} hidden>
-                    {copy.copyBtn}
-                  </button>
-                </div>
-                <pre>{text}</pre>
-              </div>
-            ))
-          }
+        <CiteBox lang={lang} plain={citePlain} apa={citeApa} bibtex={citeBib}>
           <p class="cite-meta">
             {copy.version}: <a class="mono" href={`${SITE.repo}/commits/main/data`}>{DATA_VERSION}</a> · {url}
           </p>
-        </section>
+        </CiteBox>
       </div>
 
       <aside class="receipt-side">
@@ -271,21 +246,4 @@ const description = `${who}, ${fmtDate(lang, p.date_said)}: ${promised}. ${outco
       </aside>
     </div>
   </article>
-
-  <script>
-    for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
-      button.hidden = false;
-      const label = button.textContent;
-      button.addEventListener('click', async () => {
-        const text = button.closest('.cite-block')?.querySelector('pre')?.textContent ?? '';
-        try {
-          await navigator.clipboard.writeText(text);
-          button.textContent = button.dataset.labelDone ?? label;
-          setTimeout(() => (button.textContent = label), 1600);
-        } catch {
-          // Clipboard blocked: the text stays selectable.
-        }
-      });
-    }
-  </script>
 </Base>

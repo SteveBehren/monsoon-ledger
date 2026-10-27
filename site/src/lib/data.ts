@@ -6,6 +6,10 @@ import { execSync } from 'node:child_process';
 import yaml from 'js-yaml';
 // @ts-ignore: plain JavaScript module shared with the validator and the share cards.
 import { computePromise, summarise, oldestMissed, todayWIB, promiseKey, splitWho } from '../../../scripts/promises.mjs';
+// @ts-ignore: plain JavaScript module shared with the validator and the quote checker.
+import { collectQuotes, summary as quoteSummary } from '../../../scripts/quotes.mjs';
+// @ts-ignore: plain JavaScript module shared with the validator.
+import { loadIncidents } from '../../../scripts/frontier.mjs';
 
 const DATA = path.resolve(process.cwd(), '..', 'data');
 
@@ -17,8 +21,13 @@ export type Enforcement = 'binding' | 'soft' | 'none' | 'unclear';
 export type Outcome = 'missed' | 'open' | 'met' | 'no-deadline';
 export type ClaimType = 'dated' | 'conditional' | 'status_claim';
 export type Topic = 'incident_reporting' | 'unacceptable_uses' | 'general_purpose_models' | 'enforcement';
+/** Lens v2 adds three questions. They are optional in the data and read as unclear when missing. */
+export type TopicV2 = 'recipient' | 'cross_border' | 'frontier_scope';
+export type LensField = Topic | TopicV2;
+export type Recipient = 'named_and_operating' | 'named_not_established' | 'not_named' | 'unclear';
 
 export const TOPICS: Topic[] = ['incident_reporting', 'unacceptable_uses', 'general_purpose_models', 'enforcement'];
+export const LENS_FIELDS: LensField[] = [...TOPICS, 'recipient', 'cross_border', 'frontier_scope'];
 export const STATUSES: Status[] = ['announced', 'draft', 'signed', 'in-force', 'withdrawn'];
 /** The outcomes a dated promise can have, in the order the balance bar draws them. */
 export const OUTCOMES: Outcome[] = ['missed', 'open', 'met'];
@@ -49,13 +58,21 @@ export interface Entry {
     unacceptable_uses: YesNo;
     general_purpose_models: YesNo;
     enforcement: Enforcement;
+    recipient?: Recipient;
+    cross_border?: YesNo;
+    frontier_scope?: YesNo;
   };
   safety_note_en?: string;
   safety_note_id?: string;
+  /** Which cited source supports each coded lens value. Required when any value is not unclear. */
+  lens_basis_en?: string;
+  lens_basis_id?: string;
+  lens_checked?: string;
   last_checked: string;
   eu_comparison: string;
   perbandingan_eu_id?: string;
-  my_take: string;
+  /** The author's own words. Optional: entries without it show no "My take" section. */
+  my_take?: string;
   pendapat_id?: string;
   sources: Source[];
 }
@@ -246,9 +263,9 @@ export const EVIDENCE_STRENGTH: Record<Evidence, number> = { 'legal-text': 3, 'o
 // How a safety lens answer is drawn: solid for yes or binding, half for soft,
 // hatched for unclear (unknown is not no), empty for no or none.
 export type LensTone = 'full' | 'soft' | 'unclear' | 'empty';
-export function lensTone(value: YesNo | Enforcement): LensTone {
-  if (value === 'yes' || value === 'binding') return 'full';
-  if (value === 'soft') return 'soft';
+export function lensTone(value: YesNo | Enforcement | Recipient): LensTone {
+  if (value === 'yes' || value === 'binding' || value === 'named_and_operating') return 'full';
+  if (value === 'soft' || value === 'named_not_established') return 'soft';
   if (value === 'unclear') return 'unclear';
   return 'empty';
 }
@@ -320,4 +337,76 @@ export function getScanLog(): ScanRun[] {
 
 export function getWatchSources(): WatchSource[] {
   return read<WatchSource[]>(path.join(DATA, 'watch', 'sources.yml')).map((s) => tidy(s));
+}
+
+/**
+ * The quote check (npm run check-quotes, data/quote-check.yml), counted over the quotes in the
+ * content now: how many were found in their sources, and the day of the latest check.
+ */
+export function getQuoteCheck(): { found: number; total: number; checked_at: string | null } {
+  const root = path.resolve(process.cwd(), '..');
+  const file = path.join(DATA, 'quote-check.yml');
+  const rows = fs.existsSync(file) ? read<unknown[]>(file) ?? [] : [];
+  const entries = fs
+    .readdirSync(path.join(DATA, 'entries'))
+    .filter((f) => f.endsWith('.yml'))
+    .map((f) => ({ file: `data/entries/${f}`, data: read(path.join(DATA, 'entries', f)) }));
+  return quoteSummary(collectQuotes({ root, entries }), rows);
+}
+
+/** A lens value, with the v2 fields read as unclear when an entry does not have them yet. */
+export function lensOf(entry: Entry, field: LensField): YesNo | Enforcement | Recipient {
+  return (entry.safety_lens[field] ?? 'unclear') as YesNo | Enforcement | Recipient;
+}
+
+// Frontier incident reference: context for the ledger, never counted in it.
+export interface FrontierIncident {
+  id: string;
+  name_en: string;
+  name_id: string;
+  developer: string;
+  kind: 'misuse' | 'misaligned_agent_action';
+  activity_start: string | null;
+  activity_end: string | null;
+  developer_aware: string | null;
+  first_public_disclosure: string | null;
+  first_seen_by: 'developer' | 'third_party' | 'outside_researcher' | 'unknown';
+  notified_authority: string | null;
+  notified_at: string | null;
+  notice_channel_en: string;
+  notice_channel_id: string;
+  affected_countries: string[] | null;
+  summary_en: string;
+  summary_id: string;
+  sources: Source[];
+  evidence: Evidence;
+  last_checked: string;
+  /** Computed by scripts/frontier.mjs. */
+  days_access_to_notice: number | null;
+  days_awareness_to_notice: number | null;
+  days_notice_to_public: number | null;
+}
+
+/** Every incident with its computed day counts, newest first by public disclosure. */
+export function getIncidents(): FrontierIncident[] {
+  return tidy(loadIncidents(path.resolve(process.cwd(), '..')) as FrontierIncident[]);
+}
+
+export interface ReadingItem {
+  id: string;
+  title: string;
+  authors: string;
+  year: number;
+  kind: 'report' | 'paper' | 'preprint' | 'guidance' | 'law';
+  url: string;
+  status: 'planned' | 'reading' | 'read';
+  date_finished?: string;
+  my_notes_en?: string;
+  my_notes_id?: string;
+  used_in?: string[];
+}
+
+/** data/reading.yml: the author's reading list, in file order. */
+export function getReading(): ReadingItem[] {
+  return tidy(read<ReadingItem[]>(path.join(DATA, 'reading.yml')) ?? []);
 }

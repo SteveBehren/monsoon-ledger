@@ -1,21 +1,38 @@
 // Link preview cards, rendered at build time by scripts/make-share-images.mjs:
 //   /og/<lang>/site.png         the site card
 //   /og/<lang>/<promise>.png    one card per receipt, with its outcome and day count as of the build day
+//   /og/<lang>/analysis-<id>.png one card per analysis paper, with the day its facts were checked
 import path from 'node:path';
 import type { APIRoute, GetStaticPaths } from 'astro';
 import { Resvg } from '@resvg/resvg-js';
 // @ts-ignore: plain JavaScript module shared with the icon script.
-import { siteCard, receiptCard, renderPng } from '../../../../../scripts/make-share-images.mjs';
+import { siteCard, receiptCard, paperCard, renderPng } from '../../../../../scripts/make-share-images.mjs';
 import { getPromises, speaker, TODAY, type PromiseRow } from '../../../lib/data';
+import { getPaperIds, getPaperMeta, type PaperMeta } from '../../../lib/analysis';
 import { ui, pick, fmtDate, LANGS, type Lang } from '../../../lib/i18n';
 
 const fontDir = path.resolve(process.cwd(), '..', 'scripts', 'fonts');
 
 export const getStaticPaths: GetStaticPaths = () =>
   LANGS.flatMap((lang) => [
-    { params: { lang, key: 'site' }, props: { p: null } },
-    ...getPromises().map((p) => ({ params: { lang, key: p.key }, props: { p } })),
+    { params: { lang, key: 'site' }, props: { p: null, paper: null } },
+    ...getPromises().map((p) => ({ params: { lang, key: p.key }, props: { p, paper: null } })),
+    ...getPaperIds()
+      .filter((id) => getPaperMeta(id, lang))
+      .map((id) => ({ params: { lang, key: `analysis-${id}` }, props: { p: null, paper: getPaperMeta(id, lang) } })),
   ]);
+
+function paperWords(m: PaperMeta, lang: Lang) {
+  const en = lang === 'en';
+  return {
+    kicker: `${en ? 'Analysis' : 'Analisis'} ${String(m.number).padStart(2, '0')}`,
+    title: m.title,
+    subtitle: m.subtitle,
+    byline: `${m.author} · ${fmtDate(lang, String(m.published))}`,
+    asOf: `${en ? 'Facts as of' : 'Fakta per'} ${fmtDate(lang, String(m.facts_as_of))}`,
+    site: 'monsoonledger.vercel.app',
+  };
+}
 
 function receiptWords(p: PromiseRow, lang: Lang) {
   const t = ui[lang];
@@ -44,8 +61,10 @@ function receiptWords(p: PromiseRow, lang: Lang) {
 
 export const GET: APIRoute = ({ params, props }) => {
   const lang = params.lang as Lang;
-  const p = (props as { p: PromiseRow | null }).p;
-  const svg = p
+  const { p, paper } = props as { p: PromiseRow | null; paper: PaperMeta | null };
+  const svg = paper
+    ? paperCard(paperWords(paper, lang))
+    : p
     ? receiptCard(receiptWords(p, lang))
     : siteCard(
         lang === 'en'

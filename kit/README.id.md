@@ -32,6 +32,7 @@ Kit ini membantu Anda mencatat apa yang dijanjikan pemerintah soal aturan AI, ka
 - Jangan pernah menulis hasil secara manual. Catat `outcome_date` beserta sumbernya ketika sesuatu terjadi, dan biarkan perhitungan yang menentukan terpenuhi atau terlewat.
 - Sebutkan hari penghitungan untuk setiap angka.
 - Lakukan koreksi secara terbuka dan simpan catatan koreksi yang bertanggal.
+- Jika Anda juga menyimpan catatan dengan lensa keselamatan, pakai definisi yang sama: ya bila sumber yang dikutip menyatakannya, tidak bila sumber menyatakan sebaliknya atau Anda sudah membaca naskah lengkapnya dan hal itu tidak ada, belum jelas untuk selain itu. Tidak disebut dalam ringkasan berita berarti belum jelas, bukan tidak. Ketujuh pertanyaan dan nilainya ada di `data/schema.json` dan `scripts/lens.mjs` dalam repositori Monsoon Ledger.
 
 ## Bantuan
 

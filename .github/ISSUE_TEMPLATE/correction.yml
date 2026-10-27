@@ -1,0 +1,48 @@
+name: Correction
+description: Something on the site is wrong, out of date or badly sourced.
+title: "Correction: "
+labels: [correction]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you. Every correction is checked against its source, and accepted corrections are logged with their date.
+        Bahasa Indonesia is welcome.
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: The address of the page, or the data file and line.
+      placeholder: https://monsoonledger.vercel.app/en/...
+    validations:
+      required: true
+  - type: textarea
+    id: now
+    attributes:
+      label: What it says now
+    validations:
+      required: true
+  - type: textarea
+    id: should
+    attributes:
+      label: What it should say
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source
+      description: A link to the text that shows the correction. Primary sources are best.
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of source
+      options:
+        - The published legal text itself
+        - An official statement on the record
+        - A press report or secondary analysis
+        - Other
+    validations:
+      required: true

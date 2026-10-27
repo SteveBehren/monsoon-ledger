@@ -8,7 +8,9 @@ A public, bilingual (English and Bahasa Indonesia) tracker of how Indonesia gove
 - Every claim needs a source url. Every entry needs at least one source.
 - Do not rewrite `my_take` or `pendapat_id` unless the author asks. They are the author's own words.
 - Every change must pass `npm run validate`. The site build runs it first and fails if it fails.
-- Keep the scope: Indonesia only until there are 12 Indonesian entries. Data protection only where it shapes AI governance (breach reporting, regulators).
+- Keep the scope: the ledger, its entries and its promises stay Indonesia only until there are 12 Indonesian entries. Data protection only where it shapes AI governance (breach reporting, regulators).
+- The repo also holds (a) an Analysis section of longer written work (`writing/`, shown at `/[lang]/analysis/`) and (b) a Frontier incident reference dataset (`data/frontier-incidents.yml`). Both are context for the ledger. Never mix them into the ledger's counts.
+- Every new page ships in English and Bahasa Indonesia. `scripts/check-parity.mjs` checks the routes and the `_en`/`_id` field twins and fails the build, except for pages marked partial.
 
 ## Writing rules (all text, including code comments and commit messages)
 
@@ -16,7 +18,8 @@ A public, bilingual (English and Bahasa Indonesia) tracker of how Indonesia gove
 - Plain, natural English. Natural, conversational Bahasa Indonesia, not stiff or bureaucratic.
 - Do not mix languages inside one sentence, except original quotes and proper names.
 - Tone: plain and careful, never mocking. The evidence level is always visible.
-- Quotes: original language, under 15 words, at most one quote per source across all entries, with an English line under it.
+- Quotes: original language, under 15 words, at most one quote per source across all entries and analysis papers, with an English line under it. The only exemption: statute text on Analysis pages may be longer when shown in the original language with an English line beneath. Nothing else is exempt.
+- Never claim the project, or anything in it, is the first, the only, unique or complete.
 
 ## Evidence levels
 
@@ -49,7 +52,7 @@ When something happens to a promise, set `outcome_date` and `outcome_source_url`
 
 ## Evidence preservation
 
-- `scripts/archive.mjs` adds `archive_url` and `archived_at` beside sources in `data/deadlines.yml`, `data/instruments.yml` and the entries, and nothing else. It runs after each scheduled scan and must never block a scan or a build.
+- `scripts/archive.mjs` adds `archive_url` and `archived_at` beside sources in `data/deadlines.yml`, `data/instruments.yml`, the entries, `data/analysis/*.sources.yml` and `data/frontier-incidents.yml`, and nothing else. It runs after each scheduled scan and must never block a scan or a build.
 - Missing archives are validator warnings, not failures. Never fake or guess an archive url; only record one the archive returned.
 - Wherever a source is shown, show its archived copy next to it.
 
@@ -72,12 +75,33 @@ When something happens to a promise, set `outcome_date` and `outcome_source_url`
 - Sources and scoring live in `data/watch/sources.yml` and `data/watch/keywords.yml`. Test changes with `npm test` and `npm run scan -- --dry-run --no-claude`.
 - Claude triage runs only if the `ANTHROPIC_API_KEY` repository secret exists. Its summaries restate headlines and are labelled as machine summaries on the site.
 
+## Safety lens
+
+- Seven questions per entry: incident reporting, unacceptable uses, general-purpose models, enforcement, recipient, cross-border, frontier scope. Rules in `scripts/lens.mjs`.
+- yes: a cited source states it. no: a cited source states the opposite, or the full text has been read and it is absent. Absence in a press summary is not no. unclear: the default.
+- Every coded value needs `lens_basis_en` and `lens_basis_id` naming its source, and `lens_checked` records the day. Never write `my_take` or `pendapat_id`; leave a TODO.
+
+## Frontier incidents, reading list, quotes
+
+- `data/frontier-incidents.yml`: dates only as a source gives them, null with a TODO otherwise. Day counts are computed by `scripts/frontier.mjs`, never typed. Papers use `{{frontier:<id>:<field>}}` tokens for those numbers.
+- `data/reading.yml`: an item marked read needs `date_finished` and the author's notes in both languages. Never mark something read or write notes for the author.
+- `npm run check-quotes` writes `data/quote-check.yml`. A current quote marked `not_found` fails validation; fix or remove it. Unreachable sources are warnings.
+
+## Analysis papers
+
+- A paper is Markdown with front matter: the full English text in `writing/analysis/<id>.en.md`, the Bahasa Indonesia text in `writing/analisis/<id>.id.md` (it may be a draft translation of some sections, marked `partial: true`). Its numbered sources are in `data/analysis/<id>.sources.yml` and are cited in the text as [n].
+- Mark every direct quote: `<q data-src="n">` inline, `<blockquote data-src="n">` for block quotes, `<blockquote class="statute" data-src="n">` for statute text. `scripts/analysis.mjs` holds the rules and the validator applies them: every [n] resolves, every source is cited, https only, no duplicate urls, quote length and one quote per source.
+- Figures and tables built from data are computed as of the paper's `facts_as_of` day, never typed into the text.
+- Changes after publication go in `CHANGELOG.md` with the tag `[analysis-NN]`. Corrections anywhere get the tag `[correction]` and appear on the Corrections page.
+- Drafts that are not published (cross-posts, summaries, outlines) stay in `writing/` and are never linked from the site.
+
 ## Where things live
 
 - `data/schema.json`: the entry schema. `scripts/validate.mjs` adds checks the schema cannot express (id equals file name, instrument exists, quote rules, deadlines fields, no dashes).
 - `data/instruments.yml`, `data/deadlines.yml`: shared data.
 - `data/ontology.yml`, `scripts/ontology.mjs` (tests in `scripts/ontology.test.mjs`): the ontology layer. `data/build-log.yml`: the build log.
 - `scripts/promises.mjs` (tests in `scripts/promises.test.mjs`): deadline rules and computed outcomes. `scripts/archive.mjs` (tests in `scripts/archive.test.mjs`): evidence preservation.
+- `scripts/analysis.mjs`, `scripts/analysis-render.mjs`, `site/src/lib/analysis.ts`: analysis papers, shared by the validator and the site. `scripts/quotes.mjs` and `scripts/check-quotes.mjs`: the quote check. `scripts/lens.mjs`, `scripts/frontier.mjs`, `scripts/reading.mjs`: lens, incident and reading rules. `scripts/check-parity.mjs`: language parity, run after every build. Each has a `*.test.mjs`. `CITATION.cff`, `.zenodo.json`, `docs/releasing.md`: citation and archiving (no DOI exists yet).
 - `docs/standard/`: the promise format, its schema, examples and adopters. `kit/`: a data skeleton and guide for other countries, checked with `npm run validate -- --data kit/data`.
 - `scripts/make-share-images.mjs` and `scripts/fonts/` (Inter, OFL): every preview card and icon. The fonts are for images only; the site loads no fonts.
 - `data/radar.yml`, `data/scan-log.yml`, `data/watch/`: the monitoring layer. `scripts/scan.mjs` and `scripts/scan/` (tests in `scripts/scan/scan.test.mjs`, run with `npm test`).
@@ -89,4 +113,4 @@ When something happens to a promise, set `outcome_date` and `outcome_source_url`
 
 - Add analytics, trackers, external fonts or a client framework.
 - Add motion that ignores `prefers-reduced-motion`, or animation that keeps running off screen.
-- Publish anything about the author beyond what is already on the About page.
+- Publish anything about the author beyond what is already on the About page. The About page may have one section called "Direction" ("Where this is going"); nothing else about the author.

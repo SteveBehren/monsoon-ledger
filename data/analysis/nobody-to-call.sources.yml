@@ -1,0 +1,295 @@
+# Sources for Analysis 01, "Nobody to Call", numbered as cited in the text.
+# The validator checks that every [n] in writing/analysis/nobody-to-call.*.md resolves here, that every
+# source is cited, that urls are https and unique, and that there are no em or en dashes.
+# scripts/archive.mjs adds archive_url and archived_at beside each url. Never edit those by hand.
+# Sources 48 to 58 were added while checking the paper against primary texts on 26 October 2026.
+- n: 1
+  key: openai_hf
+  title: "OpenAI (updated 30 September 2026). \"The Hugging Face incident and other third-party impacts from misaligned models.\""
+  url: https://openai.com/hugging-face-incident-and-misalignment/
+  accessed: 2026-10-26
+- n: 2
+  key: abc_medicare
+  title: "ABC News Australia (24 September 2026). \"OpenAI hacked Medicare portal, Prime Minister Anthony Albanese says.\""
+  url: https://www.abc.net.au/news/2026-09-24/ai-agent-accessed-australian-government-site-pm-says/107189078
+  accessed: 2026-10-26
+- n: 3
+  key: aiact
+  title: "Regulation (EU) 2024/1689 (Artificial Intelligence Act), Articles 55 and 73. EUR-Lex."
+  url: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R1689
+  accessed: 2026-10-26
+- n: 4
+  key: sb53
+  title: "White & Case (October 2025). \"California enacts landmark AI transparency law: The Transparency in Frontier Artificial Intelligence Act.\""
+  url: https://whitecase.com/insight-alert/california-enacts-landmark-ai-transparency-law-transparency-frontier-artificial
+  accessed: 2026-10-26
+- n: 5
+  key: raise
+  title: "Morrison Foerster (5 January 2026). \"New York Enacts the RAISE Act Regulating Frontier AI Models.\""
+  url: https://www.mofo.com/resources/insights/260105-new-york-enacts-the-raise-act-regulating-frontier-ai-models
+  accessed: 2026-10-26
+- n: 6
+  key: antara_consult
+  title: "ANTARA News (17 June 2026). \"Kemkomdigi jelaskan isi konsultasi dengan AS soal rancangan Perpres AI.\""
+  url: https://www.antaranews.com/berita/5612117/kemkomdigi-jelaskan-isi-konsultasi-dengan-as-soal-rancangan-perpres-ai
+  accessed: 2026-10-26
+- n: 7
+  key: ledger
+  title: "Monsoon Ledger. Promise vs Reality ledger (Janji vs Kenyataan), data and method. Accessed 26 October 2026."
+  url: https://monsoonledger.vercel.app/en/ledger/
+  accessed: 2026-10-26
+- n: 8
+  key: pdp46
+  title: "Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi, Pasal 46 (text via Pasal.id)."
+  url: https://pasal.id/peraturan/uu/uu-no-27-tahun-2022/pasal-46
+  accessed: 2026-10-26
+- n: 9
+  key: pdp58
+  title: "Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi, Pasal 58 (text via Pasal.id)."
+  url: https://pasal.id/peraturan/uu/uu-no-27-tahun-2022/pasal-58
+  accessed: 2026-10-26
+- n: 10
+  key: pdp74
+  title: "Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi, Pasal 74 (text via Pasal.id)."
+  url: https://pasal.id/peraturan/uu/uu-no-27-tahun-2022/pasal-74
+  accessed: 2026-10-26
+- n: 11
+  key: hf_timeline
+  title: "Hugging Face (27 July 2026). \"Anatomy of a Frontier Lab Agent Intrusion: A Technical Timeline of the July 2026 Incident.\""
+  url: https://huggingface.co/blog/agent-intrusion-technical-timeline
+  accessed: 2026-10-26
+- n: 12
+  key: antara_risk
+  title: "ANTARA News (21 October 2026). \"Kemkomdigi terapkan pendekatan berbasis risiko dalam aturan etika AI.\""
+  url: https://www.antaranews.com/berita/5802433/kemkomdigi-terapkan-pendekatan-berbasis-risiko-dalam-aturan-etika-ai
+  accessed: 2026-10-26
+- n: 13
+  key: cltr
+  title: "Shaffer Shane, T. (26 June 2024). AI incident reporting: Addressing a gap in the UK's regulation of AI. Centre for Long-Term Resilience."
+  url: https://www.longtermresilience.org/reports/ai-incident-reporting-addressing-a-gap-in-the-uks-regulation-of-ai/
+  accessed: 2026-10-26
+- n: 14
+  key: cset
+  title: "Dixon, R. B. L. and Frase, H. (January 2025). AI Incidents: Key Components for a Mandatory Reporting Regime. CSET, Georgetown University."
+  url: https://cset.georgetown.edu/publication/ai-incidents-key-components-for-a-mandatory-reporting-regime/
+  accessed: 2026-10-26
+- n: 15
+  key: oecd
+  title: "OECD (2025). Towards a common reporting framework for AI incidents. OECD Artificial Intelligence Papers."
+  url: https://www.oecd.org/en/publications/towards-a-common-reporting-framework-for-ai-incidents_f326d4ac-en.html
+  accessed: 2026-10-26
+- n: 16
+  key: sidhu
+  title: "Sidhu, H. K. et al. (July 2026). Open Problems in AI Incident Governance. arXiv:2607.05163."
+  url: https://arxiv.org/abs/2607.05163
+  accessed: 2026-10-26
+- n: 17
+  key: aei
+  title: "Anthropic Economic Index, country profile for Indonesia (data period beginning 1 May 2026)."
+  url: https://www.anthropic.com/economic-index
+  accessed: 2026-10-26
+- n: 18
+  key: techcrunch_hf
+  title: "TechCrunch (21 July 2026). \"OpenAI says Hugging Face was breached by its pre-release models.\""
+  url: https://techcrunch.com/2026/07/21/openai-says-hugging-face-was-breached-by-its-pre-release-models/
+  accessed: 2026-10-26
+- n: 19
+  key: fortune_hf
+  title: "Fortune (21 July 2026). \"OpenAI says its AI models escaped from a secure test environment and hacked into AI company Hugging Face.\""
+  url: https://fortune.com/2026/07/21/openai-says-ai-models-escaped-control-hacked-hugging-face/
+  accessed: 2026-10-26
+- n: 20
+  key: metr
+  title: "Greenblatt, R., Cotra, A. and Wijk, H. (26 August 2026). \"Brief independent investigation of agents' behavior, reasoning and collaboration in the OpenAI / Hugging Face hacking incident.\" METR."
+  url: https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/
+  accessed: 2026-10-26
+- n: 21
+  key: toms_wiki
+  title: "Tom's Hardware (6 September 2026). \"OpenAI admits to 'wiki incident' after its agents were discovered using a programming hub to communicate.\""
+  url: https://www.tomshardware.com/tech-industry/artificial-intelligence/openai-admits-to-wiki-incident-after-its-agents-were-discovered-using-a-programming-hub-to-communicate-says-more-transparency-is-needed-regarding-misalignments
+  accessed: 2026-10-26
+- n: 22
+  key: tnw_eu
+  title: "The Next Web (7 September 2026). \"OpenAI has filed an EU incident report on the hijacked German wiki, the Commission says.\""
+  url: https://thenextweb.com/news/openai-eu-incident-report-german-wiki
+  accessed: 2026-10-26
+- n: 23
+  key: anthropic_gtg
+  title: "Anthropic (November 2025). \"Disrupting the first reported AI-orchestrated cyber espionage campaign.\""
+  url: https://assets.anthropic.com/m/ec212e6566a0d47/original/Disrupting-the-first-reported-AI-orchestrated-cyber-espionage-campaign.pdf
+  accessed: 2026-10-26
+- n: 24
+  key: iasr
+  title: "Bengio, Y. et al. (3 February 2026). International AI Safety Report 2026, Executive Summary."
+  url: https://internationalaisafetyreport.org/publication/2026-report-executive-summary
+  accessed: 2026-10-26
+- n: 25
+  key: omnibus
+  title: "Regulation (EU) 2026/1744 of 8 July 2026 (Digital Omnibus on AI), OJ L, 24 July 2026. EUR-Lex."
+  url: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ%3AL_202601744
+  accessed: 2026-10-26
+- n: 26
+  key: actlegal
+  title: "act legal (24 November 2025). \"Serious incident reporting under the EU AI Act.\""
+  url: https://actlegal.com/publications/serious-incident-reporting-under-the-eu-ai-act
+  accessed: 2026-10-26
+- n: 27
+  key: seoul
+  title: "Infosecurity Magazine (21 May 2024). \"AI Seoul Summit: 16 AI Companies Sign Frontier AI Safety Commitments.\""
+  url: https://www.infosecurity-magazine.com/news/ai-seoul-summit-safety-commitments
+  accessed: 2026-10-26
+- n: 28
+  key: network
+  title: "NIST (20 November 2024). Mission Statement, International Network of AI Safety Institutes."
+  url: https://www.nist.gov/document/international-network-ai-safety-institutes-mission-statement
+  accessed: 2026-10-26
+- n: 29
+  key: asean
+  title: "ASEAN (January 2025). Expanded ASEAN Guide on AI Governance and Ethics: Generative AI."
+  url: https://asean.org/wp-content/uploads/2025/01/Expanded-ASEAN-Guide-on-AI-Governance-and-Ethics-Generative-AI.pdf
+  accessed: 2026-10-26
+- n: 30
+  key: se9
+  title: "Ministry of Communication and Informatics (19 December 2023). Surat Edaran Menteri Komunikasi dan Informatika Nomor 9 Tahun 2023 tentang Etika Kecerdasan Artifisial. JDIH Komdigi."
+  url: https://jdih.komdigi.go.id/produk_hukum/view/id/883/t/surat+edaran+menteri+komunikasi+dan+informatika+nomor+9+tahun+2023
+  accessed: 2026-10-26
+- n: 31
+  key: antara_task
+  title: "ANTARA News (21 October 2026). \"Pemerintah siapkan gugus tugas kawal implementasi regulasi AI.\""
+  url: https://www.antaranews.com/berita/5802305/pemerintah-siapkan-gugus-tugas-kawal-implementasi-regulasi-ai
+  accessed: 2026-10-26
+- n: 32
+  key: p_2501
+  title: "Bisnis.com (13 January 2025). \"Menkomdigi Targetkan Aturan Penggunaan AI Rampung April 2025.\""
+  url: https://teknologi.bisnis.com/read/20250113/101/1831117/menkomdigi-targetkan-aturan-penggunaan-ai-rampung-april-2025
+  accessed: 2026-10-26
+- n: 33
+  key: p_2506
+  title: "Bisnis.com (17 June 2025). \"Komdigi Rilis Peta Jalan AI Bulan Ini.\""
+  url: https://teknologi.bisnis.com/read/20250617/101/1885548/komdigi-rilis-peta-jalan-ai-bulan-ini-jaga-keseimbangan-inovasi-dan-perlindungan
+  accessed: 2026-10-26
+- n: 34
+  key: p_2509
+  title: "Bisnis.com (16 September 2025). \"Komdigi Pastikan Roadmap dan Pedoman Etika AI Meluncur Bulan Ini.\""
+  url: https://teknologi.bisnis.com/read/20250916/84/1911831/komdigi-pastikan-roadmap-dan-pedoman-etika-ai-meluncur-bulan-ini
+  accessed: 2026-10-26
+- n: 35
+  key: p_2512
+  title: "Bisnis.com (17 December 2025). \"Regulasi AI Tunggu Tanda Tangan Prabowo, Ditarget Terbit Awal 2026.\""
+  url: https://teknologi.bisnis.com/read/20251217/84/1937372/regulasi-ai-tunggu-tanda-tangan-prabowo-ditarget-terbit-awal-2026
+  accessed: 2026-10-26
+- n: 36
+  key: p_2601
+  title: "CNN Indonesia (26 January 2026). \"Menkomdigi Sebut Perpres AI Segera Disahkan Presiden Awal Tahun Ini.\""
+  url: https://www.cnnindonesia.com/teknologi/20260126203143-185-1321329/menkomdigi-sebut-perpres-ai-segera-disahkan-presiden-awal-tahun-ini
+  accessed: 2026-10-26
+- n: 37
+  key: antara_deadline
+  title: "ANTARA News (19 September 2024). \"Masih ada waktu Presiden Jokowi bentuk Komisi PDP.\""
+  url: https://www.antaranews.com/berita/4343699/masih-ada-waktu-presiden-jokowi-bentuk-komisi-pdp
+  accessed: 2026-10-26
+- n: 38
+  key: detik_pdp
+  title: "detikInet (2 October 2025). \"Lembaga PDP Masih Belum Dibentuk, Menkomdigi Ungkap Alasannya.\""
+  url: https://inet.detik.com/law-and-policy/d-8142195/lembaga-pdp-masih-belum-dibentuk-menkomdigi-ungkap-alasannya
+  accessed: 2026-10-26
+- n: 39
+  key: cnbc_badan
+  title: "CNBC Indonesia (4 February 2026). \"Telat 2 Tahun, Komdigi Janji Badan Penjaga Data Warga RI Berdiri 2026.\""
+  url: https://www.cnbcindonesia.com/tech/20260204144446-37-708158/telat-2-tahun-komdigi-janji-badan-penjaga-data-warga-ri-berdiri-2026
+  accessed: 2026-10-26
+- n: 40
+  key: hlc
+  title: "HLC (14 August 2026). \"Awaiting Indonesia's Personal Data Protection Authority: A constitutional push for a hard deadline.\""
+  url: https://www.hlc.com/en/publications/awaiting-indonesias-personal-data-protection-authority-a-constitutional-push-for-a-hard-deadline
+  accessed: 2026-10-26
+- n: 41
+  key: mkri
+  title: "Mahkamah Konstitusi RI (4 August 2026). \"Keterangan Ahli Terlambat, Sidang Uji UU PDP Ditunda.\" Case 236/PUU-XXIV/2026."
+  url: https://www.mkri.id/berita/keterangan-ahli-terlambat,-sidang-uji-uu-pdp-ditunda-25526
+  accessed: 2026-10-26
+- n: 42
+  key: rajah_gr33
+  title: "Rajah & Tann Asia (3 September 2026). \"PDP Law Updates: The PDP Implementing Regulation Is Out, and It Clarifies Some Key Questions Under Indonesia's PDP Law.\""
+  url: https://www.rajahtannasia.com/viewpoints/pdp-law-updates-the-pdp-implementing-regulation-is-out-and-it-clarifies-some-key-questions-under-indonesias-pdp-law/
+  accessed: 2026-10-26
+- n: 43
+  key: register_pdns
+  title: "The Register (24 June 2024). Indonesia's national data centre hit by ransomware."
+  url: https://www.theregister.com/2024/06/24/indonesia_datacenter_ransomware/
+  accessed: 2026-10-26
+- n: 44
+  key: cnbc_backup
+  title: "CNBC Indonesia (28 June 2024). \"Alasan Backup Pusat Data Nasional Hanya 2% Akhirnya Terungkap.\""
+  url: https://www.cnbcindonesia.com/tech/20240628080944-37-550082/alasan-backup-pusat-data-nasional-hanya-2-akhirnya-terungkap
+  accessed: 2026-10-26
+- n: 45
+  key: bisnis_backup
+  title: "Bisnis.com (27 June 2024). \"DPR Sesali Bertahun-tahun PDNS 2 Tidak Punya Data Cadangan (Backup).\""
+  url: https://teknologi.bisnis.com/read/20240627/101/1777675/dpr-sesali-bertahun-tahun-pdns-2-tidak-punya-data-cadangan-backup
+  accessed: 2026-10-26
+- n: 46
+  key: rmol_kks
+  title: "RMOL (6 July 2026). \"RUU Keamanan Siber Harus Sinkronkan Peran BSSN, Komdigi, Polri, dan TNI.\""
+  url: https://rmol.id/politik/read/2026/07/06/713365/ruu-keamanan-siber-harus-sinkronkan-peran-bssn-komdigi-polri-dan-tni
+  accessed: 2026-10-26
+- n: 47
+  key: p_2609
+  title: "Selular.id (September 2026). \"Dua Perpres AI Tunggu Tanda Tangan Presiden Prabowo.\""
+  url: https://selular.id/2026/09/dua-perpres-ai-tunggu-tanda-tangan-presiden-prabowo/
+  accessed: 2026-10-26
+- n: 48
+  key: collusion_wiki
+  title: "Von Arx, S., Byrd, C. S., Kitts, S. and Larsen, T. (4 September 2026). \"Discovery of a new OpenAI agent message board.\""
+  url: https://collusion.wiki/
+  accessed: 2026-10-26
+- n: 49
+  key: cop_safety
+  title: "European Commission (2025). The General-Purpose AI Code of Practice, Safety and Security chapter, Measure 9.3."
+  url: https://ec.europa.eu/newsroom/dae/redirection/document/118119
+  accessed: 2026-10-26
+- n: 50
+  key: sb53_22757_13
+  title: "California Business and Professions Code, section 22757.13 (added by SB 53, Stats. 2025, Ch. 138)."
+  url: https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=BPC&sectionNum=22757.13.
+  accessed: 2026-10-26
+- n: 51
+  key: sb53_22757_11
+  title: "California Business and Professions Code, section 22757.11, definitions (added by SB 53, Stats. 2025, Ch. 138)."
+  url: https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=BPC&sectionNum=22757.11.
+  accessed: 2026-10-26
+- n: 52
+  key: raise_a9449
+  title: "New York State Assembly Bill A9449 (2025 to 2026 session), chapter amendment to the RAISE Act, bill text, section 1422."
+  url: https://legislation.nysenate.gov/pdf/bills/2025/a9449
+  accessed: 2026-10-26
+- n: 53
+  key: wiley_raise
+  title: "Wiley Rein (3 April 2026). \"New York Finalizes RAISE Act for Frontier AI Models; Law Takes Effect January 1, 2027.\""
+  url: https://www.wiley.law/alert-New-York-Finalizes-RAISE-Act-for-Frontier-AI-Models-Law-Takes-Effect-January-1-2027
+  accessed: 2026-10-26
+- n: 54
+  key: hf_disclosure
+  title: "Hugging Face (16 July 2026). \"Security incident disclosure, July 2026.\""
+  url: https://huggingface.co/blog/security-incident-july-2026
+  accessed: 2026-10-26
+- n: 55
+  key: pdp_official
+  title: "Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi, official text, Lembaran Negara 2022 Nomor 196 (JDIH BPK)."
+  url: https://peraturan.bpk.go.id/Details/229798/uu-no-27-tahun-2022
+  accessed: 2026-10-26
+- n: 56
+  key: mkri_27jul
+  title: "Mahkamah Konstitusi RI (27 July 2026). \"Pembentukan Lembaga PDP Sedang Dibahas.\" Case 236/PUU-XXIV/2026."
+  url: https://www.mkri.id/berita/pembentukan-lembaga-pdp-sedang-dibahas-25476
+  accessed: 2026-10-26
+- n: 57
+  key: mkri_tracking
+  title: "Mahkamah Konstitusi RI. Case tracking record, 236/PUU-XXIV/2026."
+  url: https://tracking.mkri.id/index.php?page=web.TrackPerkara&id=236/PUU-XXIV/2026
+  accessed: 2026-10-26
+- n: 58
+  key: jdih_drafts
+  title: "JDIH Komdigi. List of draft regulations (Rancangan PUU), 32 documents, checked 26 October 2026."
+  url: https://jdih.komdigi.go.id/dokumen-pembentukan-puu/kategori/rancangan-puu
+  accessed: 2026-10-26

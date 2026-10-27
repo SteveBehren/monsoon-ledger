@@ -1,0 +1,71 @@
+id: 2023-12-19-id-se-9-2023-ai-ethics
+date: 2023-12-19
+country: ID
+instrument: se-menkominfo-9-2023
+status: in-force
+# TODO author: confirm you have read the full text yourself. legal-text means the author has read
+# the published text. Claude read it on JDIH Komdigi on 26 October 2026 while checking Analysis 01.
+evidence: legal-text
+
+title_en: Circular Letter 9/2023 sets AI ethics guidance, with no incident duty
+title_id: Surat Edaran 9/2023 memuat panduan etika AI, tanpa kewajiban melaporkan insiden
+
+summary_en: >
+  On 19 December 2023 the Minister of Communication and Informatics issued Circular Letter 9 of
+  2023 on AI ethics. It is addressed to businesses that build AI and to public and private
+  electronic system operators, and it sets out ethical values, how to apply them, and
+  responsibilities in using and developing AI. It says AI should not be used to decide policy or
+  matters concerning humanity. It contains no incident reporting duty, no provision on
+  general-purpose or generative models, and no sanctions.
+
+ringkasan_id: >
+  Pada 19 Desember 2023, Menteri Komunikasi dan Informatika menerbitkan Surat Edaran Nomor 9 Tahun
+  2023 tentang Etika Kecerdasan Artifisial. Surat edaran ini ditujukan kepada pelaku usaha yang
+  mengembangkan AI serta penyelenggara sistem elektronik publik dan privat, dan memuat nilai etika,
+  cara menerapkannya, serta tanggung jawab dalam memakai dan mengembangkan AI. Surat edaran ini
+  menyatakan AI tidak boleh dipakai untuk memutuskan kebijakan atau hal yang menyangkut kemanusiaan.
+  Isinya tidak memuat kewajiban melaporkan insiden, tidak mengatur model serbaguna atau AI generatif,
+  dan tidak mengatur sanksi.
+
+safety_lens:
+  incident_reporting: "no"
+  unacceptable_uses: "yes"
+  general_purpose_models: "no"
+  enforcement: none
+  recipient: not_named
+  cross_border: "no"
+  frontier_scope: "no"
+
+lens_basis_en: >
+  Coded from the full text of the circular. Unacceptable uses is yes because it says AI should not
+  be used to decide policy or matters concerning humanity. The text contains no incident reporting
+  duty, so it names no recipient, and it says nothing on general-purpose or generative models, on
+  frontier AI or on systems from abroad. It describes itself as ethical guidance and sets no
+  sanctions, so enforcement is none.
+lens_basis_id: >
+  Dikodekan dari naskah lengkap surat edaran. Penggunaan yang tidak dapat diterima bernilai ya karena
+  surat edaran menyatakan AI tidak boleh dipakai untuk memutuskan kebijakan atau hal yang menyangkut
+  kemanusiaan. Naskahnya tidak memuat kewajiban melaporkan insiden, jadi tidak menyebut penerima
+  laporan, dan tidak membahas model serbaguna atau AI generatif, AI garda depan, maupun sistem dari
+  luar negeri. Surat edaran ini menyebut dirinya panduan etika dan tidak mengatur sanksi, jadi
+  penegakannya tidak ada.
+lens_checked: 2026-10-26
+
+last_checked: 2026-10-26
+
+eu_comparison: >
+  The EU AI Act is a binding regulation that requires providers of high-risk systems and of
+  general-purpose models with systemic risk to report serious incidents. Circular Letter 9/2023 is
+  guidance with no reporting duty and no sanctions.
+perbandingan_eu_id: >
+  AI Act Uni Eropa adalah regulasi yang mengikat dan mewajibkan penyedia sistem berisiko tinggi serta
+  penyedia model serbaguna dengan risiko sistemik melaporkan insiden serius. Surat Edaran 9/2023
+  adalah panduan tanpa kewajiban pelaporan dan tanpa sanksi.
+
+# TODO author: my_take and pendapat_id are yours to write. Claude does not write them.
+
+sources:
+  - title: Surat Edaran Menteri Komunikasi dan Informatika Nomor 9 Tahun 2023 tentang Etika Kecerdasan Artifisial
+    url: https://jdih.komdigi.go.id/produk_hukum/view/id/883/t/surat+edaran+menteri+komunikasi+dan+informatika+nomor+9+tahun+2023
+    outlet: JDIH Komdigi
+    language: id

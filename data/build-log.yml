@@ -7,6 +7,165 @@
 #           so YAML never reads a hash such as 4518e71 as a number
 # Rows are checked by npm run validate: real dates, newest first, known kind, short hashes.
 
+- date: 2026-10-27
+  kind: content
+  title_en: README, Technical system page and working rules updated for the new layers
+  title_id: README, halaman Sistem teknis, dan aturan kerja diperbarui untuk lapisan baru
+  detail_en: >
+    The README now lists the new pages, how analysis papers, the quote check, the incident reference and the reading list work,
+    the quality gates and the project layout. The Technical system page describes the new data models and checks. The working
+    rules in CLAUDE.md cover the lens, incidents, reading and quotes. The README paragraph on how AI is used carries a note for
+    the author to confirm, because Claude drafted two entries and the Bahasa Indonesia translation this round.
+  detail_id: >
+    README kini memuat halaman baru, cara kerja makalah analisis, pemeriksaan kutipan, rujukan insiden, dan daftar bacaan, gerbang
+    mutu, serta susunan proyek. Halaman Sistem teknis menjelaskan model data dan pemeriksaan yang baru. Aturan kerja di CLAUDE.md
+    mencakup lensa, insiden, bacaan, dan kutipan. Paragraf README tentang penggunaan AI diberi catatan untuk dikonfirmasi penulis,
+    karena Claude menyusun draf dua catatan dan terjemahan bahasa Indonesia pada putaran ini.
+  pr: 7
+  commits: ["a7caace"]
+
+- date: 2026-10-27
+  kind: feature
+  title_en: Language parity check, internal link check and accessibility fixes
+  title_id: Pemeriksaan kesetaraan bahasa, pemeriksaan tautan internal, dan perbaikan aksesibilitas
+  detail_en: >
+    The build now fails if a page exists in only one language, unless it is marked partial, or if a data field has English text
+    without its Bahasa Indonesia twin. A new offline check confirms every internal link and anchor in the built site. The
+    automated accessibility check found no contrast or label problems on the new pages. Fixed in testing: a hidden data table
+    made the paper page 722 pixels wide on phones, the menu bar crowded at 1280 pixels with eight items, and two landmark
+    warnings. External links could not be checked from the build environment, which blocks those sites.
+  detail_id: >
+    Pembangunan situs kini gagal bila sebuah halaman hanya ada dalam satu bahasa, kecuali ditandai sebagian, atau bila kolom data
+    berbahasa Inggris tidak punya padanan bahasa Indonesia. Pemeriksaan baru tanpa jaringan memastikan setiap tautan dan jangkar
+    internal di situs berfungsi. Pemeriksaan aksesibilitas otomatis tidak menemukan masalah kontras atau label di halaman baru.
+    Yang diperbaiki saat pengujian: tabel data tersembunyi membuat halaman makalah selebar 722 piksel di ponsel, bilah menu
+    terlalu sesak pada lebar 1280 piksel dengan delapan item, dan dua peringatan landmark. Tautan eksternal tidak bisa diperiksa
+    dari lingkungan pembangunan, yang memblokir situs-situs itu.
+  pr: 7
+  commits: ["fd75cf0"]
+
+- date: 2026-10-27
+  kind: content
+  title_en: About page section on where the project is going
+  title_id: Bagian halaman Tentang tentang arah proyek
+  detail_en: >
+    A short section, "Where this is going", uses the author's own wording in English and Bahasa Indonesia, marked in the source
+    for the author to confirm. Nothing else about the author changed.
+  detail_id: >
+    Satu bagian pendek, "Arah ke depan", memakai kata-kata penulis sendiri dalam bahasa Inggris dan Indonesia, ditandai di kode
+    sumber untuk dikonfirmasi penulis. Tidak ada hal lain tentang penulis yang berubah.
+  pr: 7
+  commits: ["bcd283b"]
+
+- date: 2026-10-27
+  kind: feature
+  title_en: Corrections page, two-page brief and contribution guides
+  title_id: Halaman Koreksi, ringkasan dua halaman, dan panduan kontribusi
+  detail_en: >
+    A Corrections page lists every changelog line tagged as a correction. A printable two-page brief of Analysis 01 takes its
+    findings and recommendations from the paper's own text and its timeline from the incident data. New contribution
+    guidelines, a code of conduct, a security policy and issue forms for corrections, sources and promises. Discussions and
+    private vulnerability reporting are not switched on yet; that is a repository setting for the author.
+  detail_id: >
+    Halaman Koreksi memuat setiap baris catatan perubahan yang ditandai koreksi. Ringkasan dua halaman Analisis 01 yang bisa
+    dicetak mengambil temuan dan rekomendasi dari teks makalah sendiri dan linimasanya dari data insiden. Ada panduan kontribusi,
+    kode etik, kebijakan keamanan, dan formulir isu untuk koreksi, sumber, dan janji. Discussions dan pelaporan kerentanan
+    secara privat belum diaktifkan; itu pengaturan repositori yang perlu dilakukan penulis.
+  pr: 7
+  commits: ["ad04984"]
+
+- date: 2026-10-27
+  kind: feature
+  title_en: Reading list
+  title_id: Daftar bacaan
+  detail_en: >
+    A reading list for the analysis papers, checked by the validator: an item marked read needs a finish date and the author's
+    notes in both languages. The International AI Safety Report 2026 is being read; four incident reporting reports are planned.
+    No notes were written for the author.
+  detail_id: >
+    Daftar bacaan untuk makalah analisis, diperiksa validator: bacaan yang ditandai sudah dibaca wajib punya tanggal selesai dan
+    catatan penulis dalam dua bahasa. International AI Safety Report 2026 sedang dibaca; empat laporan tentang pelaporan insiden
+    direncanakan. Tidak ada catatan yang ditulis atas nama penulis.
+  pr: 7
+  commits: ["6dddf94"]
+
+- date: 2026-10-27
+  kind: feature
+  title_en: Frontier incident reference
+  title_id: Rujukan insiden AI garda depan
+  detail_en: >
+    Four public reports of frontier AI models or agents acting on, or used against, systems outside the developer's control,
+    with dates only as sources give them and day counts computed in code. Analysis 01 now reads its 84 and 30 day counts from
+    this data, and the build fails if they drift. Several dates are not given by any source read, among them when OpenAI became
+    aware of the Hugging Face and wiki activity and when the Commission received OpenAI's report; they are left empty.
+  detail_id: >
+    Empat laporan publik tentang model atau agen AI garda depan yang bertindak di, atau dipakai menyerang, sistem di luar kendali
+    pengembangnya, dengan tanggal hanya sesuai sumber dan jumlah hari dihitung oleh kode. Analisis 01 kini membaca angka 84 dan
+    30 hari dari data ini, dan pembangunan gagal bila angkanya bergeser. Beberapa tanggal tidak disebut sumber mana pun yang
+    dibaca, antara lain kapan OpenAI mengetahui aktivitas di Hugging Face dan wiki, serta kapan Komisi menerima laporan OpenAI;
+    tanggal itu dibiarkan kosong.
+  pr: 7
+  commits: ["ed1bec7"]
+
+- date: 2026-10-27
+  kind: feature
+  title_en: Safety lens v2 and two entries from published texts
+  title_id: Lensa keselamatan v2 dan dua catatan dari naskah yang diterbitkan
+  detail_en: >
+    Three new lens questions on every entry: who receives incident reports and whether that body exists, cross-border scope and
+    frontier scope. Every coded value now names its source, and a "no" can no longer come from a press report. The roadmap
+    entry's enforcement value went from "none" to "unclear" because no source states it. New entries for Circular Letter 9/2023
+    and the ASEAN generative AI guide, without the author's take. New Safety lens page.
+  detail_id: >
+    Tiga pertanyaan lensa baru untuk setiap catatan: siapa penerima laporan insiden dan apakah badan itu ada, cakupan lintas batas,
+    dan cakupan AI garda depan. Setiap nilai yang dikodekan kini menyebut sumbernya, dan nilai tidak tidak boleh lagi diambil dari
+    berita. Nilai penegakan pada catatan peta jalan berubah dari tidak ada menjadi belum jelas karena tidak ada sumber yang
+    menyatakannya. Catatan baru untuk Surat Edaran 9/2023 dan panduan AI generatif ASEAN, tanpa pendapat penulis. Halaman baru
+    Lensa keselamatan.
+  pr: 7
+  commits: ["4e5200d"]
+
+- date: 2026-10-27
+  kind: fix
+  title_en: Quote check, verified data fixes, Silencing page off the home page
+  title_id: Pemeriksaan kutipan, perbaikan data yang sudah diverifikasi, halaman Silencing dilepas dari beranda
+  detail_en: >
+    A quote check reads each source and looks for the quote's exact words; 13 of 13 were found on 27 October 2026, using a local
+    copy of the sources because the build environment cannot reach them. The report-all-incidents quote is now attributed to
+    Aju Widyasari by name and title, a promise row records Irma Handayani's role, and one deadline basis names both readings in its
+    source. The Silencing by automation draft is no longer linked from the home page and is not indexed; its address stays.
+  detail_id: >
+    Pemeriksaan kutipan membaca setiap sumber dan mencari kata-kata persis kutipannya; 13 dari 13 ditemukan pada 27 Oktober 2026,
+    memakai salinan lokal sumber karena lingkungan pembangunan tidak bisa menjangkaunya. Kutipan pada catatan pelaporan semua insiden
+    kini diatribusikan kepada Aju Widyasari dengan nama dan jabatannya, satu baris janji mencatat jabatan Irma Handayani, dan satu
+    dasar tenggat menyebut kedua tafsir dalam sumbernya. Draf Silencing by automation tidak lagi ditautkan dari beranda dan tidak
+    diindeks mesin pencari; alamatnya tetap.
+  pr: 7
+  commits: ["d282884"]
+
+- date: 2026-10-27
+  kind: feature
+  title_en: Analysis 01, "Nobody to Call", published
+  title_id: Analisis 01, "Tak Ada yang Bisa Dihubungi", diterbitkan
+  detail_en: >
+    The first analysis paper, with numbered references, a figure and promise table computed from the ledger, citation formats,
+    a Word download, Scholar metadata and a draft Bahasa Indonesia translation of its key sections. Before publication its claims
+    were checked against sources: quotes were shortened or cut to one per source, the California and New York rows, the Hugging
+    Face disclosure date and the wiki's name were corrected, and eleven primary sources were added. A wrong reading of 17 October
+    2024 as the deadline for the data protection institution was corrected on the Instruments and Method pages. Could not be
+    verified: the official text of GR 33/2026, and the population figure in the paper's "Why Indonesia" paragraph, which is marked
+    for the author. Archive copies of the new sources could not be made from the build environment; the scheduled scan will try.
+  detail_id: >
+    Makalah analisis pertama, dengan rujukan bernomor, gambar dan tabel janji yang dihitung dari catatan janji, format kutipan,
+    unduhan Word, metadata Scholar, dan terjemahan draf bahasa Indonesia untuk bagian-bagian utamanya. Sebelum terbit, klaimnya
+    diperiksa terhadap sumber: kutipan dipersingkat atau dikurangi menjadi satu per sumber, baris California dan New York, tanggal
+    pengungkapan Hugging Face, dan nama wiki dikoreksi, serta sebelas sumber primer ditambahkan. Tafsir keliru bahwa 17 Oktober
+    2024 adalah tenggat pembentukan lembaga pelindungan data dikoreksi di halaman Instrumen dan Metode. Yang belum bisa
+    diverifikasi: naskah resmi PP 33/2026, dan angka penduduk di paragraf "Why Indonesia" dalam makalah, yang ditandai untuk
+    penulis. Salinan arsip sumber baru belum bisa dibuat dari lingkungan pembangunan; pemindaian terjadwal akan mencobanya.
+  pr: 7
+  commits: ["325339f"]
+
 - date: 2026-10-25
   kind: feature
   title_en: Computed promise outcomes, receipts, the open promise format and evidence archiving

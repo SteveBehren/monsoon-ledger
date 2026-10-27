@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getEntries, getPromises } from '../lib/data';
+import { getPaperIds, getPaperMeta, changesTagged } from '../lib/analysis';
 import { SITE, LANGS } from '../lib/i18n';
 
 export const GET: APIRoute = () => {
@@ -10,11 +11,21 @@ export const GET: APIRoute = () => {
     { path: 'entries/', lastmod: newest },
     { path: 'ledger/' },
     { path: 'instruments/' },
+    { path: 'analysis/' },
+    ...getPaperIds().map((id) => {
+      const m = getPaperMeta(id, 'en')!;
+      const tag = `analysis-${String(m.number).padStart(2, '0')}`;
+      const lastmod = changesTagged(tag).reduce((max, c) => (c.date > max ? c.date : max), String(m.published));
+      return { path: `analysis/${id}/`, lastmod };
+    }),
+    { path: 'safety/' },
+    { path: 'incidents/' },
+    { path: 'reading/' },
+    { path: 'corrections/' },
     { path: 'ontology/' },
     { path: 'radar/' },
     { path: 'method/' },
     { path: 'method/system/' },
-    { path: 'silencing/' },
     { path: 'about/' },
     { path: 'method/standard/' },
     ...entries.map((e) => ({ path: `entries/${e.id}/`, lastmod: e.last_checked })),

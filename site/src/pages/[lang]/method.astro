@@ -6,7 +6,7 @@ import References from '../../components/References.astro';
 import MethodTabs from '../../components/MethodTabs.astro';
 import PageRail from '../../components/PageRail.astro';
 import RailEvidence from '../../components/RailEvidence.astro';
-import { getDeadlines, getPromises, outcomeCounts, TODAY } from '../../lib/data';
+import { getDeadlines, getPromises, outcomeCounts, getQuoteCheck, TODAY } from '../../lib/data';
 import { ui, href, fmtDate, SITE, LANGS, type Lang } from '../../lib/i18n';
 import type { RefKey } from '../../lib/references';
 
@@ -65,6 +65,7 @@ const toc = {
     ['ethics', 'Research ethics'],
     ['ai', 'Use of AI'],
     ['corrections', 'Corrections'],
+    ['frontier-incidents', 'Frontier incident reference'],
     ['glossary', 'Glossary'],
     ['refs-h', 'References'],
   ],
@@ -85,6 +86,7 @@ const toc = {
     ['ethics', 'Etika penelitian'],
     ['ai', 'Penggunaan AI'],
     ['corrections', 'Koreksi'],
+    ['frontier-incidents', 'Rujukan insiden AI garda depan'],
     ['glossary', 'Glosarium'],
     ['refs-h', 'Daftar pustaka'],
   ],
@@ -99,6 +101,7 @@ const lede = {
 const promises = getPromises();
 const dated = promises.filter((p) => p.claim_type === 'dated').slice().reverse();
 const counts = outcomeCounts(getDeadlines());
+const quoteCheck = getQuoteCheck();
 const receipt = (key: string) => href(lang, `promises/${key}/`);
 
 const perpresEntry = href(lang, 'entries/2026-10-21-id-perpres-ai-keep-almost-arriving/');
@@ -153,8 +156,9 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
           <ol>
             <li><strong>RQ1.</strong> Which instruments govern artificial intelligence in Indonesia, and what is the legal force of each?</li>
             <li><strong>RQ2.</strong> What have officials publicly promised about those instruments, and did the promised act happen by the stated date?</li>
-            <li><strong>RQ3.</strong> Do the instruments address four safety questions: incident reporting, unacceptable uses, general-purpose models and enforcement?</li>
+            <li><strong>RQ3.</strong> Do the instruments address seven safety questions: incident reporting, unacceptable uses, general-purpose models, enforcement, who receives incident reports, cross-border incidents and frontier AI?</li>
             <li><strong>RQ4.</strong> How does each instrument compare with EU law and with the safety frameworks published by frontier AI developers?</li>
+            <li><strong>RQ5.</strong> When an AI incident crosses a border, who receives the notice, and does that body exist? Analysis 01 takes this question up (<a href={href(lang, 'analysis/nobody-to-call/')}>Nobody to Call</a>).</li>
           </ol>
 
           <h2 id="scope">3. Scope and case selection</h2>
@@ -275,7 +279,7 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             <li><strong>Attribution.</strong> Tie every statement to a named person and their role, or to a named body. An unnamed "source at the ministry" is not recorded as an official statement.</li>
             <li><strong>Temporal integrity.</strong> Keep three dates apart: when something was said, when it was published, and when the ledger last checked it. Deadlines use the date said.</li>
             <li><strong>Corroboration.</strong> Every additional independent report the author reads is added as a source. A claim that rests on one report is shown with that report's evidence level.</li>
-            <li><strong>Quotation integrity.</strong> Quotes stay in the original language, stay under 15 words, appear at most once per source, and carry an English line. The validator enforces all four rules.</li>
+            <li><strong>Quotation integrity.</strong> Quotes stay in the original language, stay under 15 words, appear at most once per source, and carry an English line. The validator enforces all four rules. Statute text on Analysis pages is the only exemption from the length rule. A separate check reads each source and looks for the quote's exact words (<code>npm run check-quotes</code>). {quoteCheck.checked_at ? <>Quotes checked on <time datetime={quoteCheck.checked_at}>{fmtDate(lang, quoteCheck.checked_at)}</time>: {quoteCheck.found} of {quoteCheck.total} found in their sources.</> : <>Quotes not yet checked.</>}</li>
             <li>
               <strong>Digital content.</strong> Posts, images and screenshots are assessed against the Berkeley Protocol on Digital
               Open Source Investigations, which looks at where content came from, its technical properties and what it shows
@@ -293,7 +297,7 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
 
           <h2 id="coding">7. Coding scheme</h2>
           <h3 id="lens">7.1 The Safety lens</h3>
-          <p>The same four questions are asked of every entry. The codes and decision rules are fixed.</p>
+          <p>The same seven questions are asked of every entry. The first four have been coded since the start. The last three were added in October 2026 (lens v2). The codes and decision rules are fixed, and the full table is on the <a href={href(lang, 'safety/')}>Safety lens</a> page.</p>
           <div class="panel table-panel">
             <table class="ruled stack">
               <caption class="visually-hidden">Safety lens codebook</caption>
@@ -321,6 +325,21 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
                   <td data-label="Codes">Binding, Soft, None, Unclear</td>
                   <td data-label="Decision rule">Binding: legally binding duties with consequences for breach. Soft: guidance, voluntary commitments or self-assessment. None: no enforcement mechanism. Unclear: sources do not say.</td>
                 </tr>
+                <tr>
+                  <td data-label="Question"><strong>Who receives reports.</strong> Is a body named to receive incident reports, and does it exist?</td>
+                  <td data-label="Codes">Named and operating, Named but not set up, Not named, Unclear</td>
+                  <td data-label="Decision rule">Named if a cited source names the body. Operating only if a source shows it exists and works. Not named needs the full text, or a source that says no body is named.</td>
+                </tr>
+                <tr>
+                  <td data-label="Question"><strong>Cross-border.</strong> Does it address AI systems or incidents that cross borders?</td>
+                  <td data-label="Codes">Yes, No, Unclear</td>
+                  <td data-label="Decision rule">Yes if it addresses systems developed abroad that act on domestic systems, or notices to or from other countries.</td>
+                </tr>
+                <tr>
+                  <td data-label="Question"><strong>Frontier AI.</strong> Does it address the most capable models and their control?</td>
+                  <td data-label="Codes">Yes, No, Unclear</td>
+                  <td data-label="Decision rule">Yes if it addresses frontier models or frontier risks, such as the controllability or alignment of highly capable systems.</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -328,6 +347,12 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             <strong>Unclear is not No.</strong> Unclear means public sources do not yet answer the question. A draft whose text has
             not been published is usually Unclear on most questions. Coding uses only the sources listed on the entry, at the
             evidence level shown.
+          </p>
+          <p>
+            <strong>Definitions.</strong> Yes: a cited source states it. No: a cited source states the opposite, or the full text
+            has been read and it is absent. Absence in a press summary is not No. Unclear: the default. Every coded value carries a
+            sentence, in both languages, naming the source that supports it, and the day the lens was last checked. The validator
+            rejects a coded value without that sentence, and a No taken from a press report.
           </p>
           <h3>7.2 Instrument status</h3>
           <ul>
@@ -476,7 +501,7 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
                 </tr>
                 <tr>
                   <td data-label="Question"><strong>Regulator</strong></td>
-                  <td data-label="Indonesia">Article 58 of Law 27 of 2022 provides for an agency set up by, and answerable to, the President <Cite k="uu-pdp" keys={R} />. The deadline to form it was 17 October 2024 <Cite k="pdp-deadline" keys={R} />, and it was still not established as of an August 2026 report (<a href={pdpEntry}>entry</a>).</td>
+                  <td data-label="Indonesia">Article 58 of Law 27 of 2022 provides for an agency set up by, and answerable to, the President <Cite k="uu-pdp" keys={R} />. The law sets no date for forming it. The two-year adjustment period for controllers and processors ended on 17 October 2024, a date a cybersecurity expert quoted by ANTARA also treated as the deadline for the agency <Cite k="pdp-deadline" keys={R} />, and it was still not established as of an August 2026 report (<a href={pdpEntry}>entry</a>).</td>
                   <td data-label="European Union">Article 51 of the GDPR requires one or more independent public supervisory authorities in each member state <Cite k="gdpr" keys={R} />.</td>
                 </tr>
                 <tr>
@@ -510,7 +535,8 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
           <ul>
             <li><strong>Single coder.</strong> One person codes every entry, so inter-coder reliability cannot be measured. The mitigation is a published codebook, coding tied to listed sources, and open corrections.</li>
             <li><strong>Desk research only.</strong> No interviews or information requests yet. The ledger sees what is published, not what is decided behind closed doors.</li>
-            <li><strong>Unpublished drafts.</strong> Neither AI presidential regulation has a published draft text. Claims about their content rest on official statements and are graded as such.</li>
+            <li><strong>Unpublished drafts.</strong> Neither AI presidential regulation has a published draft text. The draft texts were not published as of 26 October 2026: neither appeared on the ministry's official list of draft regulations. Claims about their content rest on official statements and are graded as such.</li>
+            <li><strong>Analysis and incidents.</strong> The analysis papers argue from the ledger's sources, and the frontier incident reference lists public reports only. Neither is complete, neither is counted in the ledger, and both can change as investigations report. The quote check reads sources as they are on the day it runs, so a page that changes later can turn a found quote into one that needs checking again.</li>
             <li><strong>Selection bias.</strong> Events that the media does not report are less likely to be found. Monitoring official channels directly reduces this, but does not remove it.</li>
             <li><strong>Translation.</strong> Every English rendering is an interpretation. Original quotes and links stay on the page so readers can check.</li>
             <li><strong>Link decay.</strong> News pages move or disappear. The link checker finds broken links, and entries record outlet and title so a source can still be found.</li>
@@ -550,7 +576,20 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             and every correction is logged with its date in the <a href={SITE.changelog}>changelog</a>. See <a href={href(lang, 'about/')}>About</a> for who writes this.
           </p>
 
-          <h2 id="glossary">17. Glossary</h2>
+          <h2 id="frontier-incidents">17. Frontier incident reference</h2>
+          <p>
+            The <a href={href(lang, 'incidents/')}>frontier incident reference</a> lists public reports of frontier AI models or
+            agents acting on, or being used against, systems outside the developer's control. It gives context to RQ5 and to
+            Analysis 01. It is never counted in the ledger's figures.
+          </p>
+          <ul>
+            <li><strong>Inclusion.</strong> An incident is listed when the developer, the affected party or an independent investigator has described it publicly, and the activity reached systems the developer does not control.</li>
+            <li><strong>Exclusions.</strong> Activity that stayed inside the developer's own systems, such as a test environment escape with no contact with a third party. Claims without a primary disclosure or a named investigator. Incidents not yet reviewed.</li>
+            <li><strong>Dates.</strong> Only as a cited source gives them. A date no source gives stays empty, with a note in the data. The day counts (access to notice, awareness to notice, notice to public) are computed by <code>scripts/frontier.mjs</code> and never typed. Analysis 01 reads its day counts from the same code, and the build fails if they disagree.</li>
+            <li><strong>Limits.</strong> The list is small and not complete. Investigations are ongoing and details can change. Most rows rest on the developer's or the affected party's own account. The reference does not claim that any Indonesian system was affected.</li>
+          </ul>
+
+          <h2 id="glossary">18. Glossary</h2>
           <dl class="glossary">
             <dt lang="id">UU (Undang-Undang)</dt><dd>A law passed by the House of Representatives and the President.</dd>
             <dt lang="id">PP (Peraturan Pemerintah)</dt><dd>A government regulation that implements a law.</dd>
@@ -595,8 +634,9 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
           <ol>
             <li><strong>PP1.</strong> Instrumen apa saja yang mengatur kecerdasan artifisial di Indonesia, dan seberapa kuat kekuatan hukum masing-masing?</li>
             <li><strong>PP2.</strong> Apa yang pernah dijanjikan pejabat secara terbuka tentang instrumen itu, dan apakah janji itu terlaksana sesuai tanggalnya?</li>
-            <li><strong>PP3.</strong> Apakah instrumen itu menjawab empat pertanyaan keselamatan: pelaporan insiden, penggunaan yang tidak dapat diterima, model serba guna, dan penegakan?</li>
+            <li><strong>PP3.</strong> Apakah instrumen itu menjawab tujuh pertanyaan keselamatan: pelaporan insiden, penggunaan yang tidak dapat diterima, model serba guna, penegakan, penerima laporan insiden, insiden lintas batas, dan AI garda depan?</li>
             <li><strong>PP4.</strong> Bagaimana setiap instrumen jika dibandingkan dengan hukum Uni Eropa dan kerangka keselamatan yang diterbitkan pengembang AI terdepan?</li>
+            <li><strong>PP5.</strong> Ketika sebuah insiden AI melintasi batas negara, siapa yang menerima pemberitahuannya, dan apakah badan itu ada? Analisis 01 membahas pertanyaan ini (<a href={href(lang, 'analysis/nobody-to-call/')}>Tak Ada yang Bisa Dihubungi</a>).</li>
           </ol>
 
           <h2 id="scope">3. Cakupan dan pemilihan kasus</h2>
@@ -718,7 +758,7 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             <li><strong>Atribusi.</strong> Kaitkan setiap pernyataan dengan orang yang disebut namanya beserta jabatannya, atau dengan lembaga yang disebut namanya. "Sumber di kementerian" tanpa nama tidak dicatat sebagai pernyataan resmi.</li>
             <li><strong>Ketepatan waktu.</strong> Bedakan tiga tanggal: kapan sesuatu diucapkan, kapan diterbitkan, dan kapan terakhir dicek. Tenggat memakai tanggal diucapkan.</li>
             <li><strong>Penguatan.</strong> Setiap laporan independen tambahan yang dibaca penulis ditambahkan sebagai sumber. Klaim yang hanya bersandar pada satu laporan ditampilkan dengan tingkat bukti laporan itu.</li>
-            <li><strong>Keutuhan kutipan.</strong> Kutipan tetap dalam bahasa aslinya, kurang dari 15 kata, paling banyak sekali per sumber, dan disertai terjemahan bahasa Inggris. Keempat aturan ini dicek otomatis oleh validator.</li>
+            <li><strong>Keutuhan kutipan.</strong> Kutipan tetap dalam bahasa aslinya, kurang dari 15 kata, paling banyak sekali per sumber, dan disertai terjemahan bahasa Inggris. Keempat aturan ini dicek otomatis oleh validator. Satu-satunya pengecualian dari batas panjang adalah teks undang-undang di halaman Analisis. Pemeriksaan terpisah membaca setiap sumber dan mencari kata-kata persis dari kutipannya (<code>npm run check-quotes</code>). {quoteCheck.checked_at ? <>Kutipan diperiksa pada <time datetime={quoteCheck.checked_at}>{fmtDate(lang, quoteCheck.checked_at)}</time>: {quoteCheck.found} dari {quoteCheck.total} ditemukan di sumbernya.</> : <>Kutipan belum diperiksa.</>}</li>
             <li>
               <strong>Konten digital.</strong> Unggahan, gambar, dan tangkapan layar dinilai dengan Berkeley Protocol on Digital Open
               Source Investigations, yang menelaah dari mana konten berasal, sifat teknisnya, dan apa yang ditunjukkannya
@@ -736,7 +776,7 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
 
           <h2 id="coding">7. Skema pengodean</h2>
           <h3 id="lens">7.1 Lensa keselamatan</h3>
-          <p>Empat pertanyaan yang sama diajukan untuk setiap catatan. Kode dan aturan keputusannya tetap.</p>
+          <p>Tujuh pertanyaan yang sama diajukan untuk setiap catatan. Empat yang pertama sudah dikodekan sejak awal. Tiga yang terakhir ditambahkan pada Oktober 2026 (lensa v2). Kode dan aturan keputusannya tetap, dan tabel lengkapnya ada di halaman <a href={href(lang, 'safety/')}>Lensa keselamatan</a>.</p>
           <div class="panel table-panel">
             <table class="ruled stack">
               <caption class="visually-hidden">Buku kode Lensa keselamatan</caption>
@@ -764,6 +804,21 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
                   <td data-label="Kode">Mengikat, Lunak, Tidak ada, Belum jelas</td>
                   <td data-label="Aturan keputusan">Mengikat: kewajiban hukum dengan konsekuensi bila dilanggar. Lunak: panduan, komitmen sukarela, atau penilaian mandiri. Tidak ada: tanpa mekanisme penegakan. Belum jelas: sumber tidak menyebutkannya.</td>
                 </tr>
+                <tr>
+                  <td data-label="Pertanyaan"><strong>Penerima laporan.</strong> Apakah ada badan yang ditunjuk menerima laporan insiden, dan apakah badan itu ada?</td>
+                  <td data-label="Kode">Disebut dan sudah berjalan, Disebut tetapi belum dibentuk, Tidak disebut, Belum jelas</td>
+                  <td data-label="Aturan keputusan">Disebut bila sumber yang dikutip menyebut badannya. Sudah berjalan hanya bila ada sumber yang menunjukkan badan itu ada dan bekerja. Tidak disebut membutuhkan naskah lengkap, atau sumber yang menyatakan tidak ada badan yang disebut.</td>
+                </tr>
+                <tr>
+                  <td data-label="Pertanyaan"><strong>Lintas batas.</strong> Apakah sistem atau insiden AI yang melintasi batas negara ikut diatur?</td>
+                  <td data-label="Kode">Ya, Tidak, Belum jelas</td>
+                  <td data-label="Aturan keputusan">Ya bila mengatur sistem yang dikembangkan di luar negeri dan bertindak di sistem dalam negeri, atau pemberitahuan ke atau dari negara lain.</td>
+                </tr>
+                <tr>
+                  <td data-label="Pertanyaan"><strong>AI garda depan.</strong> Apakah model paling canggih dan pengendaliannya ikut diatur?</td>
+                  <td data-label="Kode">Ya, Tidak, Belum jelas</td>
+                  <td data-label="Aturan keputusan">Ya bila mengatur model garda depan atau risiko garda depan, misalnya pengendalian atau keselarasan sistem yang sangat canggih.</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -771,6 +826,12 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             <strong>Belum jelas bukan berarti Tidak.</strong> Belum jelas berarti sumber publik belum menjawab pertanyaan itu. Rancangan
             yang naskahnya belum dipublikasikan biasanya Belum jelas untuk sebagian besar pertanyaan. Pengodean hanya memakai sumber yang
             tercantum di catatan, pada tingkat bukti yang ditampilkan.
+          </p>
+          <p>
+            <strong>Definisi.</strong> Ya: sumber yang dikutip menyatakannya. Tidak: sumber yang dikutip menyatakan sebaliknya, atau
+            naskah lengkapnya sudah dibaca dan hal itu tidak ada. Tidak disebut dalam ringkasan berita bukan berarti Tidak. Belum jelas:
+            nilai bawaan. Setiap nilai yang dikodekan disertai kalimat dalam dua bahasa yang menyebut sumber pendukungnya, dan tanggal
+            lensa terakhir diperiksa. Validator menolak nilai yang dikodekan tanpa kalimat itu, dan nilai Tidak yang diambil dari berita.
           </p>
           <h3>7.2 Status instrumen</h3>
           <ul>
@@ -919,7 +980,7 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
                 </tr>
                 <tr>
                   <td data-label="Pertanyaan"><strong>Lembaga pengawas</strong></td>
-                  <td data-label="Indonesia">Pasal 58 UU 27/2022 mengatur lembaga yang ditetapkan oleh, dan bertanggung jawab kepada, Presiden <Cite k="uu-pdp" keys={R} />. Batas waktu pembentukannya 17 Oktober 2024 <Cite k="pdp-deadline" keys={R} />, dan lembaga itu belum terbentuk menurut laporan Agustus 2026 (<a href={pdpEntry}>catatan</a>).</td>
+                  <td data-label="Indonesia">Pasal 58 UU 27/2022 mengatur lembaga yang ditetapkan oleh, dan bertanggung jawab kepada, Presiden <Cite k="uu-pdp" keys={R} />. Undang-undang itu tidak menetapkan tanggal pembentukannya. Masa penyesuaian dua tahun bagi pengendali dan prosesor data berakhir 17 Oktober 2024, tanggal yang juga dianggap sebagai tenggat pembentukan lembaga oleh seorang pakar keamanan siber yang dikutip ANTARA <Cite k="pdp-deadline" keys={R} />, dan lembaga itu belum terbentuk menurut laporan Agustus 2026 (<a href={pdpEntry}>catatan</a>).</td>
                   <td data-label="Uni Eropa">Pasal 51 GDPR mewajibkan setiap negara anggota punya satu atau lebih otoritas pengawas publik yang independen <Cite k="gdpr" keys={R} />.</td>
                 </tr>
                 <tr>
@@ -954,7 +1015,8 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
           <ul>
             <li><strong>Satu pengode.</strong> Satu orang mengodekan semua catatan, jadi keandalan antarpengode tidak bisa diukur. Penyeimbangnya adalah buku kode yang terbuka, pengodean yang terikat pada sumber yang tercantum, dan koreksi terbuka.</li>
             <li><strong>Hanya riset dokumen.</strong> Belum ada wawancara atau permohonan informasi. Catatan ini melihat apa yang dipublikasikan, bukan apa yang diputuskan di balik pintu.</li>
-            <li><strong>Rancangan yang belum terbit.</strong> Naskah rancangan kedua Perpres AI belum dipublikasikan. Klaim tentang isinya bersandar pada pernyataan resmi dan dinilai demikian.</li>
+            <li><strong>Rancangan yang belum terbit.</strong> Naskah rancangan kedua Perpres AI belum dipublikasikan. Per 26 Oktober 2026, keduanya tidak ada dalam daftar resmi rancangan peraturan kementerian. Klaim tentang isinya bersandar pada pernyataan resmi dan dinilai demikian.</li>
+            <li><strong>Analisis dan insiden.</strong> Makalah analisis berargumen dari sumber-sumber catatan ini, dan rujukan insiden AI garda depan hanya memuat laporan publik. Keduanya tidak lengkap, tidak dihitung dalam catatan janji, dan bisa berubah seiring hasil penyelidikan. Pemeriksaan kutipan membaca sumber sebagaimana adanya pada hari pemeriksaan, jadi halaman yang berubah kemudian bisa membuat kutipan perlu diperiksa ulang.</li>
             <li><strong>Bias seleksi.</strong> Peristiwa yang tidak diliput media lebih sulit ditemukan. Memantau kanal resmi secara langsung mengurangi bias ini, tetapi tidak menghilangkannya.</li>
             <li><strong>Terjemahan.</strong> Setiap terjemahan bahasa Inggris adalah tafsiran. Kutipan asli dan tautannya tetap ada di halaman supaya pembaca bisa memeriksa.</li>
             <li><strong>Tautan yang hilang.</strong> Halaman berita bisa pindah atau hilang. Pemeriksa tautan menemukan tautan yang rusak, dan setiap catatan menyimpan nama media serta judul supaya sumbernya tetap bisa dicari.</li>
@@ -997,7 +1059,20 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             Lihat halaman <a href={href(lang, 'about/')}>Tentang</a> untuk tahu siapa penulisnya.
           </p>
 
-          <h2 id="glossary">17. Glosarium</h2>
+          <h2 id="frontier-incidents">17. Rujukan insiden AI garda depan</h2>
+          <p>
+            <a href={href(lang, 'incidents/')}>Rujukan insiden AI garda depan</a> memuat laporan publik tentang model atau agen AI
+            garda depan yang bertindak di, atau dipakai untuk menyerang, sistem di luar kendali pengembangnya. Rujukan ini memberi
+            konteks untuk PP5 dan Analisis 01, dan tidak pernah dihitung dalam angka catatan janji.
+          </p>
+          <ul>
+            <li><strong>Syarat masuk.</strong> Sebuah insiden dicantumkan bila pengembang, pihak yang terdampak, atau penyelidik independen sudah menjelaskannya secara terbuka, dan aktivitasnya mencapai sistem yang tidak dikendalikan pengembang.</li>
+            <li><strong>Yang tidak dimasukkan.</strong> Aktivitas yang tetap di dalam sistem pengembang sendiri, misalnya lolos dari lingkungan uji tanpa menyentuh pihak ketiga. Klaim tanpa pengungkapan utama atau penyelidik yang disebut namanya. Insiden yang belum ditinjau.</li>
+            <li><strong>Tanggal.</strong> Hanya sesuai yang disebut sumber. Tanggal yang tidak disebut sumber dibiarkan kosong, dengan catatan di datanya. Jumlah hari (akses sampai pemberitahuan, tahu sampai pemberitahuan, pemberitahuan sampai diumumkan) dihitung oleh <code>scripts/frontier.mjs</code> dan tidak pernah diketik. Analisis 01 membaca jumlah harinya dari kode yang sama, dan build gagal bila keduanya tidak cocok.</li>
+            <li><strong>Batas.</strong> Daftarnya kecil dan tidak lengkap. Penyelidikan masih berjalan dan rinciannya bisa berubah. Sebagian besar baris bersandar pada penjelasan pengembang atau pihak yang terdampak. Rujukan ini tidak mengklaim ada sistem di Indonesia yang terdampak.</li>
+          </ul>
+
+          <h2 id="glossary">18. Glosarium</h2>
           <dl class="glossary">
             <dt>UU (Undang-Undang)</dt><dd>Aturan yang dibentuk DPR bersama Presiden.</dd>
             <dt>PP (Peraturan Pemerintah)</dt><dd>Peraturan untuk menjalankan undang-undang.</dd>

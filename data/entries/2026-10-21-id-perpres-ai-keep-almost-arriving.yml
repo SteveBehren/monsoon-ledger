@@ -22,7 +22,11 @@ safety_lens:
   incident_reporting: unclear
   unacceptable_uses: unclear
   general_purpose_models: unclear
-  enforcement: none
+  enforcement: unclear
+  recipient: unclear
+  cross_border: unclear
+  frontier_scope: unclear
+lens_checked: 2026-10-26
 
 last_checked: 2026-10-22
 

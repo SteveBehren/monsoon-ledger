@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/SteveBehren/monsoon-ledger/data/reading.schema.json",
+  "title": "Monsoon Ledger reading list",
+  "description": "data/reading.yml. A row with status read needs date_finished, my_notes_en and my_notes_id. Notes are written by the author only.",
+  "$defs": {
+    "text": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    }
+  },
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "title",
+      "authors",
+      "year",
+      "kind",
+      "url",
+      "status"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+      },
+      "title": {
+        "$ref": "#/$defs/text"
+      },
+      "authors": {
+        "$ref": "#/$defs/text"
+      },
+      "year": {
+        "type": "integer",
+        "minimum": 1900
+      },
+      "kind": {
+        "enum": [
+          "report",
+          "paper",
+          "preprint",
+          "guidance",
+          "law"
+        ]
+      },
+      "url": {
+        "type": "string",
+        "pattern": "^https://\\S+$"
+      },
+      "status": {
+        "enum": [
+          "planned",
+          "reading",
+          "read"
+        ]
+      },
+      "date_finished": {
+        "$ref": "#/$defs/date"
+      },
+      "my_notes_en": {
+        "$ref": "#/$defs/text"
+      },
+      "my_notes_id": {
+        "$ref": "#/$defs/text"
+      },
+      "used_in": {
+        "description": "Where the item is used, as analysis:<paper id> or entry:<entry id>.",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "pattern": "^(analysis|entry):[a-z0-9-]+$"
+        },
+        "uniqueItems": true
+      }
+    },
+    "if": {
+      "properties": {
+        "status": {
+          "const": "read"
+        }
+      },
+      "required": [
+        "status"
+      ]
+    },
+    "then": {
+      "required": [
+        "date_finished",
+        "my_notes_en",
+        "my_notes_id"
+      ],
+      "properties": {
+        "date_finished": true,
+        "my_notes_en": true,
+        "my_notes_id": true
+      }
+    }
+  }
+}

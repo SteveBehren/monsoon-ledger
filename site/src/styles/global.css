@@ -426,11 +426,14 @@ main:focus {
   display: none;
 }
 
-/* The full menu bar needs about 76rem with seven items. Below that the menu button takes over. */
-@media (max-width: 76rem) {
+/* The full menu bar needs about 84rem with eight items. Below that the menu button takes over. */
+@media (max-width: 90rem) {
   .brand-sub {
     display: none;
   }
+}
+
+@media (max-width: 84rem) {
 
   .site-nav--wide {
     display: none;
@@ -492,7 +495,7 @@ main:focus {
 
 .footer-grid {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
   gap: 2rem;
 }
 
@@ -539,6 +542,12 @@ main:focus {
   font-family: var(--mono);
   font-size: 0.72rem;
   color: var(--text-faint);
+}
+
+@media (max-width: 60rem) {
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 @media (max-width: 44rem) {
@@ -3053,4 +3062,258 @@ button.chip {
 
 .radar-warning {
   margin: 0 0 1rem;
+}
+
+/* Tables scroll sideways inside a labelled, focusable region instead of widening the page. */
+.table-scroll {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.table-scroll:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.table-scroll table {
+  width: 100%;
+  min-width: 34rem;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+.table-scroll caption {
+  padding: 0.7rem 0.9rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text);
+  border-bottom: 1px solid var(--line);
+}
+
+.table-scroll th,
+.table-scroll td {
+  padding: 0.55rem 0.8rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+}
+
+.table-scroll th {
+  background: var(--surface-2);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.table-scroll tr:last-child td {
+  border-bottom: 0;
+}
+
+.table-scroll .nowrap {
+  white-space: nowrap;
+}
+
+/* Safety lens page */
+.lens-v2 td,
+.lens-v2 thead th {
+  white-space: nowrap;
+}
+
+.lens-v2 tbody th .hint {
+  display: block;
+  font-weight: 400;
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+
+.lens-v2 td:last-child {
+  white-space: normal;
+  min-width: 14rem;
+}
+
+.lens-basis {
+  margin-top: 1rem;
+  padding: 0.8rem 1rem;
+  border-left: 2px solid var(--line-strong);
+  background: var(--surface);
+  font-size: 0.9rem;
+}
+
+.lens-basis .label {
+  margin: 0 0 0.3rem;
+}
+
+.lens-basis p:last-child {
+  margin: 0;
+}
+
+dl.defs dt {
+  font-weight: 600;
+}
+
+dl.defs dd {
+  margin: 0 0 0.6rem;
+}
+
+
+.lens-v2 tbody th {
+  min-width: 15rem;
+}
+
+/* Frontier incident reference */
+.incident-timeline {
+  display: grid;
+  gap: 1rem;
+  margin: 1rem 0 2.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.incident-timeline > li {
+  padding: 1rem 1.2rem;
+}
+
+.incident-timeline h3 {
+  margin: 0 0 0.25rem;
+  scroll-margin-top: 5rem;
+}
+
+.it-events {
+  margin: 0.75rem 0;
+  padding: 0 0 0 1rem;
+  border-left: 2px solid var(--line-strong);
+  list-style: none;
+  font-size: 0.88rem;
+}
+
+.it-events li {
+  position: relative;
+  margin-bottom: 0.4rem;
+}
+
+.it-events li::before {
+  content: '';
+  position: absolute;
+  left: -1.33rem;
+  top: 0.45em;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.it-events time {
+  font-family: var(--mono);
+  color: var(--text-soft);
+  margin-right: 0.4rem;
+}
+
+.incident-table .hint {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+
+.incident-table td.num {
+  text-align: right;
+  font-family: var(--mono);
+}
+
+.incident-table .blank {
+  color: var(--text-faint);
+  font-size: 0.78rem;
+}
+
+.incident-sources {
+  margin: 0.3rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.incident-table tbody th {
+  min-width: 13rem;
+}
+
+.incident-table td:nth-child(7),
+.incident-table td:last-child {
+  min-width: 15rem;
+}
+
+.incident-table thead th {
+  min-width: 6.5rem;
+}
+
+
+/* Reading list */
+.reading-list {
+  display: grid;
+  gap: 0.9rem;
+  margin: 0.75rem 0 2.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.reading-list > li.panel {
+  padding: 1rem 1.2rem;
+}
+
+.reading-list h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1.05rem;
+}
+
+.reading-list .hint {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--text-faint);
+}
+
+.reading-list--todo > li {
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.reading-status {
+  display: inline-block;
+  margin-right: 0.5rem;
+  padding: 0.05rem 0.45rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-soft);
+}
+
+.reading-status--reading {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Corrections */
+.corrections-list {
+  margin: 0 0 2rem;
+  padding: 0;
+  list-style: none;
+}
+
+.corrections-list li {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.corrections-list time {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--accent);
+}
+
+.corrections-list p {
+  margin: 0.35rem 0 0;
+}
+
+.page-head .label-note {
+  margin-top: 0.9rem;
 }

@@ -1,0 +1,78 @@
+id: 2025-01-17-id-asean-genai-guide
+date: 2025-01-17
+country: ID
+instrument: asean-genai-guide-2025
+status: in-force
+# TODO author: official-statement is used because the guide is the published position of a
+# regional body, not law, and it has not been read end to end. If you read it in full, decide
+# whether legal-text fits a guide of this kind, and recode the unclear lens values.
+evidence: official-statement
+
+title_en: ASEAN's generative AI guide asks the region to explore incident reporting
+title_id: Panduan AI generatif ASEAN mengajak kawasan menjajaki pelaporan insiden
+
+summary_en: >
+  On 17 January 2025, ASEAN unveiled an expanded guide on AI governance and ethics for generative
+  AI, according to Singapore's Infocomm Media Development Authority. The guide is written for ASEAN
+  policymakers, and Indonesia is an ASEAN member. It discusses foundation models, has a section on
+  frontier and systemic risks, and makes nine policy recommendations. One is incident reporting,
+  framed as an area for ASEAN to explore: a common understanding of how incidents are defined,
+  tracked, documented and reported.
+
+ringkasan_id: >
+  Pada 17 Januari 2025, ASEAN meluncurkan panduan yang diperluas tentang tata kelola dan etika AI
+  untuk AI generatif, menurut Infocomm Media Development Authority Singapura. Panduan ini ditulis
+  untuk pembuat kebijakan ASEAN, dan Indonesia adalah anggota ASEAN. Isinya membahas model fondasi,
+  memuat satu bagian tentang risiko garda depan dan risiko sistemik, serta sembilan rekomendasi
+  kebijakan. Salah satunya pelaporan insiden, yang dirumuskan sebagai hal untuk dijajaki ASEAN:
+  pemahaman bersama tentang cara insiden didefinisikan, dilacak, didokumentasikan, dan dilaporkan.
+
+safety_lens:
+  incident_reporting: unclear
+  unacceptable_uses: unclear
+  general_purpose_models: "yes"
+  enforcement: none
+  recipient: unclear
+  cross_border: unclear
+  frontier_scope: "yes"
+
+lens_basis_en: >
+  General-purpose models is yes because the guide addresses foundation models, which it calls the
+  core technology of generative AI. Frontier scope is yes because its section 2.2 covers frontier
+  risks, which it describes as risks around the use, controllability and value alignment of highly
+  advanced generative AI. Enforcement is none because its recommendations are framed as areas for
+  ASEAN to explore, in the sections read. Section 3.4 asks ASEAN to explore a common understanding
+  of incident reporting; the guide was not read end to end, so incident reporting, recipient,
+  cross-border and unacceptable uses stay unclear.
+lens_basis_id: >
+  Model serbaguna bernilai ya karena panduan ini membahas model fondasi, yang disebutnya teknologi
+  inti AI generatif. Cakupan AI garda depan bernilai ya karena bagian 2.2 membahas risiko garda
+  depan, yang dijelaskan sebagai risiko seputar penggunaan, pengendalian, dan keselarasan nilai AI
+  generatif yang sangat maju. Penegakan bernilai tidak ada karena rekomendasinya dirumuskan sebagai
+  hal untuk dijajaki ASEAN, di bagian yang sudah dibaca. Bagian 3.4 mengajak ASEAN menjajaki
+  pemahaman bersama tentang pelaporan insiden; panduan ini belum dibaca seluruhnya, jadi pelaporan
+  insiden, penerima, lintas batas, dan penggunaan yang tidak dapat diterima tetap belum jelas.
+lens_checked: 2026-10-27
+
+last_checked: 2026-10-27
+
+eu_comparison: >
+  The EU AI Act sets binding duties for providers of general-purpose models, including serious
+  incident reporting for those with systemic risk. The ASEAN guide is regional guidance that lists
+  areas for ASEAN to explore.
+perbandingan_eu_id: >
+  AI Act Uni Eropa menetapkan kewajiban yang mengikat bagi penyedia model serbaguna, termasuk
+  pelaporan insiden serius bagi model dengan risiko sistemik. Panduan ASEAN adalah panduan regional
+  yang memuat hal-hal untuk dijajaki ASEAN.
+
+# TODO author: my_take and pendapat_id are yours to write. Claude does not write them.
+
+sources:
+  - title: Expanded ASEAN Guide on AI Governance and Ethics, Generative AI
+    url: https://asean.org/wp-content/uploads/2025/01/Expanded-ASEAN-Guide-on-AI-Governance-and-Ethics-Generative-AI.pdf
+    outlet: ASEAN
+    language: en
+  - title: ASEAN Working Group on AI Governance (WG-AI)
+    url: https://www.imda.gov.sg/about-imda/international-relations/asean-working-group-on-ai-governance
+    outlet: Infocomm Media Development Authority (IMDA), Singapore
+    language: en

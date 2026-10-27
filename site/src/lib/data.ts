@@ -19,8 +19,13 @@ export type Enforcement = 'binding' | 'soft' | 'none' | 'unclear';
 export type Outcome = 'missed' | 'open' | 'met' | 'no-deadline';
 export type ClaimType = 'dated' | 'conditional' | 'status_claim';
 export type Topic = 'incident_reporting' | 'unacceptable_uses' | 'general_purpose_models' | 'enforcement';
+/** Lens v2 adds three questions. They are optional in the data and read as unclear when missing. */
+export type TopicV2 = 'recipient' | 'cross_border' | 'frontier_scope';
+export type LensField = Topic | TopicV2;
+export type Recipient = 'named_and_operating' | 'named_not_established' | 'not_named' | 'unclear';
 
 export const TOPICS: Topic[] = ['incident_reporting', 'unacceptable_uses', 'general_purpose_models', 'enforcement'];
+export const LENS_FIELDS: LensField[] = [...TOPICS, 'recipient', 'cross_border', 'frontier_scope'];
 export const STATUSES: Status[] = ['announced', 'draft', 'signed', 'in-force', 'withdrawn'];
 /** The outcomes a dated promise can have, in the order the balance bar draws them. */
 export const OUTCOMES: Outcome[] = ['missed', 'open', 'met'];
@@ -51,13 +56,21 @@ export interface Entry {
     unacceptable_uses: YesNo;
     general_purpose_models: YesNo;
     enforcement: Enforcement;
+    recipient?: Recipient;
+    cross_border?: YesNo;
+    frontier_scope?: YesNo;
   };
   safety_note_en?: string;
   safety_note_id?: string;
+  /** Which cited source supports each coded lens value. Required when any value is not unclear. */
+  lens_basis_en?: string;
+  lens_basis_id?: string;
+  lens_checked?: string;
   last_checked: string;
   eu_comparison: string;
   perbandingan_eu_id?: string;
-  my_take: string;
+  /** The author's own words. Optional: entries without it show no "My take" section. */
+  my_take?: string;
   pendapat_id?: string;
   sources: Source[];
 }
@@ -248,9 +261,9 @@ export const EVIDENCE_STRENGTH: Record<Evidence, number> = { 'legal-text': 3, 'o
 // How a safety lens answer is drawn: solid for yes or binding, half for soft,
 // hatched for unclear (unknown is not no), empty for no or none.
 export type LensTone = 'full' | 'soft' | 'unclear' | 'empty';
-export function lensTone(value: YesNo | Enforcement): LensTone {
-  if (value === 'yes' || value === 'binding') return 'full';
-  if (value === 'soft') return 'soft';
+export function lensTone(value: YesNo | Enforcement | Recipient): LensTone {
+  if (value === 'yes' || value === 'binding' || value === 'named_and_operating') return 'full';
+  if (value === 'soft' || value === 'named_not_established') return 'soft';
   if (value === 'unclear') return 'unclear';
   return 'empty';
 }
@@ -337,4 +350,9 @@ export function getQuoteCheck(): { found: number; total: number; checked_at: str
     .filter((f) => f.endsWith('.yml'))
     .map((f) => ({ file: `data/entries/${f}`, data: read(path.join(DATA, 'entries', f)) }));
   return quoteSummary(collectQuotes({ root, entries }), rows);
+}
+
+/** A lens value, with the v2 fields read as unclear when an entry does not have them yet. */
+export function lensOf(entry: Entry, field: LensField): YesNo | Enforcement | Recipient {
+  return (entry.safety_lens[field] ?? 'unclear') as YesNo | Enforcement | Recipient;
 }

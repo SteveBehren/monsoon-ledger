@@ -19,7 +19,6 @@
     "safety_lens",
     "last_checked",
     "eu_comparison",
-    "my_take",
     "sources"
   ],
   "$defs": {
@@ -146,8 +145,26 @@
             "none",
             "unclear"
           ]
+        },
+        "recipient": {
+          "description": "Who receives incident reports: a named body that exists and works, a named body not yet set up, no body named, or unclear.",
+          "enum": [
+            "named_and_operating",
+            "named_not_established",
+            "not_named",
+            "unclear"
+          ]
+        },
+        "cross_border": {
+          "description": "Does it address AI systems or incidents that cross borders, such as systems built abroad that act on systems at home?",
+          "$ref": "#/$defs/yesNoUnclear"
+        },
+        "frontier_scope": {
+          "description": "Does it address frontier AI: the most capable models, or the risks of their control and alignment?",
+          "$ref": "#/$defs/yesNoUnclear"
         }
-      }
+      },
+      "description": "The safety lens. yes: a cited source states it. no: a cited source states the opposite, or the full text has been read and it is absent (absence in a press summary is not no). unclear: the default. recipient, cross_border and frontier_scope were added in lens v2 and are optional, with a validator warning when missing."
     },
     "safety_note_en": {
       "description": "Optional note shown under the Safety lens panel.",
@@ -155,6 +172,18 @@
     },
     "safety_note_id": {
       "$ref": "#/$defs/text"
+    },
+    "lens_basis_en": {
+      "description": "Required when any lens value is not unclear. One or two sentences saying which cited source supports each coded value.",
+      "$ref": "#/$defs/text"
+    },
+    "lens_basis_id": {
+      "description": "Bahasa Indonesia version of lens_basis_en. Required with it.",
+      "$ref": "#/$defs/text"
+    },
+    "lens_checked": {
+      "description": "The day the lens values were last checked against the sources.",
+      "$ref": "#/$defs/isoDate"
     },
     "last_checked": {
       "description": "The last date the sources were re-verified.",
@@ -168,7 +197,7 @@
       "$ref": "#/$defs/text"
     },
     "my_take": {
-      "description": "English, first person. Written by the author only.",
+      "description": "English, first person. Written by the author only. Optional: an entry without it shows no \"My take\" section, and the validator warns.",
       "$ref": "#/$defs/text"
     },
     "pendapat_id": {
@@ -213,8 +242,12 @@
           }
         },
         "dependentRequired": {
-          "archive_url": ["archived_at"],
-          "archived_at": ["archive_url"]
+          "archive_url": [
+            "archived_at"
+          ],
+          "archived_at": [
+            "archive_url"
+          ]
         }
       }
     }

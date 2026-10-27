@@ -7,6 +7,7 @@
 // link in data/ontology.yml carries a source the ledger already cites.
 
 import { slug, splitWho, promiseId, promiseKey, computePromise, todayWIB } from './promises.mjs';
+import { LENS_FIELDS } from './lens.mjs';
 
 /** Object types, in the order the explorer lists them. */
 export const OBJECT_TYPES = {
@@ -179,7 +180,15 @@ export function buildOntology({ entries, instruments, deadlines, ontology, leads
       type: 'entry',
       label: { en: e.title_en, id: e.title_id },
       href: `entries/${e.id}/`,
-      props: { date: e.date, status: e.status, evidence: e.evidence },
+      props: {
+        date: e.date,
+        status: e.status,
+        evidence: e.evidence,
+        // The safety lens, with the sentence that says which source supports each coded value.
+        ...Object.fromEntries(LENS_FIELDS.map((f) => [`lens_${f}`, e.safety_lens?.[f] ?? 'unclear'])),
+        ...(e.lens_basis_en ? { lens_basis_en: e.lens_basis_en, lens_basis_id: e.lens_basis_id } : {}),
+        ...(e.lens_checked ? { lens_checked: e.lens_checked } : {}),
+      },
     });
     addLink(`entry:${e.id}`, 'concerns', `instrument:${e.instrument}`);
     for (const s of e.sources ?? []) addLink(`entry:${e.id}`, 'cites', addDocument(s.url));

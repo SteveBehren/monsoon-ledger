@@ -32,6 +32,7 @@ This kit helps you record what your government has promised about AI rules, by w
 - Never write an outcome by hand. Record `outcome_date` and its source when something happens, and let the computation decide met or missed.
 - Show the day every count was computed for.
 - Correct in the open and keep a dated log of corrections.
+- If you also keep entries with a safety lens, use the same definitions: yes when a cited source states it, no when a cited source states the opposite or you have read the full text and it is absent, unclear otherwise. Absence in a press summary is unclear, not no. The seven questions and their values are in `data/schema.json` and `scripts/lens.mjs` of the Monsoon Ledger repository.
 
 ## Getting help
 

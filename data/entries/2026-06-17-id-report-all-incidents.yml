@@ -30,6 +30,21 @@ safety_lens:
   unacceptable_uses: unclear
   general_purpose_models: unclear
   enforcement: unclear
+  recipient: unclear
+  cross_border: unclear
+  frontier_scope: unclear
+
+lens_basis_en: >
+  Incident reporting is yes because ANTARA reports the ministry's AI director saying that all
+  incidents must be reported under the draft. The draft text is not public, and the article names
+  no body that receives reports and says nothing on systems built abroad or on frontier models, so
+  recipient, cross-border and frontier scope stay unclear.
+lens_basis_id: >
+  Pelaporan insiden bernilai ya karena ANTARA memberitakan direktur AI di kementerian menyatakan
+  semua insiden wajib dilaporkan menurut rancangan. Naskah rancangannya belum terbuka, dan berita
+  itu tidak menyebut badan penerima laporan serta tidak membahas sistem buatan luar negeri atau
+  model AI garda depan, jadi penerima, lintas batas, dan cakupan AI garda depan tetap belum jelas.
+lens_checked: 2026-10-26
 
 last_checked: 2026-10-26
 

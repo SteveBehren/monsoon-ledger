@@ -12,6 +12,7 @@ import { buildOntology } from './ontology.mjs';
 import { deriveDeadline, promiseKey, todayWIB } from './promises.mjs';
 import { paperIds, loadPaper, loadSources, checkPaper, checkSources, extractQuotes, ontologyPapers } from './analysis.mjs';
 import { collectQuotes, compareWithChecks, STATUSES as QUOTE_STATUSES } from './quotes.mjs';
+import { checkLens } from './lens.mjs';
 
 const Ajv2020 = siteRequire('ajv/dist/2020').default;
 const ajv = new Ajv2020({ allErrors: true, strict: true });
@@ -221,6 +222,11 @@ function projectChecks() {
     if (entry.instrument && !instrumentIds.has(entry.instrument)) {
       fail(file, `instrument "${entry.instrument}" does not exist in data/instruments.yml`);
     }
+    if (entry.lens_checked && !isRealDate(entry.lens_checked)) fail(file, `lens_checked "${entry.lens_checked}" is not a real date`);
+    const lens = checkLens(entry, instruments.find((i) => i?.id === entry.instrument));
+    for (const problem of lens.problems) fail(file, problem);
+    for (const warning of lens.warnings) warn(file, warning);
+    if (!entry.my_take) warn(file, 'my_take is empty: the author has not written a take yet, so the page shows none');
 
     const urls = (entry.sources ?? []).map((s) => s?.url);
     const dupes = urls.filter((u, i) => u && urls.indexOf(u) !== i);

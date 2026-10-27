@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getOntology, OBJECT_TYPES, RELATIONS, type ObjectType } from '../../lib/ontology';
+import { LENS_FIELDS } from '../../lib/data';
 import { ui, href, LANGS, type Lang } from '../../lib/i18n';
 
 export function getStaticPaths() {
@@ -90,6 +91,14 @@ const copy = {
       language: 'Language',
       key: 'Bibliography key',
       found: 'Found',
+      ...Object.fromEntries(LENS_FIELDS.map((f) => [`lens_${f}`, `Lens: ${ui.en.topic[f]}`])),
+      lens_basis_en: 'Lens basis',
+      lens_basis_id: 'Lens basis (Bahasa Indonesia)',
+      lens_checked: 'Lens checked',
+      kind: 'Kind',
+      published: 'Published',
+      facts_as_of: 'Facts as of',
+      version: 'Version',
     },
     yes: 'yes',
     no: 'no',
@@ -173,6 +182,14 @@ const copy = {
       language: 'Bahasa',
       key: 'Kunci pustaka',
       found: 'Ditemukan',
+      ...Object.fromEntries(LENS_FIELDS.map((f) => [`lens_${f}`, `Lensa: ${ui.id.topic[f]}`])),
+      lens_basis_en: 'Dasar lensa (bahasa Inggris)',
+      lens_basis_id: 'Dasar lensa',
+      lens_checked: 'Lensa diperiksa',
+      kind: 'Jenis',
+      published: 'Terbit',
+      facts_as_of: 'Fakta per',
+      version: 'Versi',
     },
     yes: 'ya',
     no: 'tidak',

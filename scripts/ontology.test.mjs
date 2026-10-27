@@ -78,3 +78,40 @@ test('radar leads join only as machine hints, and dismissed leads stay out', () 
   assert.equal(link.basis, 'machine');
   assert.ok(!g.nodes.some((n) => n.id === 'lead:bbbbbbbbbb'));
 });
+
+test('an analysis paper is a document that cites its sources and discusses only the instruments it names', () => {
+  const papers = [
+    {
+      id: 'paper-a',
+      title_en: 'Paper A',
+      title_id: 'Makalah A',
+      published: '2026-10-27',
+      facts_as_of: '2026-10-26',
+      version: '1.0',
+      instruments: ['law-a'],
+      sources: [{ url: 'https://news.example/story', title: 'Story' }, { url: 'https://paper.example/only', title: 'Only in the paper' }],
+    },
+  ];
+  const g = build({ papers });
+  const node = g.nodes.find((n) => n.id === 'document:analysis:paper-a');
+  assert.equal(node.type, 'document');
+  assert.equal(node.href, 'analysis/paper-a/');
+  assert.equal(node.props.facts_as_of, '2026-10-26');
+  assert.ok(has(g, 'document:analysis:paper-a', 'discusses', 'instrument:law-a'));
+  assert.ok(!has(g, 'document:analysis:paper-a', 'discusses', 'instrument:reg-b'));
+  assert.ok(has(g, 'document:analysis:paper-a', 'cites', 'document:https://news.example/story'));
+  assert.equal(g.nodes.find((n) => n.id === 'document:https://paper.example/only').label.en, 'Only in the paper');
+  assert.deepEqual(g.problems, []);
+  const bad = build({ papers: [{ ...papers[0], instruments: ['nope'] }] });
+  assert.match(bad.problems.join('\n'), /discusses unknown instrument "nope"/);
+});
+
+test('entry objects carry the lens values and their basis', () => {
+  const lensEntry = { ...entries[0], safety_lens: { incident_reporting: 'yes', recipient: 'named_not_established' }, lens_basis_en: 'Because.', lens_basis_id: 'Karena.', lens_checked: '2026-10-26' };
+  const g = build({ entries: [lensEntry] });
+  const node = g.nodes.find((n) => n.id === `entry:${lensEntry.id}`);
+  assert.equal(node.props.lens_incident_reporting, 'yes');
+  assert.equal(node.props.lens_recipient, 'named_not_established');
+  assert.equal(node.props.lens_frontier_scope, 'unclear');
+  assert.equal(node.props.lens_basis_en, 'Because.');
+});

@@ -28,6 +28,28 @@ safety_lens:
   unacceptable_uses: "yes"
   general_purpose_models: unclear
   enforcement: soft
+  recipient: unclear
+  cross_border: unclear
+  frontier_scope: unclear
+
+lens_basis_en: >
+  Coded from ANTARA's report of officials' statements. Incident reporting is yes because
+  ministries, agencies and sector players must provide incident reporting mechanisms. Unacceptable
+  uses is yes because the draft names an unacceptable tier for AI that could threaten security and
+  safety. Enforcement is soft because the rule relies on self-assessment and carries no criminal
+  sanctions. The report names no single body that receives incident reports and says nothing on
+  general-purpose models, systems built abroad or frontier models, so those stay unclear. The draft
+  text is not public.
+lens_basis_id: >
+  Dikodekan dari berita ANTARA tentang pernyataan pejabat. Pelaporan insiden bernilai ya karena
+  kementerian, lembaga, dan pelaku sektor wajib menyediakan mekanisme pelaporan insiden. Penggunaan
+  yang tidak dapat diterima bernilai ya karena rancangan menyebut tingkat risiko tidak dapat
+  diterima untuk AI yang bisa mengancam keamanan dan keselamatan. Penegakan bernilai lunak karena
+  aturan ini bertumpu pada penilaian mandiri dan tidak memuat sanksi pidana. Berita itu tidak
+  menyebut satu badan penerima laporan insiden dan tidak membahas model serbaguna, sistem buatan luar
+  negeri, atau model AI garda depan, jadi semuanya tetap belum jelas. Naskah rancangannya belum
+  terbuka.
+lens_checked: 2026-10-26
 
 last_checked: 2026-10-22
 

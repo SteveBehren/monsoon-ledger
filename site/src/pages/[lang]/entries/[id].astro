@@ -2,8 +2,8 @@
 import Base from '../../../layouts/Base.astro';
 import Stamp from '../../../components/Stamp.astro';
 import Evidence from '../../../components/Evidence.astro';
-import { getEntries, getInstruments, lensTone, TOPICS, type Entry } from '../../../lib/data';
-import { ui, href, pick, SITE, LANGS, type Lang } from '../../../lib/i18n';
+import { getEntries, getInstruments, lensTone, lensOf, LENS_FIELDS, type Entry, type LensField } from '../../../lib/data';
+import { ui, href, pick, fmtDate, SITE, LANGS, type Lang } from '../../../lib/i18n';
 
 export function getStaticPaths() {
   const entries = getEntries();
@@ -30,10 +30,18 @@ const euInEnglish = lang === 'id' && !entry.perbandingan_eu_id;
 const takeText = lang === 'id' && entry.pendapat_id ? entry.pendapat_id : entry.my_take;
 const takeInEnglish = lang === 'id' && !entry.pendapat_id;
 
-const lensValue = (topic: (typeof TOPICS)[number]) => {
-  const v = entry.safety_lens[topic];
-  return topic === 'enforcement' ? t.enforcement[v as keyof typeof t.enforcement] : t.yesNo[v as keyof typeof t.yesNo];
+const lensValue = (field: LensField) => {
+  const v = lensOf(entry, field);
+  if (field === 'enforcement') return t.enforcement[v as keyof typeof t.enforcement];
+  if (field === 'recipient') return t.recipient[v as keyof typeof t.recipient];
+  return t.yesNo[v as keyof typeof t.yesNo];
 };
+const lensBasis = lang === 'en' ? entry.lens_basis_en : entry.lens_basis_id ?? entry.lens_basis_en;
+const lensCopy =
+  lang === 'en'
+    ? { basis: 'Why these values', checked: 'Lens checked on', definitions: 'How the lens is coded' }
+    : { basis: 'Dasar nilai-nilai ini', checked: 'Lensa diperiksa pada', definitions: 'Cara lensa dikodekan' };
+const hasTake = Boolean(entry.my_take);
 const attribution = entry.quote ? pick(lang, entry.quote.attribution_en ?? '', entry.quote.attribution_id ?? entry.quote.attribution_en ?? '') : '';
 const quoteSource = entry.quote ? entry.sources.find((s) => s.url === entry.quote!.source_url) : undefined;
 const issueUrl = `${SITE.issues}/new?title=${encodeURIComponent(`Correction: ${entry.id}`)}`;
@@ -82,7 +90,7 @@ const n = (i: number) => String(i).padStart(2, '0');
           <table class="ruled">
             <tbody>
               {
-                TOPICS.map((topic) => (
+                LENS_FIELDS.map((topic) => (
                   <tr>
                     <th scope="row">
                       {t.topic[topic]}
@@ -90,7 +98,7 @@ const n = (i: number) => String(i).padStart(2, '0');
                     </th>
                     <td>
                       <span class="lens-value">
-                        <span class={`mark mark--${lensTone(entry.safety_lens[topic])}`} aria-hidden="true" />
+                        <span class={`mark mark--${lensTone(lensOf(entry, topic))}`} aria-hidden="true" />
                         {lensValue(topic)}
                       </span>
                     </td>
@@ -101,6 +109,18 @@ const n = (i: number) => String(i).padStart(2, '0');
           </table>
         </div>
         {safetyNote && <p class="lens-note" lang={safetyNoteLang}>{safetyNote}</p>}
+        {
+          lensBasis && (
+            <div class="lens-basis">
+              <p class="label">{lensCopy.basis}</p>
+              <p lang={lang === 'id' && !entry.lens_basis_id ? 'en' : undefined}>{lensBasis}</p>
+            </div>
+          )
+        }
+        <p class="lens-note">
+          {entry.lens_checked && <>{lensCopy.checked} <time datetime={entry.lens_checked}>{fmtDate(lang, entry.lens_checked)}</time> · </>}
+          <a href={href(lang, 'safety/#definitions')}>{lensCopy.definitions}</a>
+        </p>
       </section>
 
       <section aria-labelledby="eu-h">
@@ -109,16 +129,20 @@ const n = (i: number) => String(i).padStart(2, '0');
         <p lang={euInEnglish ? 'en' : undefined}>{euText}</p>
       </section>
 
-      <section aria-labelledby="take-h">
-        <h2 id="take-h"><span class="num">{n(3)}</span>{t.myTake}</h2>
-        {takeInEnglish && <p class="label-note">{t.inEnglish}</p>}
-        <div class="take">
-          <p lang={takeInEnglish ? 'en' : undefined}>{takeText}</p>
-        </div>
-      </section>
+      {
+        hasTake && (
+          <section aria-labelledby="take-h">
+            <h2 id="take-h"><span class="num">{n(3)}</span>{t.myTake}</h2>
+            {takeInEnglish && <p class="label-note">{t.inEnglish}</p>}
+            <div class="take">
+              <p lang={takeInEnglish ? 'en' : undefined}>{takeText}</p>
+            </div>
+          </section>
+        )
+      }
 
       <section aria-labelledby="src-h">
-        <h2 id="src-h"><span class="num">{n(4)}</span>{t.sources}</h2>
+        <h2 id="src-h"><span class="num">{n(hasTake ? 4 : 3)}</span>{t.sources}</h2>
         <ol class="sources-list">
           {
             entry.sources.map((s) => (
@@ -179,9 +203,9 @@ const n = (i: number) => String(i).padStart(2, '0');
           <dd>
             <ul class="record-lens">
               {
-                TOPICS.map((topic) => (
+                LENS_FIELDS.map((topic) => (
                   <li>
-                    <span class={`mark mark--${lensTone(entry.safety_lens[topic])}`} aria-hidden="true" />
+                    <span class={`mark mark--${lensTone(lensOf(entry, topic))}`} aria-hidden="true" />
                     <span>{t.topic[topic]}</span>
                     <span>{lensValue(topic)}</span>
                   </li>

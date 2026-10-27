@@ -18,6 +18,7 @@ export const GET: APIRoute = () => {
       const lastmod = changesTagged(tag).reduce((max, c) => (c.date > max ? c.date : max), String(m.published));
       return { path: `analysis/${id}/`, lastmod };
     }),
+    { path: 'safety/' },
     { path: 'ontology/' },
     { path: 'radar/' },
     { path: 'method/' },

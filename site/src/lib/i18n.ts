@@ -1,4 +1,4 @@
-import type { Enforcement, Evidence, Outcome, Status, Topic, YesNo } from './data';
+import type { Enforcement, Evidence, LensField, Outcome, Recipient, Status, YesNo } from './data';
 
 export const LANGS = ['en', 'id'] as const;
 export type Lang = (typeof LANGS)[number];
@@ -129,13 +129,25 @@ const en = {
     unacceptable_uses: 'Unacceptable uses',
     general_purpose_models: 'General-purpose models',
     enforcement: 'Enforcement',
-  } satisfies Record<Topic, string>,
+    recipient: 'Who receives reports',
+    cross_border: 'Cross-border',
+    frontier_scope: 'Frontier AI',
+  } satisfies Record<LensField, string>,
   topicQuestion: {
     incident_reporting: 'Does it require incidents to be reported?',
     unacceptable_uses: 'Does it name uses that are not acceptable?',
     general_purpose_models: 'Does it address general-purpose models?',
     enforcement: 'How strongly is it enforced?',
-  } satisfies Record<Topic, string>,
+    recipient: 'Is a body named to receive incident reports, and does it exist?',
+    cross_border: 'Does it address AI systems or incidents that cross borders?',
+    frontier_scope: 'Does it address frontier AI, the most capable models and their control?',
+  } satisfies Record<LensField, string>,
+  recipient: {
+    named_and_operating: 'Named and operating',
+    named_not_established: 'Named, not set up',
+    not_named: 'Not named',
+    unclear: 'Unclear',
+  } satisfies Record<Recipient, string>,
   outcome: { missed: 'Missed', open: 'Open', met: 'Met', 'no-deadline': 'No deadline' } satisfies Record<Outcome, string>,
   instrumentType: {
     'circular-letter': 'Circular letter',
@@ -274,12 +286,24 @@ const id: Strings = {
     unacceptable_uses: 'Penggunaan yang tidak dapat diterima',
     general_purpose_models: 'Model serba guna',
     enforcement: 'Penegakan',
+    recipient: 'Penerima laporan',
+    cross_border: 'Lintas batas',
+    frontier_scope: 'AI garda depan',
   },
   topicQuestion: {
     incident_reporting: 'Apakah insiden wajib dilaporkan?',
     unacceptable_uses: 'Apakah ada penggunaan yang dinyatakan tidak dapat diterima?',
     general_purpose_models: 'Apakah model serba guna ikut diatur?',
     enforcement: 'Seberapa kuat penegakannya?',
+    recipient: 'Apakah ada badan yang ditunjuk menerima laporan insiden, dan apakah badan itu sudah ada?',
+    cross_border: 'Apakah sistem atau insiden AI yang melintasi batas negara ikut diatur?',
+    frontier_scope: 'Apakah AI garda depan, yaitu model paling canggih dan pengendaliannya, ikut diatur?',
+  },
+  recipient: {
+    named_and_operating: 'Disebut dan sudah berjalan',
+    named_not_established: 'Disebut, belum dibentuk',
+    not_named: 'Tidak disebut',
+    unclear: 'Belum jelas',
   },
   outcome: { missed: 'Terlewat', open: 'Masih terbuka', met: 'Terpenuhi', 'no-deadline': 'Tanpa tenggat' },
   instrumentType: {

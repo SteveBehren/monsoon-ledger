@@ -30,11 +30,27 @@ safety_lens:
   unacceptable_uses: unclear
   general_purpose_models: unclear
   enforcement: unclear
+  recipient: named_not_established
+  cross_border: unclear
+  frontier_scope: unclear
 
 safety_note_en: >
   Incident reporting here means personal data breaches, not AI incidents.
 safety_note_id: >
   Pelaporan insiden di sini berarti kebocoran data pribadi, bukan insiden AI.
+
+lens_basis_en: >
+  Incident reporting is yes because the cited summaries say organisations must notify affected
+  people and the supervisory authority within 72 hours of confirming a breach. Recipient is named
+  but not established: the authority is named, and HLC reports that it has not been created. The
+  regulation's own text was not available, so cross-border and frontier scope stay unclear.
+lens_basis_id: >
+  Pelaporan insiden bernilai ya karena ringkasan yang dikutip menyebut organisasi wajib memberi tahu
+  orang yang terdampak dan otoritas pengawas dalam 72 jam setelah kebocoran dipastikan. Penerimanya
+  disebut tetapi belum dibentuk: otoritas itu disebut, dan HLC melaporkan bahwa otoritas tersebut
+  belum dibentuk. Naskah peraturannya sendiri belum tersedia, jadi lintas batas dan cakupan AI garda
+  depan tetap belum jelas.
+lens_checked: 2026-10-26
 
 last_checked: 2026-10-22
 

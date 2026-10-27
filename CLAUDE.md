@@ -66,6 +66,7 @@ When something happens to a promise, set `outcome_date` and `outcome_source_url`
 
 - `scripts/ontology.mjs` builds the graph from the data files. The validator and the site share it.
 - Curated links go in `data/ontology.yml`. Each needs `from`, `rel`, `to`, `evidence` and a `source_url` the ledger already cites. Never add a link the source does not state, never infer an official's title or role, and never tie a promise to an instrument by guesswork.
+- The ontology page shows the graph in a console (`site/src/components/OntologyConsole.astro`, inputs in `site/src/lib/console.ts`). Semantic places objects in fixed lanes in a stable order, Kinetic plots only dates the data holds (month or year precision drawn as a span, never as a day), and Dynamic lists signals computed on the build day. Signals are counts and lists from the data, never forecasts, scores or ratings, and promise states come only from `getPromises()`.
 
 ## Monitoring layer (the Radar)
 

@@ -34,7 +34,7 @@ From outside, an announced rule, a drafted rule, a signed rule and a rule in for
 | [Frontier incidents](https://monsoonledger.vercel.app/en/incidents/) | A small reference list of public reports of frontier AI models or agents acting on systems outside the developer's control, with computed day counts. Context only, never counted in the ledger. |
 | [Reading](https://monsoonledger.vercel.app/en/reading/) | What the author reads for the analysis papers, with notes once an item is finished. |
 | [Corrections](https://monsoonledger.vercel.app/en/corrections/) | Every correction, newest first, read from the changelog. |
-| [Ontology](https://monsoonledger.vercel.app/en/ontology/) | The whole ledger as one graph of typed objects and named links, with a live explorer, an inspector, search, filters and a full link register. |
+| [Ontology](https://monsoonledger.vercel.app/en/ontology/) | The whole ledger as one graph of typed objects and named links, in a console with three layers (Semantic: objects in fixed lanes with their links; Kinetic: dated events on one time axis; Dynamic: what needs attention on the build day), a shared inspector, search, full screen and a full link register. |
 | [Radar](https://monsoonledger.vercel.app/en/radar/) | Unreviewed leads found by the twice-weekly scanner, scan history, and a countdown to the next scan. |
 | [Method](https://monsoonledger.vercel.app/en/method/) | The research protocol: design, research questions, sources, coding, how promises are coded, evidence preservation, evidence levels, verification and limits. |
 | [Promise format](https://monsoonledger.vercel.app/en/method/standard/) | The open format every promise follows, with its JSON Schema, worked examples and the list of ledgers using it. |
@@ -128,7 +128,7 @@ The site is a static Astro build with small vanilla scripts. There is no client 
 - the receipt headline on the home and ledger pages, the balance of dated promises and the replay slider;
 - the receipts, with day counts brought up to the reader's day;
 - the entries overview;
-- the ontology explorer, the scan history chart and the next-scan countdown;
+- the ontology console (graph, timeline and signals, with full screen), the scan history chart and the next-scan countdown;
 - a right-hand rail on long pages, with reading progress, the current section and a page visual;
 - counting figures and slowly drifting isobars behind every page header.
 

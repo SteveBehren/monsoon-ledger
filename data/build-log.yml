@@ -8,6 +8,31 @@
 # Rows are checked by npm run validate: real dates, newest first, known kind, short hashes.
 
 - date: 2026-10-27
+  kind: feature
+  title_en: The ontology explorer becomes a three-layer console
+  title_id: Penjelajah ontologi menjadi konsol tiga lapisan
+  detail_en: >
+    The force-directed graph reshuffled after every scan and turned into a tangle with every object type switched on, because
+    62 source documents made up half of it. It is replaced by one window with three tabs. Semantic puts objects in fixed lanes in
+    a stable order, groups documents, outlets and references until a selection needs them, and draws only the links around the
+    selected object. Kinetic puts every dated event on one time axis with an event log. Dynamic lists what needs attention on
+    the build day, computed from the data with no forecasts. All three share one inspector, and the window can go full screen.
+    Phones get folding lanes and a bottom sheet. Fixed in testing: a class name clash flattened the window bar, the inspector
+    covered the search and full screen buttons, Escape stopped working after Back, and search missed short names such as GDPR.
+  detail_id: >
+    Grafik berbasis gaya sebelumnya teracak ulang setiap kali pemindaian selesai dan menjadi kusut bila semua tipe objek
+    dinyalakan, karena 62 dokumen sumber mengisi separuhnya. Penggantinya adalah satu jendela dengan tiga tab. Semantik
+    menempatkan objek di lajur tetap dengan urutan yang stabil, mengelompokkan dokumen, media, dan rujukan sampai sebuah pilihan
+    membutuhkannya, dan hanya menggambar tautan di sekitar objek yang dipilih. Kinetik menaruh setiap peristiwa bertanggal pada
+    satu sumbu waktu beserta log peristiwa. Dinamis mencantumkan apa yang perlu diperhatikan pada hari situs dibangun, dihitung
+    dari data tanpa ramalan. Ketiganya memakai satu panel pemeriksa yang sama, dan jendelanya bisa dibuka layar penuh. Di ponsel,
+    lajur bisa dilipat dan panel pemeriksa muncul dari bawah. Diperbaiki saat pengujian: nama kelas yang bentrok membuat bilah
+    jendela gepeng, panel pemeriksa menutupi tombol cari dan layar penuh, tombol Escape tidak berfungsi setelah Kembali, dan
+    pencarian tidak menemukan nama pendek seperti GDPR.
+  pr: 8
+  commits: ["7f425cf"]
+
+- date: 2026-10-27
   kind: content
   title_en: README, Technical system page and working rules updated for the new layers
   title_id: README, halaman Sistem teknis, dan aturan kerja diperbarui untuk lapisan baru

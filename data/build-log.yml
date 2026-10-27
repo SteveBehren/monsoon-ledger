@@ -29,6 +29,7 @@
     lajur bisa dilipat dan panel pemeriksa muncul dari bawah. Diperbaiki saat pengujian: nama kelas yang bentrok membuat bilah
     jendela gepeng, panel pemeriksa menutupi tombol cari dan layar penuh, tombol Escape tidak berfungsi setelah Kembali, dan
     pencarian tidak menemukan nama pendek seperti GDPR.
+  pr: 8
   commits: ["7f425cf"]
 
 - date: 2026-10-27

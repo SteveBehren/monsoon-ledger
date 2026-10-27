@@ -14,6 +14,7 @@ import { paperIds, loadPaper, loadSources, checkPaper, checkSources, extractQuot
 import { collectQuotes, compareWithChecks, STATUSES as QUOTE_STATUSES } from './quotes.mjs';
 import { checkLens } from './lens.mjs';
 import { computeAll, checkIncidents, resolveTokens } from './frontier.mjs';
+import { checkReading } from './reading.mjs';
 
 const Ajv2020 = siteRequire('ajv/dist/2020').default;
 const ajv = new Ajv2020({ allErrors: true, strict: true });
@@ -324,6 +325,14 @@ function projectChecks() {
   for (const q of notFound) fail(path.join(ROOT, [q.where].flat()[0]), `quote "${q.text.slice(0, 50)}" was not found in its source (${q.url}). Fix or remove it, then run npm run check-quotes`);
   for (const q of unchecked) warn(path.join(ROOT, [q.where].flat()[0]), `quote "${q.text.slice(0, 50)}" is not yet checked against its source (npm run check-quotes)`);
 
+  // Reading list: schema, notes for items marked read, and used_in links that exist.
+  const readingFile = path.join(DATA, 'reading.yml');
+  const readingRows = load(readingFile) ?? [];
+  const validateReading = ajv.compile(JSON.parse(fs.readFileSync(path.join(DATA, 'reading.schema.json'), 'utf8')));
+  for (const problem of schemaErrors(validateReading, readingRows)) fail(readingFile, problem);
+  const known = new Set([...papers.map((p) => `analysis:${p}`), ...loadedEntries.map((e) => `entry:${e.id}`)]);
+  for (const problem of checkReading(readingRows, { known, today: TODAY })) fail(readingFile, problem);
+
   // Build log: one row per change the author asked for, newest first.
   const buildLogFile = path.join(DATA, 'build-log.yml');
   const buildLog = load(buildLogFile) ?? [];
@@ -392,7 +401,7 @@ function projectChecks() {
   const graph = buildOntology({ entries: loadedEntries, instruments, deadlines, ontology, leads: radarLeads, references, papers: ontologyPapers(), today: TODAY });
   for (const problem of graph.problems) fail(ontologyFile, problem);
 
-  return `${files.length} entries, ${papers.length} analysis paper(s), ${incidents.length} frontier incidents, ${radarLeads.length} radar leads, ontology ${graph.nodes.length} objects and ${graph.links.length} links, ${buildLog.length} build log rows`;
+  return `${files.length} entries, ${papers.length} analysis paper(s), ${incidents.length} frontier incidents, ${Array.isArray(readingRows) ? readingRows.length : 0} reading items, ${radarLeads.length} radar leads, ontology ${graph.nodes.length} objects and ${graph.links.length} links, ${buildLog.length} build log rows`;
 }
 const projectSummary = KIT ? null : projectChecks();
 

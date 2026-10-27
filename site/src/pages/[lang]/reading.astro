@@ -1,0 +1,97 @@
+---
+// The reading list: what the author has read for the analysis papers, with notes in the
+// author's own words, and what is still on the list. Data: data/reading.yml.
+import Base from '../../layouts/Base.astro';
+import { getReading, type ReadingItem } from '../../lib/data';
+import { getPaperMeta } from '../../lib/analysis';
+import { href, pick, fmtDate, LANGS, type Lang } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const items = getReading();
+const read = items.filter((i) => i.status === 'read').sort((a, b) => (b.date_finished ?? '').localeCompare(a.date_finished ?? ''));
+const list = items.filter((i) => i.status !== 'read').sort((a, b) => (a.status === b.status ? 0 : a.status === 'reading' ? -1 : 1));
+
+const copy =
+  lang === 'en'
+    ? {
+        title: 'Reading',
+        lede: 'What I read for the analysis papers. An item moves to the main list only once it is finished and has notes. Notes are mine and are not summaries.',
+        read: 'Read',
+        noneRead: 'Nothing is marked read yet.',
+        onList: 'On my list',
+        status: { reading: 'Reading now', planned: 'Planned', read: 'Read' },
+        kind: { report: 'Report', paper: 'Paper', preprint: 'Preprint', guidance: 'Guidance', law: 'Law' },
+        finished: 'Finished',
+        usedIn: 'Used in',
+        notesInEnglish: 'Notes in English.',
+      }
+    : {
+        title: 'Bacaan',
+        lede: 'Yang saya baca untuk makalah analisis. Sebuah bacaan baru masuk daftar utama setelah selesai dibaca dan diberi catatan. Catatannya tulisan saya sendiri, bukan ringkasan.',
+        read: 'Sudah dibaca',
+        noneRead: 'Belum ada yang ditandai sudah dibaca.',
+        onList: 'Dalam daftar saya',
+        status: { reading: 'Sedang dibaca', planned: 'Direncanakan', read: 'Sudah dibaca' },
+        kind: { report: 'Laporan', paper: 'Makalah', preprint: 'Pracetak', guidance: 'Panduan', law: 'Hukum' },
+        finished: 'Selesai',
+        usedIn: 'Dipakai di',
+        notesInEnglish: 'Catatan dalam bahasa Inggris.',
+      };
+
+function usedIn(item: ReadingItem) {
+  return (item.used_in ?? []).map((u) => {
+    const [type, id] = u.split(':');
+    if (type === 'analysis') {
+      const m = getPaperMeta(id, lang) ?? getPaperMeta(id, 'en');
+      return { label: m?.title ?? id, url: href(getPaperMeta(id, lang) ? lang : 'en', `analysis/${id}/`) };
+    }
+    return { label: id, url: href(lang, `entries/${id}/`) };
+  });
+}
+---
+<Base lang={lang} path="reading/" title={copy.title} description={copy.lede}>
+  <header class="page-head">
+    <p class="kicker">{copy.title}</p>
+    <h1>{copy.title}</h1>
+    <p class="lede">{copy.lede}</p>
+  </header>
+
+  <section aria-labelledby="read-h">
+    <h2 id="read-h">{copy.read}</h2>
+    {
+      read.length ? (
+        <ol class="reading-list">
+          {read.map((i) => (
+            <li class="panel">
+              <h3><a href={i.url}>{i.title}</a></h3>
+              <p class="hint">{i.authors} ({i.year}) · {copy.kind[i.kind]} · {copy.finished} <time datetime={i.date_finished}>{fmtDate(lang, i.date_finished!)}</time></p>
+              <p>{pick(lang, i.my_notes_en ?? '', i.my_notes_id ?? '')}</p>
+              {usedIn(i).length > 0 && <p class="hint">{copy.usedIn}: {usedIn(i).map((u, k) => <>{k > 0 && ', '}<a href={u.url}>{u.label}</a></>)}</p>}
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p class="label-note">{copy.noneRead}</p>
+      )
+    }
+  </section>
+
+  <section aria-labelledby="list-h">
+    <h2 id="list-h">{copy.onList}</h2>
+    <ul class="reading-list reading-list--todo">
+      {
+        list.map((i) => (
+          <li>
+            <span class={`reading-status reading-status--${i.status}`}>{copy.status[i.status]}</span>
+            <a href={i.url}>{i.title}</a>
+            <span class="hint">{i.authors} ({i.year}) · {copy.kind[i.kind]}{usedIn(i).length > 0 && <> · {copy.usedIn}: {usedIn(i).map((u, k) => <>{k > 0 && ', '}<a href={u.url}>{u.label}</a></>)}</>}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>

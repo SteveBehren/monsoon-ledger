@@ -391,3 +391,22 @@ export interface FrontierIncident {
 export function getIncidents(): FrontierIncident[] {
   return tidy(loadIncidents(path.resolve(process.cwd(), '..')) as FrontierIncident[]);
 }
+
+export interface ReadingItem {
+  id: string;
+  title: string;
+  authors: string;
+  year: number;
+  kind: 'report' | 'paper' | 'preprint' | 'guidance' | 'law';
+  url: string;
+  status: 'planned' | 'reading' | 'read';
+  date_finished?: string;
+  my_notes_en?: string;
+  my_notes_id?: string;
+  used_in?: string[];
+}
+
+/** data/reading.yml: the author's reading list, in file order. */
+export function getReading(): ReadingItem[] {
+  return tidy(read<ReadingItem[]>(path.join(DATA, 'reading.yml')) ?? []);
+}

@@ -1,0 +1,1307 @@
+---
+// The ontology console: one window with three layers over the same objects.
+//   Semantic: every object in a fixed lane by kind, with its links drawn between lanes.
+//   Kinetic: the dated events behind those objects on one time axis.
+//   Dynamic: what needs attention as of the build day, computed from the data.
+// All three share one inspector. Everything is rendered at build time, so the lanes, the event
+// log and the signals read without JavaScript; the script only draws links and handles focus.
+import { OBJECT_TYPES, RELATIONS, type OntologyNode, type OntologyLink, type ObjectType } from '../lib/ontology';
+import { LANES, placeOf, sortKey, buildEvents, buildSignals, LENS_COUNT, type LaneKey, type ConsoleEvent } from '../lib/console';
+import { speaker } from '../lib/data';
+import { ui, href, fmtDate, MONTHS, type Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+  nodes: OntologyNode[];
+  links: OntologyLink[];
+  basisNames: Record<'data' | 'curated' | 'machine', string>;
+  propLabels: Record<string, string>;
+  words: Record<string, string>;
+  inspectorEmpty: string;
+  matches: [string, string, string];
+}
+const { lang, nodes, links, basisNames, propLabels, words, inspectorEmpty, matches } = Astro.props;
+const t = ui[lang];
+const byId = new Map(nodes.map((n) => [n.id, n]));
+const typeName = (ty: ObjectType) => OBJECT_TYPES[ty][lang];
+
+const c = {
+  en: {
+    window: 'Ontology console',
+    asOf: 'As of',
+    tabs: {
+      semantic: ['Semantic', 'What exists and how it connects'],
+      kinetic: ['Kinetic', 'What happened, and when'],
+      dynamic: ['Dynamic', 'What needs attention today'],
+    },
+    expand: 'Expand to full screen',
+    collapse: 'Exit full screen',
+    search: 'Find an object',
+    searchPlaceholder: 'Name, law, outlet',
+    noMatch: 'No match',
+    lanes: {
+      radar: 'Radar',
+      actors: 'Actors',
+      promises: 'Promises',
+      instruments: 'Instruments',
+      records: 'Records',
+      sources: 'Sources',
+    },
+    groups: {
+      lead: 'Radar leads',
+      institution: 'Institutions',
+      person: 'Officials',
+      promise: 'Promises',
+      instrument: 'Instruments',
+      entry: 'Entries',
+      analysis: 'Analysis',
+      document: 'Documents',
+      outlet: 'Outlets',
+      reference: 'References',
+    },
+    links: 'links',
+    stacks: {
+      document: (n: number) => `${n} source documents`,
+      outlet: (n: number) => `${n} outlets`,
+      reference: (n: number) => `${n} references`,
+    } as Record<string, (n: number) => string>,
+    documentsHint: 'Grouped. Select any object to open the sources it rests on.',
+    showAll: 'Show all',
+    hideAll: 'Group again',
+    onlyConnected: 'Only what connects to the selection',
+    radarTray: (n: number) => `${n} unreviewed radar leads`,
+    radarFresh: (n: number, d: string) => `${n} new since the scan on ${d}`,
+    radarShow: 'Show in graph',
+    radarHide: 'Hide from graph',
+    radarNote: 'Machine hints, not facts.',
+    unreviewed: 'unreviewed',
+    legend: 'Link basis',
+    back: 'Back',
+    close: 'Close',
+    inGraph: 'Show in graph',
+    inTime: 'Show on timeline',
+    range: 'Range',
+    ranges: { all: 'All', '24': '24 months', '12': '12 months' },
+    today: 'Today',
+    rows: {
+      promises: 'Promise made',
+      deadlines: 'Deadline and outcome',
+      instruments: 'Instrument issued',
+      records: 'Entry or analysis',
+      radar: 'Radar scan',
+    },
+    kinds: {
+      said: 'Promise made',
+      deadline: 'Deadline',
+      outcome: 'Outcome recorded',
+      issued: 'Issued',
+      entry: 'Entry',
+      analysis: 'Analysis published',
+      scan: 'Radar scan',
+    },
+    deadlineTone: { missed: 'passed, missed', open: 'still ahead', met: 'met', neutral: '', machine: '' },
+    scanText: (n: number) => `${n} new leads found`,
+    logTitle: 'Event log',
+    logNote: 'Newest first. Dates are shown exactly as precise as the source gives them.',
+    logFor: 'Showing events for the selected object.',
+    logAll: 'Show every event',
+    dynIntro: (d: string) => `Computed from the data on the build day, ${d}. Nothing here is a forecast or a rating. Each item opens its object, and its sources, in the inspector.`,
+    nothing: 'Nothing here today.',
+    cards: {
+      overdue: ['Promises past their deadline', 'Dated promises whose deadline passed with no recorded outcome, or an outcome after the deadline.'],
+      ahead: ['Deadlines still ahead', 'Dated promises that can still be met. Ordered by days left.'],
+      undated: ['Promises with no deadline', 'Conditional or progress claims. They can never be counted as missed.'],
+      notInForce: ['Binding, not yet in force', 'Instruments that would be legally binding but are not in force today.'],
+      provisional: ['Resting on press reports', 'Entries whose evidence is journalism or secondary analysis, without the primary text.'],
+      unread: ['Not yet read in full', 'Instruments whose complete text the author has not read yet.'],
+      lensGaps: ['Open safety lens questions', `Entries with lens questions that public sources do not answer yet, out of ${LENS_COUNT}.`],
+      singleSource: ['Entries on a single source', 'Entries that cite one document. A second source would make them sturdier.'],
+      radar: ['Radar inbox', 'Unreviewed scanner leads. Machine hints until the author reads the source.'],
+    },
+    daysPast: (n: number) => `${n} days past`,
+    keptLate: (n: number) => `kept ${n} days late`,
+    daysLeft: (n: number) => (n === 0 ? 'due today' : `${n} days left`),
+    awaits: 'awaits signature of',
+    unclearOf: (n: number) => `${n} of ${LENS_COUNT} unclear`,
+    leadsFor: (n: number) => `${n} lead${n === 1 ? '' : 's'}`,
+    radarSummary: (n: number, linked: number) => `${n} unreviewed in total. ${linked} point at an instrument the ledger tracks.`,
+    openRadar: 'Open the Radar',
+    noJs: 'Without JavaScript the three layers are shown one after another, and links are listed in the register below.',
+  },
+  id: {
+    window: 'Konsol ontologi',
+    asOf: 'Per',
+    tabs: {
+      semantic: ['Semantik', 'Apa saja yang ada dan bagaimana terhubung'],
+      kinetic: ['Kinetik', 'Apa yang terjadi, dan kapan'],
+      dynamic: ['Dinamis', 'Apa yang perlu diperhatikan hari ini'],
+    },
+    expand: 'Perbesar ke layar penuh',
+    collapse: 'Keluar dari layar penuh',
+    search: 'Cari objek',
+    searchPlaceholder: 'Nama, aturan, media',
+    noMatch: 'Tidak ada yang cocok',
+    lanes: {
+      radar: 'Radar',
+      actors: 'Pelaku',
+      promises: 'Janji',
+      instruments: 'Instrumen',
+      records: 'Catatan',
+      sources: 'Sumber',
+    },
+    groups: {
+      lead: 'Petunjuk Radar',
+      institution: 'Lembaga',
+      person: 'Pejabat',
+      promise: 'Janji',
+      instrument: 'Instrumen',
+      entry: 'Catatan',
+      analysis: 'Analisis',
+      document: 'Dokumen',
+      outlet: 'Media',
+      reference: 'Rujukan',
+    },
+    links: 'tautan',
+    stacks: {
+      document: (n: number) => `${n} dokumen sumber`,
+      outlet: (n: number) => `${n} media`,
+      reference: (n: number) => `${n} rujukan`,
+    } as Record<string, (n: number) => string>,
+    documentsHint: 'Dikelompokkan. Pilih objek mana pun untuk membuka sumber yang menjadi dasarnya.',
+    showAll: 'Tampilkan semua',
+    hideAll: 'Kelompokkan lagi',
+    onlyConnected: 'Hanya yang terhubung ke pilihan',
+    radarTray: (n: number) => `${n} petunjuk Radar belum ditinjau`,
+    radarFresh: (n: number, d: string) => `${n} baru sejak pemindaian ${d}`,
+    radarShow: 'Tampilkan di grafik',
+    radarHide: 'Sembunyikan dari grafik',
+    radarNote: 'Petunjuk mesin, bukan fakta.',
+    unreviewed: 'belum ditinjau',
+    legend: 'Dasar tautan',
+    back: 'Kembali',
+    close: 'Tutup',
+    inGraph: 'Lihat di grafik',
+    inTime: 'Lihat di lini masa',
+    range: 'Rentang',
+    ranges: { all: 'Semua', '24': '24 bulan', '12': '12 bulan' },
+    today: 'Hari ini',
+    rows: {
+      promises: 'Janji disampaikan',
+      deadlines: 'Tenggat dan hasil',
+      instruments: 'Instrumen terbit',
+      records: 'Catatan atau analisis',
+      radar: 'Pemindaian Radar',
+    },
+    kinds: {
+      said: 'Janji disampaikan',
+      deadline: 'Tenggat',
+      outcome: 'Hasil tercatat',
+      issued: 'Terbit',
+      entry: 'Catatan',
+      analysis: 'Analisis terbit',
+      scan: 'Pemindaian Radar',
+    },
+    deadlineTone: { missed: 'sudah lewat, terlewat', open: 'masih di depan', met: 'terpenuhi', neutral: '', machine: '' },
+    scanText: (n: number) => `${n} petunjuk baru ditemukan`,
+    logTitle: 'Log peristiwa',
+    logNote: 'Terbaru di atas. Tanggal ditampilkan sepresisi yang diberikan sumbernya.',
+    logFor: 'Menampilkan peristiwa untuk objek yang dipilih.',
+    logAll: 'Tampilkan semua peristiwa',
+    dynIntro: (d: string) => `Dihitung dari data pada hari situs dibangun, ${d}. Tidak ada ramalan atau penilaian di sini. Setiap butir membuka objeknya, beserta sumbernya, di panel pemeriksa.`,
+    nothing: 'Tidak ada untuk hari ini.',
+    cards: {
+      overdue: ['Janji yang melewati tenggat', 'Janji bertanggal yang tenggatnya lewat tanpa hasil tercatat, atau hasilnya datang setelah tenggat.'],
+      ahead: ['Tenggat yang masih di depan', 'Janji bertanggal yang masih bisa dipenuhi. Diurutkan menurut sisa hari.'],
+      undated: ['Janji tanpa tenggat', 'Klaim bersyarat atau klaim kemajuan. Tidak pernah dihitung sebagai terlewat.'],
+      notInForce: ['Mengikat, tetapi belum berlaku', 'Instrumen yang akan mengikat secara hukum, tetapi hari ini belum berlaku.'],
+      provisional: ['Bersandar pada laporan media', 'Catatan yang buktinya berupa liputan atau analisis sekunder, tanpa naskah aslinya.'],
+      unread: ['Belum dibaca lengkap', 'Instrumen yang naskah utuhnya belum dibaca penulis.'],
+      lensGaps: ['Pertanyaan lensa yang masih terbuka', `Catatan dengan pertanyaan lensa yang belum dijawab sumber publik, dari ${LENS_COUNT}.`],
+      singleSource: ['Catatan dengan satu sumber', 'Catatan yang hanya mengutip satu dokumen. Sumber kedua akan membuatnya lebih kokoh.'],
+      radar: ['Kotak masuk Radar', 'Temuan pemindai yang belum ditinjau. Tetap petunjuk mesin sampai penulis membaca sumbernya.'],
+    },
+    daysPast: (n: number) => `lewat ${n} hari`,
+    keptLate: (n: number) => `dipenuhi ${n} hari terlambat`,
+    daysLeft: (n: number) => (n === 0 ? 'jatuh tempo hari ini' : `sisa ${n} hari`),
+    awaits: 'menunggu tanda tangan',
+    unclearOf: (n: number) => `${n} dari ${LENS_COUNT} belum jelas`,
+    leadsFor: (n: number) => `${n} petunjuk`,
+    radarSummary: (n: number, linked: number) => `Total ${n} belum ditinjau. ${linked} di antaranya menunjuk instrumen yang dilacak.`,
+    openRadar: 'Buka Radar',
+    noJs: 'Tanpa JavaScript, ketiga lapisan ditampilkan berurutan, dan semua tautan tercantum di daftar di bawah.',
+  },
+}[lang];
+
+/* Semantic layer */
+
+const laneOf = new Map(nodes.map((n) => [n.id, placeOf(n)]));
+const GROUPS: Record<LaneKey, string[]> = {
+  radar: ['lead'],
+  actors: ['institution', 'person'],
+  promises: ['promise'],
+  instruments: ['instrument'],
+  records: ['entry', 'analysis'],
+  sources: ['document', 'outlet', 'reference'],
+};
+const groupType = (g: string): ObjectType => (g === 'analysis' ? 'document' : (g as ObjectType));
+const members = (lane: LaneKey, group: string) =>
+  nodes
+    .filter((n) => laneOf.get(n.id)!.lane === lane && laneOf.get(n.id)!.group === group)
+    .sort((a, b) => sortKey(a).localeCompare(sortKey(b)));
+const laneCount = (lane: LaneKey) => nodes.filter((n) => laneOf.get(n.id)!.lane === lane).length;
+
+const str = (v: unknown) => (v === undefined || v === null ? '' : String(v));
+const outletDocs = (id: string) => links.filter((l) => l.rel === 'published_by' && l.to === id).length;
+
+// One short line under each object's name, in the reader's language.
+function metaOf(n: OntologyNode): string {
+  const p = n.props;
+  switch (n.type) {
+    case 'instrument':
+      return [t.status[p.status as keyof typeof t.status], p.binding ? t.binding : t.notBinding].filter(Boolean).join(' · ');
+    case 'promise':
+      return [str(p.date_said), t.outcome[p.outcome as keyof typeof t.outcome]].filter(Boolean).join(' · ');
+    case 'entry':
+      return [str(p.date), t.evidence[p.evidence as keyof typeof t.evidence]].filter(Boolean).join(' · ');
+    case 'person':
+      return str(p.as_listed);
+    case 'institution':
+      return str(p.country);
+    case 'document':
+      return p.kind === 'analysis' ? str(p.published) : str(p.host);
+    case 'outlet': {
+      const k = outletDocs(n.id);
+      return `${k} ${c.groups.document.toLowerCase()}`;
+    }
+    case 'reference':
+      return str(p.key);
+    case 'lead':
+      return [str(p.found), p.status === 'new' ? c.unreviewed : ''].filter(Boolean).join(' · ');
+    default:
+      return '';
+  }
+}
+const toneOf = (n: OntologyNode) => (n.type === 'promise' ? str(n.props.outcome) : n.type === 'instrument' ? str(n.props.status) : '');
+
+const radar = laneCount('radar');
+
+/* Kinetic layer */
+
+const events = buildEvents(nodes);
+const DAY = 86400000;
+const ms = (d: string) => Date.parse(`${d}T00:00:00Z`);
+const today = buildSignals(nodes, links).today;
+const domStart = Math.min(...events.map((e) => ms(e.start)), ms(today));
+const domEnd = Math.max(...events.map((e) => ms(e.end) + DAY), ms(today) + DAY);
+const pad = (domEnd - domStart) * 0.02;
+const pct = (v: number) => (((v - (domStart - pad)) / (domEnd - domStart + 2 * pad)) * 100).toFixed(3);
+const ROWS = ['promises', 'deadlines', 'instruments', 'records', 'radar'] as const;
+const evLabel = (e: ConsoleEvent) => {
+  const node = e.node ? byId.get(e.node) : undefined;
+  if (e.kind === 'scan') return c.scanText(e.count ?? 0);
+  return node?.label[lang] ?? '';
+};
+const evKind = (e: ConsoleEvent) => {
+  const tone = e.kind === 'deadline' ? c.deadlineTone[e.tone] : '';
+  return tone ? `${c.kinds[e.kind]}, ${tone}` : c.kinds[e.kind];
+};
+const dateText = (d: string) => (/^\d{4}-\d{2}-\d{2}$/.test(d) ? fmtDate(lang, d) : /^\d{4}-\d{2}$/.test(d) ? `${MONTHS[lang].long[Number(d.slice(5)) - 1]} ${d.slice(0, 4)}` : d);
+
+/* Dynamic layer */
+
+const s = buildSignals(nodes, links);
+const pid = (key: string) => `promise:${key}`;
+const label = (id: string) => byId.get(id)?.label[lang] ?? id;
+const cards = [
+  {
+    key: 'overdue',
+    tone: 'missed',
+    items: s.overdue.map((p) => ({
+      id: pid(p.key),
+      text: p[lang === 'en' ? 'promised_en' : 'promised_id'],
+      meta: [speaker(p, lang), p.days_past !== null ? c.daysPast(p.days_past) : p.days_early_late ? c.keptLate(p.days_early_late) : ''].filter(Boolean).join(' · '),
+    })),
+  },
+  {
+    key: 'ahead',
+    tone: 'open',
+    items: s.ahead.map((p) => ({ id: pid(p.key), text: p[lang === 'en' ? 'promised_en' : 'promised_id'], meta: [speaker(p, lang), c.daysLeft(p.days_remaining ?? 0)].join(' · ') })),
+  },
+  {
+    key: 'notInForce',
+    tone: 'open',
+    items: s.notInForce.map(({ node, awaits }) => ({
+      id: node.id,
+      text: node.label[lang],
+      meta: [t.status[node.props.status as keyof typeof t.status], awaits.length ? `${c.awaits} ${awaits.map(label).join(', ')}` : ''].filter(Boolean).join(' · '),
+    })),
+  },
+  {
+    key: 'undated',
+    tone: 'neutral',
+    items: s.undated.map((p) => ({ id: pid(p.key), text: p[lang === 'en' ? 'promised_en' : 'promised_id'], meta: speaker(p, lang) })),
+  },
+  {
+    key: 'provisional',
+    tone: 'neutral',
+    items: s.provisional.map((n) => ({ id: n.id, text: n.label[lang], meta: str(n.props.date) })),
+  },
+  {
+    key: 'unread',
+    tone: 'neutral',
+    items: s.unread.map((n) => ({ id: n.id, text: n.label[lang], meta: t.status[n.props.status as keyof typeof t.status] })),
+  },
+  {
+    key: 'lensGaps',
+    tone: 'neutral',
+    items: s.lensGaps.map(({ node, unclear }) => ({ id: node.id, text: node.label[lang], meta: c.unclearOf(unclear), bar: unclear / LENS_COUNT })),
+  },
+  {
+    key: 'singleSource',
+    tone: 'neutral',
+    items: s.singleSource.map((n) => ({ id: n.id, text: n.label[lang], meta: str(n.props.date) })),
+  },
+] as { key: keyof typeof c.cards; tone: string; items: { id: string; text: string; meta: string; bar?: number }[] }[];
+
+/* Client payload: only what the inspector, search and wires need. */
+const payload = {
+  nodes: nodes.map((n) => ({
+    id: n.id,
+    type: n.type,
+    label: n.label[lang],
+    // Search also matches the other language's name, short keys, websites and speakers.
+    find: [n.label.en, n.label.id, n.props.key, n.props.host, n.props.as_listed, n.props.said_by].filter(Boolean).join(' ').toLowerCase(),
+    href: n.href ? href(lang, n.href) : undefined,
+    url: n.url,
+    props: n.props,
+  })),
+  links: links.map((l) => ({ s: l.from, t: l.to, rel: l.rel, basis: l.basis, src: l.source_url, ev: l.evidence })),
+  types: Object.fromEntries((Object.keys(OBJECT_TYPES) as ObjectType[]).map((ty) => [ty, typeName(ty)])),
+  rels: Object.fromEntries(Object.keys(RELATIONS).map((r) => [r, RELATIONS[r as keyof typeof RELATIONS][lang]])),
+  basis: basisNames,
+  props: propLabels,
+  words: { ...words, back: c.back, close: c.close, inGraph: c.inGraph, inTime: c.inTime, noMatch: c.noMatch, expand: c.expand, collapse: c.collapse, showAll: c.showAll, hideAll: c.hideAll, radarShow: c.radarShow, radarHide: c.radarHide },
+  matches,
+  months: MONTHS[lang].short,
+  // Coded values shown in the reader's language. Lens answers share one table.
+  values: {
+    status: t.status,
+    outcome: t.outcome,
+    evidence: t.evidence,
+    type: t.instrumentType,
+    claim_type: lang === 'en' ? { dated: 'Dated', conditional: 'Conditional', status_claim: 'Progress claim' } : { dated: 'Bertanggal', conditional: 'Bersyarat', status_claim: 'Klaim kemajuan' },
+    kind: lang === 'en' ? { analysis: 'Analysis paper' } : { analysis: 'Makalah analisis' },
+    language: t.sourceLang,
+    any: { ...t.yesNo, ...t.enforcement, ...(t.recipient ?? {}) },
+  },
+  today,
+};
+---
+<section class="ox" data-ox aria-labelledby="ox-title">
+  <div class="ox-bar">
+    <div class="ox-head">
+      <p class="ox-title" id="ox-title">{c.window}</p>
+      <p class="ox-asof">{c.asOf} <time datetime={today}>{fmtDate(lang, today)}</time></p>
+    </div>
+    <div class="ox-tabs" role="tablist" aria-label={c.window} data-ox-tablist hidden>
+      {
+        (['semantic', 'kinetic', 'dynamic'] as const).map((k, i) => (
+          <button type="button" role="tab" id={`ox-tab-${k}`} aria-controls={`ox-panel-${k}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-tab={k}>
+            <span class="ox-tab-name">{c.tabs[k][0]}</span>
+            <span class="ox-tab-hint">{c.tabs[k][1]}</span>
+          </button>
+        ))
+      }
+    </div>
+    <div class="ox-tools">
+      <div class="ox-search" data-ox-searchbox hidden>
+        <label class="visually-hidden" for="ox-q">{c.search}</label>
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="11" cy="11" r="6.5" /><path d="M20 20l-4.2-4.2" /></svg>
+        <input id="ox-q" type="search" placeholder={c.searchPlaceholder} autocomplete="off" role="combobox" aria-expanded="false" aria-controls="ox-results" aria-autocomplete="list" data-ox-q />
+        <ul class="ox-results" id="ox-results" role="listbox" hidden data-ox-results></ul>
+        <span class="visually-hidden" aria-live="polite" data-ox-matches></span>
+      </div>
+      <button type="button" class="icon-btn ox-expand" data-ox-expand aria-pressed="false" aria-label={c.expand} title={c.expand} hidden>
+        <svg class="i-open" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></svg>
+        <svg class="i-close" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" /></svg>
+      </button>
+    </div>
+  </div>
+  <p class="ox-nojs">{c.noJs}</p>
+
+  <div class="ox-body">
+    <div class="ox-panels">
+      <!-- Semantic -->
+      <div class="ox-panel" role="tabpanel" id="ox-panel-semantic" aria-labelledby="ox-tab-semantic" data-panel="semantic">
+        <div class="ox-sub">
+          <ul class="ox-legend" aria-label={c.legend}>
+            {(['data', 'curated', 'machine'] as const).filter((b) => links.some((l) => l.basis === b)).map((b) => <li><i class={`onto-line onto-b-${b}`} aria-hidden="true" />{basisNames[b]}</li>)}
+          </ul>
+          <label class="ox-check" data-js-only hidden>
+            <input type="checkbox" data-ox-only />
+            <span>{c.onlyConnected}</span>
+          </label>
+          {
+            radar > 0 && (
+              <div class="ox-tray" data-js-only hidden>
+                <i class="onto-swatch onto-t-lead" aria-hidden="true" />
+                <span>
+                  <b>{c.radarTray(s.radar.total)}</b>
+                  {s.radar.lastScan && s.radar.fresh > 0 && <span class="ox-fresh">{c.radarFresh(s.radar.fresh, fmtDate(lang, s.radar.lastScan))}</span>}
+                </span>
+                <button type="button" class="chip-btn" aria-pressed="false" data-ox-radar>{c.radarShow}</button>
+              </div>
+            )
+          }
+        </div>
+
+        <div class="ox-canvas" data-ox-canvas>
+          <div class="ox-lanes" data-ox-lanes>
+            <svg class="ox-wires" aria-hidden="true" focusable="false" data-ox-wires></svg>
+            {
+              LANES.filter((lane) => laneCount(lane) > 0).map((lane) => (
+                <div class="ox-lane" data-lane={lane} data-hidden-lane={lane === 'radar' ? '' : undefined}>
+                  <button type="button" class="ox-lane-head" aria-expanded="true" data-ox-lanehead>
+                    <span class="ox-lane-name">{c.lanes[lane]}</span>
+                    <span class="ox-lane-count">{laneCount(lane)}</span>
+                    <svg class="ox-chev" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6" /></svg>
+                  </button>
+                  <div class="ox-lane-body">
+                    {lane === 'radar' && <p class="ox-note">{c.radarNote}</p>}
+                    {GROUPS[lane].map((group) => {
+                      const list = members(lane, group);
+                      if (!list.length) return null;
+                      const grouped = lane === 'sources';
+                      return (
+                        <div class="ox-group" data-group={group} data-collapsed={grouped ? '' : undefined}>
+                          {GROUPS[lane].length > 1 && !grouped && (
+                            <p class="ox-group-head">
+                              <i class={`onto-swatch onto-t-${groupType(group)}`} aria-hidden="true" />
+                              {c.groups[group as keyof typeof c.groups]} <span>{list.length}</span>
+                            </p>
+                          )}
+                          {grouped && (
+                            <div class="ox-stack" data-ox-stack>
+                              <span class="ox-stack-cards" aria-hidden="true"><i /><i /><i /></span>
+                              <span class="ox-stack-text">
+                                <b>{c.stacks[group](list.length)}</b>
+                                {group === 'document' && <span>{c.documentsHint}</span>}
+                              </span>
+                              <button type="button" class="chip-btn" data-ox-expandgroup aria-pressed="false" hidden>{c.showAll}</button>
+                            </div>
+                          )}
+                          <ol class="ox-items">
+                            {list.map((n) => (
+                              <li data-li={n.id}>
+                                <button
+                                  type="button"
+                                  class={`ox-node onto-t-${n.type}`}
+                                  data-node={n.id}
+                                  data-tone={toneOf(n) || undefined}
+                                  data-machine={n.type === 'lead' ? '' : undefined}
+                                  aria-label={`${typeName(n.type)}: ${n.label[lang]}. ${metaOf(n)}. ${n.degree} ${c.links}`}
+                                >
+                                  <span class="ox-node-label" title={n.label[lang]}>{n.label[lang]}</span>
+                                  <span class="ox-node-meta">{metaOf(n)}</span>
+                                  <span class="ox-deg" aria-hidden="true">{n.degree}</span>
+                                </button>
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Kinetic -->
+      <div class="ox-panel" role="tabpanel" id="ox-panel-kinetic" aria-labelledby="ox-tab-kinetic" data-panel="kinetic">
+        <div class="ox-sub">
+          <fieldset class="chips" data-js-only hidden>
+            <legend>{c.range}</legend>
+            {(['all', '24', '12'] as const).map((r, i) => <label class="chip"><input type="radio" name="ox-range" value={r} checked={i === 0} data-ox-range /><span>{c.ranges[r]}</span></label>)}
+          </fieldset>
+          <ul class="ox-legend ox-legend--marks">
+            <li><i class="ox-key k-said" aria-hidden="true" />{c.kinds.said}</li>
+            <li><i class="ox-key k-deadline t-missed" aria-hidden="true" />{t.outcome.missed}</li>
+            <li><i class="ox-key k-deadline t-open" aria-hidden="true" />{t.outcome.open}</li>
+            <li><i class="ox-key k-span" aria-hidden="true" />{lang === 'en' ? 'Month or year only' : 'Hanya bulan atau tahun'}</li>
+          </ul>
+        </div>
+        <div class="ox-time" data-ox-time data-start={domStart - pad} data-end={domEnd + pad} aria-hidden="true">
+          <div class="ox-axis" data-ox-axis></div>
+          {
+            ROWS.filter((r) => events.some((e) => e.row === r)).map((row) => (
+              <div class="ox-trow" data-row={row}>
+                <span class="ox-trow-label">{c.rows[row]}</span>
+                <div class="ox-track">
+                  {events
+                    .filter((e) => e.row === row)
+                    .map((e) => {
+                      const a = ms(e.start);
+                      const b = ms(e.end) + DAY;
+                      const wide = e.start !== e.end;
+                      return (
+                        <button
+                          type="button"
+                          tabindex="-1"
+                          class={`ox-mark k-${e.kind} t-${e.tone}${wide ? ' is-span' : ''}`}
+                          data-a={a}
+                          data-b={b}
+                          data-node={e.node}
+                          data-tip={`${dateText(e.date)} · ${evKind(e)}${evLabel(e) ? ` · ${evLabel(e)}` : ''}`}
+                          style={`left:${pct(a)}%;${wide ? `width:${(Number(pct(b)) - Number(pct(a))).toFixed(3)}%` : ''}`}
+                        />
+                      );
+                    })}
+                </div>
+              </div>
+            ))
+          }
+          <div class="ox-today" data-ox-today data-a={ms(today)} style={`left:${pct(ms(today))}%`}><span>{c.today}</span></div>
+          <div class="ox-tip" data-ox-tip hidden></div>
+        </div>
+
+        <div class="ox-log-head">
+          <h3>{c.logTitle}</h3>
+          <p data-ox-lognote data-all={c.logNote} data-for={c.logFor}>{c.logNote}</p>
+          <button type="button" class="chip-btn" data-ox-logall hidden>{c.logAll}</button>
+        </div>
+        <ol class="ox-log" data-ox-log>
+          {
+            events.map((e) => (
+              <li data-node={e.node} class={`t-${e.tone}`}>
+                <time datetime={e.start}>{dateText(e.date)}</time>
+                <span class="ox-log-kind">
+                  <i class={`ox-key k-${e.kind} t-${e.tone}${e.start !== e.end ? ' is-span' : ''}`} aria-hidden="true" />
+                  {evKind(e)}
+                </span>
+                {e.node ? (
+                  <button type="button" class="ox-log-obj" data-select={e.node}>
+                    <i class={`onto-swatch onto-t-${byId.get(e.node)?.type}`} aria-hidden="true" />
+                    {evLabel(e)}
+                  </button>
+                ) : (
+                  <span class="ox-log-obj">{evLabel(e)}</span>
+                )}
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+
+      <!-- Dynamic -->
+      <div class="ox-panel" role="tabpanel" id="ox-panel-dynamic" aria-labelledby="ox-tab-dynamic" data-panel="dynamic">
+        <p class="ox-dyn-intro">{c.dynIntro(fmtDate(lang, s.today))}</p>
+        <div class="ox-cards">
+          {
+            cards.map((card) => (
+              <article class={`ox-card t-${card.tone}`} data-empty={card.items.length ? undefined : ''}>
+                <header>
+                  <h3>{c.cards[card.key][0]}</h3>
+                  <span class="figure">{card.items.length}</span>
+                </header>
+                <p class="ox-why">{c.cards[card.key][1]}</p>
+                {card.items.length ? (
+                  <ul class="ox-list">
+                    {card.items.map((it) => (
+                      <li>
+                        <button type="button" data-select={it.id}>
+                          <span class="ox-list-text">{it.text}</span>
+                          <span class="ox-list-meta">{it.meta}</span>
+                          {it.bar !== undefined && (
+                            <span class="ox-meter" aria-hidden="true">
+                              <i style={`width:${(it.bar * 100).toFixed(0)}%`} />
+                            </span>
+                          )}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p class="ox-nothing">{c.nothing}</p>
+                )}
+              </article>
+            ))
+          }
+          <article class="ox-card t-machine">
+            <header>
+              <h3>{c.cards.radar[0]}</h3>
+              <span class="figure">{s.radar.total}</span>
+            </header>
+            <p class="ox-why">{c.cards.radar[1]}</p>
+            <p class="ox-list-meta">
+              {c.radarSummary(s.radar.total, s.radar.linked)}
+              {s.radar.lastScan && s.radar.fresh > 0 && <> {c.radarFresh(s.radar.fresh, fmtDate(lang, s.radar.lastScan))}.</>}
+            </p>
+            {
+              s.radar.byInstrument.length > 0 && (
+                <ul class="ox-list">
+                  {s.radar.byInstrument.map(({ node, count }) => (
+                    <li>
+                      <button type="button" data-select={node.id}>
+                        <span class="ox-list-text">{node.label[lang]}</span>
+                        <span class="ox-list-meta">{c.leadsFor(count)}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )
+            }
+            <a class="section-link" href={href(lang, 'radar/')}>{c.openRadar} <span class="arrow" aria-hidden="true">&rarr;</span></a>
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <aside class="ox-inspector" data-ox-inspector aria-label={lang === 'en' ? 'Inspector' : 'Panel pemeriksa'}>
+      <div class="ox-insp-inner">
+      <div class="ox-insp-bar" data-ox-inspbar hidden>
+        <button type="button" class="chip-btn" data-ox-back hidden><span aria-hidden="true">&larr;</span> {c.back}</button>
+        <button type="button" class="icon-btn ox-insp-close" data-ox-close aria-label={c.close} title={c.close}>
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+      </div>
+      <div class="ox-insp-body" data-ox-inspbody aria-live="polite">
+        <p class="onto-empty">{inspectorEmpty}</p>
+      </div>
+      </div>
+    </aside>
+  </div>
+
+  <script type="application/json" data-ox-data set:html={JSON.stringify(payload).replace(/</g, '\\u003c')} />
+</section>
+
+<script>
+  type Node = { id: string; type: string; label: string; find: string; href?: string; url?: string; props: Record<string, string | number | boolean> };
+  type Link = { s: string; t: string; rel: string; basis: string; src?: string; ev?: string };
+
+  const NS = 'http://www.w3.org/2000/svg';
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-ox]')) {
+    const data = JSON.parse(root.querySelector('[data-ox-data]')!.textContent!);
+    const $ = <T extends Element = HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
+    const $$ = <T extends Element = HTMLElement>(sel: string) => [...root.querySelectorAll<T>(sel)];
+
+    root.classList.add('is-live');
+    for (const el of $$('[data-ox-tablist], [data-ox-searchbox], [data-ox-expand], [data-js-only], [data-ox-expandgroup]')) el.hidden = false;
+
+    const nodes: Node[] = data.nodes;
+    const links: Link[] = data.links;
+    const byId = new Map(nodes.map((n) => [n.id, n]));
+    const adj = new Map<string, Set<string>>(nodes.map((n) => [n.id, new Set()]));
+    for (const l of links) {
+      adj.get(l.s)?.add(l.t);
+      adj.get(l.t)?.add(l.s);
+    }
+    const nodeBtn = new Map($$<HTMLButtonElement>('.ox-node').map((b) => [b.dataset.node!, b]));
+    const laneEls = $$('.ox-lane');
+    const laneIndex = new Map(laneEls.map((l, i) => [l.dataset.lane!, i]));
+    const laneOfNode = new Map([...nodeBtn].map(([id, b]) => [id, b.closest<HTMLElement>('.ox-lane')!.dataset.lane!]));
+
+    /* Tabs */
+
+    const tabs = $$<HTMLButtonElement>('[role="tab"]');
+    const panels = $$('[role="tabpanel"]');
+    let view = 'semantic';
+    const showTab = (k: string, focus = false) => {
+      view = k;
+      for (const tb of tabs) {
+        const on = tb.dataset.tab === k;
+        tb.setAttribute('aria-selected', String(on));
+        tb.tabIndex = on ? 0 : -1;
+        if (on && focus) tb.focus();
+      }
+      for (const p of panels) p.hidden = p.dataset.panel !== k;
+      const url = new URL(location.href);
+      if (k === 'semantic') url.searchParams.delete('view');
+      else url.searchParams.set('view', k);
+      history.replaceState(null, '', url);
+      requestAnimationFrame(() => {
+        draw();
+        placeTime();
+      });
+    };
+    for (const tb of tabs) {
+      tb.addEventListener('click', () => showTab(tb.dataset.tab!));
+      tb.addEventListener('keydown', (ev) => {
+        const i = tabs.indexOf(tb);
+        const next = ev.key === 'ArrowRight' ? tabs[(i + 1) % tabs.length] : ev.key === 'ArrowLeft' ? tabs[(i + tabs.length - 1) % tabs.length] : null;
+        if (next) {
+          ev.preventDefault();
+          showTab(next.dataset.tab!, true);
+        }
+      });
+    }
+
+    /* Selection and neighbourhoods */
+
+    let selected: string | null = null;
+    let hovered: string | null = null;
+    const trail: string[] = [];
+    const lanes = $('[data-ox-lanes]');
+    const only = $<HTMLInputElement>('[data-ox-only]');
+    const radarBtn = root.querySelector<HTMLButtonElement>('[data-ox-radar]');
+    const radarLane = root.querySelector<HTMLElement>('.ox-lane[data-lane="radar"]');
+    let radarOpen = false;
+
+    const ring = (id: string | null) => {
+      const one = new Set<string>();
+      const two = new Set<string>();
+      if (!id) return { one, two };
+      for (const a of adj.get(id) ?? []) one.add(a);
+      for (const a of one) for (const b of adj.get(a) ?? []) if (b !== id && !one.has(b)) two.add(b);
+      return { one, two };
+    };
+
+    const paint = () => {
+      const focus = hovered ?? selected;
+      const { one, two } = ring(focus);
+      const sel = ring(selected);
+      for (const [id, b] of nodeBtn) {
+        const state = !focus ? '' : id === focus ? 'focus' : one.has(id) ? 'one' : two.has(id) ? 'two' : 'off';
+        b.dataset.state = state;
+        b.setAttribute('aria-pressed', String(id === selected));
+        // Grouped documents open when the selection rests on them.
+        const li = b.parentElement!;
+        li.toggleAttribute('data-shown', id === selected || sel.one.has(id));
+        li.toggleAttribute('data-off', only.checked && !!selected && id !== selected && !sel.one.has(id) && !sel.two.has(id));
+      }
+      for (const g of $$('.ox-group')) {
+        g.toggleAttribute('data-off', [...g.querySelectorAll('li')].every((li) => li.hasAttribute('data-off')));
+      }
+      for (const g of $$('[data-ox-stack]').map((st) => st.closest('.ox-group')!)) g.toggleAttribute('data-some', g.querySelector('li[data-shown]') !== null);
+      draw();
+      paintTime();
+    };
+
+    /* Wires: drawn between the rendered objects, never animated in a loop. */
+
+    const wires = $<SVGSVGElement>('[data-ox-wires]');
+    const visible = (el: Element | null | undefined) => !!el && (el as HTMLElement).offsetParent !== null;
+    // A hidden member of a grouped list is drawn to its group's stack instead.
+    const anchorOf = (id: string): HTMLElement | null => {
+      const b = nodeBtn.get(id);
+      if (visible(b)) return b!;
+      const stack = b?.closest('.ox-group')?.querySelector<HTMLElement>('[data-ox-stack]');
+      return visible(stack) ? stack! : null;
+    };
+
+    const draw = () => {
+      wires.replaceChildren();
+      if (view !== 'semantic' || getComputedStyle(wires).display === 'none') return;
+      const box = lanes.getBoundingClientRect();
+      wires.setAttribute('width', String(lanes.scrollWidth));
+      wires.setAttribute('height', String(lanes.scrollHeight));
+      const focus = hovered ?? selected;
+      const { one } = ring(focus);
+      const groups = new Map<string, { a: HTMLElement; b: HTMLElement; n: number; basis: string; state: string }>();
+      for (const l of links) {
+        const a = anchorOf(l.s);
+        const b = anchorOf(l.t);
+        if (!a || !b || a === b) continue;
+        const direct = focus !== null && (l.s === focus || l.t === focus);
+        const second = focus !== null && !direct && (one.has(l.s) || one.has(l.t));
+        const state = !focus ? 'base' : direct ? 'on' : second ? 'near' : 'off';
+        const key = `${a.dataset.node ?? a.closest('.ox-group')!.getAttribute('data-group')}|${b.dataset.node ?? b.closest('.ox-group')!.getAttribute('data-group')}`;
+        const g = groups.get(key);
+        if (g) {
+          g.n += 1;
+          if (state === 'on' || (state === 'near' && g.state !== 'on')) g.state = state;
+        } else groups.set(key, { a, b, n: 1, basis: l.basis, state });
+      }
+      const order = ['off', 'base', 'near', 'on'];
+      const frag = document.createDocumentFragment();
+      for (const g of [...groups.values()].sort((x, y) => order.indexOf(x.state) - order.indexOf(y.state))) {
+        if (g.state === 'off') continue;
+        let ra = g.a.getBoundingClientRect();
+        let rb = g.b.getBoundingClientRect();
+        let a = g.a;
+        let b = g.b;
+        const la = laneIndex.get(a.closest<HTMLElement>('.ox-lane')!.dataset.lane!)!;
+        const lb = laneIndex.get(b.closest<HTMLElement>('.ox-lane')!.dataset.lane!)!;
+        if (la > lb) [ra, rb, a, b] = [rb, ra, b, a];
+        const y1 = ra.top + ra.height / 2 - box.top;
+        const y2 = rb.top + rb.height / 2 - box.top;
+        let d: string;
+        if (la === lb) {
+          // Same lane: a short arc bulging into the gap on the right.
+          const x = Math.max(ra.right, rb.right) - box.left;
+          const bulge = Math.min(26, 8 + Math.abs(y2 - y1) * 0.12);
+          d = `M${ra.right - box.left} ${y1}C${x + bulge} ${y1} ${x + bulge} ${y2} ${rb.right - box.left} ${y2}`;
+        } else {
+          const x1 = ra.right - box.left;
+          const x2 = rb.left - box.left;
+          const mid = (x2 - x1) * 0.5;
+          d = `M${x1} ${y1}C${x1 + mid} ${y1} ${x2 - mid} ${y2} ${x2} ${y2}`;
+        }
+        const path = document.createElementNS(NS, 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('class', `ox-wire onto-b-${g.basis} is-${g.state}`);
+        if (g.n > 1) path.style.strokeWidth = String(Math.min(4, 1 + Math.log2(g.n)));
+        frag.append(path);
+      }
+      wires.append(frag);
+    };
+
+    /* Inspector */
+
+    const inspector = $('[data-ox-inspector]');
+    const body = $('[data-ox-inspbody]');
+    const emptyHtml = body.innerHTML;
+    const bar = $('[data-ox-inspbar]');
+    const backBtn = $<HTMLButtonElement>('[data-ox-back]');
+    const el = (tag: string, cls?: string, text?: string) => {
+      const e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text !== undefined) e.textContent = text;
+      return e;
+    };
+    const value = (k: string, v: string | number | boolean) =>
+      v === true ? data.words.yes : v === false ? data.words.no : (data.values[k]?.[String(v)] ?? data.values.any[String(v)] ?? String(v));
+    const hasEvents = (id: string) => root.querySelector(`.ox-log li[data-node="${CSS.escape(id)}"]`) !== null;
+
+    const inspect = (n: Node | null) => {
+      inspector.toggleAttribute('data-open', !!n);
+      root.toggleAttribute('data-insp', !!n);
+      bar.hidden = !n;
+      backBtn.hidden = trail.length === 0;
+      if (!n) {
+        body.innerHTML = emptyHtml;
+        return;
+      }
+      body.replaceChildren();
+      const head = el('p', 'onto-kind');
+      head.append(el('i', `onto-swatch onto-t-${n.type}`), document.createTextNode(data.types[n.type]));
+      body.append(head, el('h3', 'onto-title', n.label));
+
+      // Bilingual twins: show the reader's language only.
+      const other = document.documentElement.lang.startsWith('id') ? '_en' : '_id';
+      const props = Object.entries(n.props).filter(([k, v]) => v !== '' && v !== undefined && v !== null && !k.endsWith(other));
+      if (props.length) {
+        const dl = el('dl', 'onto-props');
+        for (const [k, v] of props) {
+          const text = value(k, v);
+          const long = text.length > 48 ? 'is-long' : '';
+          dl.append(el('dt', long, data.props[k] ?? k), el('dd', long, text));
+        }
+        body.append(dl);
+      }
+
+      const actions = el('p', 'onto-actions');
+      if (n.href) {
+        const a = el('a', 'btn btn--primary', data.words.open) as HTMLAnchorElement;
+        a.href = n.href;
+        actions.append(a);
+      }
+      if (n.url) {
+        const a = el('a', 'btn', data.words.openSource) as HTMLAnchorElement;
+        a.href = n.url;
+        a.rel = 'noopener';
+        actions.append(a);
+      }
+      if (view !== 'semantic') {
+        const b = el('button', 'btn', data.words.inGraph) as HTMLButtonElement;
+        b.type = 'button';
+        b.addEventListener('click', () => {
+          showTab('semantic');
+          reveal(n.id);
+        });
+        actions.append(b);
+      }
+      if (view !== 'kinetic' && hasEvents(n.id)) {
+        const b = el('button', 'btn', data.words.inTime) as HTMLButtonElement;
+        b.type = 'button';
+        b.addEventListener('click', () => showTab('kinetic'));
+        actions.append(b);
+      }
+      if (actions.childElementCount) body.append(actions);
+
+      for (const [title, list, other] of [
+        [data.words.out, links.filter((l) => l.s === n.id), (l: Link) => l.t],
+        [data.words.in, links.filter((l) => l.t === n.id), (l: Link) => l.s],
+      ] as [string, Link[], (l: Link) => string][]) {
+        body.append(el('p', 'label onto-group', `${title} · ${list.length}`));
+        if (!list.length) {
+          body.append(el('p', 'onto-none', data.words.none));
+          continue;
+        }
+        const ul = el('ul', 'onto-rels');
+        for (const l of list) {
+          const li = el('li', `onto-b-${l.basis}`);
+          li.append(el('span', 'onto-rel', data.rels[l.rel]));
+          const target = byId.get(other(l))!;
+          const b = el('button', 'onto-jump') as HTMLButtonElement;
+          b.type = 'button';
+          b.append(el('i', `onto-swatch onto-t-${target.type}`), document.createTextNode(target.label));
+          b.addEventListener('click', () => select(target.id, { push: true, scroll: true }));
+          li.append(b);
+          const meta = el('span', 'onto-meta', data.basis[l.basis]);
+          if (l.src) {
+            const a = el('a', '', data.words.source) as HTMLAnchorElement;
+            a.href = l.src;
+            a.rel = 'noopener';
+            meta.append(document.createTextNode(' · '), a);
+          }
+          li.append(meta);
+          ul.append(li);
+        }
+        body.append(ul);
+      }
+      body.parentElement!.scrollTop = 0;
+      body.classList.remove('detail-in');
+      void body.offsetWidth;
+      body.classList.add('detail-in');
+    };
+
+    // Bring an object into view in the graph: open its lane, its group and the radar if needed.
+    const reveal = (id: string) => {
+      const lane = laneOfNode.get(id);
+      if (lane === 'radar' && !radarOpen) toggleRadar(true);
+      const laneEl = laneEls.find((l) => l.dataset.lane === lane);
+      if (laneEl?.hasAttribute('data-shut')) setLane(laneEl, true);
+      requestAnimationFrame(() => nodeBtn.get(id)?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' }));
+    };
+
+    const select = (id: string | null, opts: { push?: boolean; scroll?: boolean } = {}) => {
+      if (opts.push && selected && selected !== id) trail.push(selected);
+      if (!id) trail.length = 0;
+      selected = id;
+      inspect(id ? byId.get(id) ?? null : null);
+      paint();
+      const url = new URL(location.href);
+      url.hash = id ? encodeURIComponent(id) : '';
+      history.replaceState(null, '', url);
+      if (id && opts.scroll && view === 'semantic') reveal(id);
+    };
+
+    backBtn.addEventListener('click', () => {
+      const prev = trail.pop();
+      if (prev) select(prev, { scroll: true });
+      // The button hides when the trail runs out; keep focus inside the inspector.
+      if (backBtn.hidden) $<HTMLButtonElement>('[data-ox-close]').focus();
+    });
+    $('[data-ox-close]').addEventListener('click', () => select(null));
+
+    for (const [id, b] of nodeBtn) {
+      b.addEventListener('click', () => select(selected === id ? null : id, { push: true }));
+      b.addEventListener('pointerenter', () => {
+        if (matchMedia('(hover: hover)').matches) {
+          hovered = id;
+          paint();
+        }
+      });
+      b.addEventListener('pointerleave', () => {
+        if (hovered === id) {
+          hovered = null;
+          paint();
+        }
+      });
+    }
+    root.addEventListener('click', (ev) => {
+      const target = (ev.target as Element).closest<HTMLElement>('[data-select]');
+      if (target) select(target.dataset.select!, { push: true });
+    });
+    lanes.addEventListener('click', (ev) => {
+      if (ev.target === lanes || (ev.target as Element).classList.contains('ox-lane-body')) select(null);
+    });
+    only.addEventListener('change', paint);
+
+    for (const btn of $$<HTMLButtonElement>('[data-ox-expandgroup]')) {
+      btn.addEventListener('click', () => {
+        const g = btn.closest<HTMLElement>('.ox-group')!;
+        const open = g.hasAttribute('data-collapsed');
+        g.toggleAttribute('data-collapsed', !open);
+        btn.setAttribute('aria-pressed', String(open));
+        btn.textContent = open ? data.words.hideAll : data.words.showAll;
+        requestAnimationFrame(draw);
+      });
+    }
+
+    const toggleRadar = (on = !radarOpen) => {
+      radarOpen = on;
+      radarLane?.toggleAttribute('data-hidden-lane', !on);
+      lanes.toggleAttribute('data-radar', on);
+      if (radarBtn) {
+        radarBtn.setAttribute('aria-pressed', String(on));
+        radarBtn.textContent = on ? data.words.radarHide : data.words.radarShow;
+      }
+      requestAnimationFrame(draw);
+    };
+    radarBtn?.addEventListener('click', () => toggleRadar());
+
+    // On narrow screens the lanes stack and each one folds.
+    const setLane = (lane: HTMLElement, open: boolean) => {
+      lane.toggleAttribute('data-shut', !open);
+      lane.querySelector('[data-ox-lanehead]')!.setAttribute('aria-expanded', String(open));
+    };
+    for (const head of $$('[data-ox-lanehead]')) {
+      head.addEventListener('click', () => {
+        const lane = head.closest<HTMLElement>('.ox-lane')!;
+        setLane(lane, lane.hasAttribute('data-shut'));
+      });
+    }
+
+    /* Search */
+
+    const q = $<HTMLInputElement>('[data-ox-q]');
+    const results = $<HTMLUListElement>('[data-ox-results]');
+    const said = $('[data-ox-matches]');
+    let hits: Node[] = [];
+    const rank = (n: Node, term: string) => {
+      const l = n.label.toLowerCase();
+      return l.startsWith(term) ? 0 : l.includes(term) ? 1 : 2;
+    };
+    let cursor = -1;
+    const renderResults = () => {
+      const term = q.value.trim().toLowerCase();
+      hits =
+        term.length < 2
+          ? []
+          : nodes
+              .filter((n) => n.find.includes(term))
+              // Names that start with the term first, then names that contain it, then other matches.
+              .sort((a, b) => rank(a, term) - rank(b, term))
+              .slice(0, 8);
+      cursor = hits.length ? 0 : -1;
+      results.replaceChildren();
+      if (term.length >= 2) {
+        if (!hits.length) results.append(el('li', 'ox-noresult', data.words.noMatch));
+        hits.forEach((n, i) => {
+          const li = el('li');
+          li.id = `ox-r-${i}`;
+          li.setAttribute('role', 'option');
+          li.append(el('i', `onto-swatch onto-t-${n.type}`), el('span', '', n.label), el('small', '', data.types[n.type]));
+          li.addEventListener('mousedown', (ev) => {
+            ev.preventDefault();
+            choose(n);
+          });
+          results.append(li);
+        });
+      }
+      results.hidden = term.length < 2;
+      q.setAttribute('aria-expanded', String(!results.hidden));
+      said.textContent = term.length >= 2 ? data.matches[Math.min(hits.length, 2)].replace(/\d+/, String(hits.length)) : '';
+      mark();
+    };
+    const mark = () => {
+      [...results.children].forEach((li, i) => li.setAttribute('aria-selected', String(i === cursor)));
+      q.setAttribute('aria-activedescendant', cursor >= 0 ? `ox-r-${cursor}` : '');
+    };
+    const choose = (n: Node) => {
+      results.hidden = true;
+      q.setAttribute('aria-expanded', 'false');
+      select(n.id, { push: true, scroll: true });
+    };
+    q.addEventListener('input', renderResults);
+    q.addEventListener('keydown', (ev) => {
+      if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+        ev.preventDefault();
+        if (!hits.length) return;
+        cursor = (cursor + (ev.key === 'ArrowDown' ? 1 : hits.length - 1)) % hits.length;
+        mark();
+      } else if (ev.key === 'Enter' && hits[cursor]) {
+        ev.preventDefault();
+        choose(hits[cursor]);
+      } else if (ev.key === 'Escape' && !results.hidden) {
+        ev.preventDefault();
+        results.hidden = true;
+        q.setAttribute('aria-expanded', 'false');
+      }
+    });
+    q.addEventListener('blur', () => setTimeout(() => (results.hidden = true), 120));
+    q.addEventListener('focus', () => q.value.trim().length >= 2 && renderResults());
+
+    /* Kinetic: place marks for the chosen range, tooltip, and follow the selection. */
+
+    const time = $('[data-ox-time]');
+    const tip = $('[data-ox-tip]');
+    const axis = $('[data-ox-axis]');
+    const fullStart = Number(time.dataset.start);
+    const fullEnd = Number(time.dataset.end);
+    const todayMs = Date.parse(`${data.today}T00:00:00Z`);
+    let range: [number, number] = [fullStart, fullEnd];
+    const placeTime = () => {
+      if (view !== 'kinetic') return;
+      const [a, b] = range;
+      const at = (v: number) => ((v - a) / (b - a)) * 100;
+      for (const m of $$('.ox-mark, .ox-today')) {
+        const x = at(Number(m.dataset.a));
+        const out = Number(m.dataset.b ?? m.dataset.a) < a || Number(m.dataset.a) > b;
+        m.style.left = `${x}%`;
+        if (m.dataset.b && m.classList.contains('is-span')) m.style.width = `${at(Number(m.dataset.b)) - x}%`;
+        m.toggleAttribute('data-out', out);
+      }
+      axis.replaceChildren();
+      const years = (b - a) / (365.25 * 86400000);
+      const step = years > 3 ? 12 : years > 1.2 ? 3 : 1;
+      const d = new Date(a);
+      let y = d.getUTCFullYear();
+      let m = Math.ceil((d.getUTCMonth() + (d.getUTCDate() > 1 ? 1 : 0)) / step) * step;
+      for (let guard = 0; guard < 80; guard++) {
+        if (m >= 12) {
+          y += Math.floor(m / 12);
+          m %= 12;
+        }
+        const v = Date.UTC(y, m, 1);
+        if (v > b) break;
+        // Leave room for the Today label.
+        if (Math.abs(at(v) - at(todayMs)) < 4) {
+          m += step;
+          continue;
+        }
+        const tick = el('span', m === 0 ? 'is-year' : '', m === 0 ? String(y) : `${data.months[m]}${step === 12 ? '' : ` ${String(y).slice(2)}`}`);
+        tick.style.left = `${at(v)}%`;
+        axis.append(tick);
+        m += step;
+      }
+    };
+    for (const r of $$<HTMLInputElement>('[data-ox-range]')) {
+      r.addEventListener('change', () => {
+        const months = r.value === 'all' ? 0 : Number(r.value);
+        if (!months) range = [fullStart, fullEnd];
+        else {
+          const from = new Date(todayMs);
+          from.setUTCMonth(from.getUTCMonth() - months);
+          const ahead = Math.max(todayMs + 45 * 86400000, ...$$('.ox-mark').map((m) => Number(m.dataset.b ?? m.dataset.a)).filter((v) => v > todayMs));
+          range = [from.getTime(), Math.min(fullEnd, ahead + 15 * 86400000)];
+        }
+        placeTime();
+      });
+    }
+    time.addEventListener('pointerover', (ev) => {
+      const m = (ev.target as Element).closest<HTMLElement>('.ox-mark');
+      if (!m) return;
+      tip.textContent = m.dataset.tip!;
+      tip.hidden = false;
+      const box = time.getBoundingClientRect();
+      const r = m.getBoundingClientRect();
+      const x = Math.min(Math.max(r.left + r.width / 2 - box.left, 90), box.width - 90);
+      tip.style.left = `${x}px`;
+      tip.style.top = `${r.top - box.top}px`;
+    });
+    time.addEventListener('pointerout', (ev) => {
+      if ((ev.target as Element).closest('.ox-mark')) tip.hidden = true;
+    });
+    time.addEventListener('click', (ev) => {
+      const m = (ev.target as Element).closest<HTMLElement>('.ox-mark');
+      if (m?.dataset.node) select(m.dataset.node, { push: true });
+    });
+
+    const logNote = $('[data-ox-lognote]');
+    const logAll = $<HTMLButtonElement>('[data-ox-logall]');
+    let logFiltered = true;
+    const paintTime = () => {
+      const focus = selected;
+      const { one } = ring(focus);
+      for (const m of $$('.ox-mark')) {
+        const id = m.dataset.node;
+        m.dataset.state = !focus ? '' : id === focus ? 'focus' : id && one.has(id) ? 'one' : 'off';
+      }
+      const rows = $$('.ox-log li');
+      const filter = !!focus && logFiltered && rows.some((li) => li.dataset.node === focus);
+      for (const li of rows) li.hidden = filter && li.dataset.node !== focus && !one.has(li.dataset.node ?? '');
+      logNote.textContent = filter ? logNote.dataset.for! : logNote.dataset.all!;
+      logAll.hidden = !filter;
+    };
+    logAll.addEventListener('click', () => {
+      logFiltered = false;
+      paintTime();
+    });
+    root.addEventListener('click', () => {
+      if (!selected) logFiltered = true;
+    });
+
+    /* Full screen: the native API where it exists, a fixed overlay everywhere (iPhone included). */
+
+    const expandBtn = $<HTMLButtonElement>('[data-ox-expand]');
+    let full = false;
+    const setFull = (on: boolean) => {
+      full = on;
+      root.classList.toggle('is-full', on);
+      document.documentElement.classList.toggle('ox-lock', on);
+      expandBtn.setAttribute('aria-pressed', String(on));
+      const text = on ? data.words.collapse : data.words.expand;
+      expandBtn.setAttribute('aria-label', text);
+      expandBtn.title = text;
+      requestAnimationFrame(() => {
+        draw();
+        placeTime();
+      });
+    };
+    expandBtn.addEventListener('click', async () => {
+      if (!full) {
+        setFull(true);
+        if (root.requestFullscreen && document.fullscreenEnabled) {
+          try {
+            await root.requestFullscreen({ navigationUI: 'hide' });
+          } catch {
+            // The overlay alone is fine.
+          }
+        }
+      } else {
+        if (document.fullscreenElement) await document.exitFullscreen().catch(() => {});
+        setFull(false);
+        expandBtn.focus();
+      }
+    });
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement && full) setFull(false);
+    });
+
+    // Escape steps back out: first the selection, then full screen. It listens on the document
+    // so it still works when focus has fallen back to the page.
+    document.addEventListener('keydown', (ev) => {
+      if (ev.key !== 'Escape' || ev.defaultPrevented) return;
+      const where = document.activeElement;
+      if (where && where !== document.body && !root.contains(where)) return;
+      if (selected) select(null);
+      else if (full) {
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+        setFull(false);
+        expandBtn.focus();
+      }
+    });
+
+    /* Keep the wires in step with layout changes. */
+
+    let raf = 0;
+    const redraw = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(draw);
+    };
+    // Fade the right edge while more lanes wait off screen (tablets).
+    const canvas = $('[data-ox-canvas]');
+    const edge = () => canvas.toggleAttribute('data-more', canvas.scrollLeft + canvas.clientWidth < canvas.scrollWidth - 4);
+    new ResizeObserver(() => {
+      redraw();
+      edge();
+    }).observe(lanes);
+    canvas.addEventListener('scroll', edge, { passive: true });
+
+    // Narrow screens start with the long lanes folded.
+    if (matchMedia('(max-width: 40rem)').matches) {
+      for (const lane of laneEls) if (['sources', 'radar'].includes(lane.dataset.lane!)) setLane(lane, false);
+    }
+
+    const params = new URL(location.href).searchParams;
+    const start = params.get('view');
+    showTab(start === 'kinetic' || start === 'dynamic' ? start : 'semantic');
+    const fromHash = () => {
+      const id = decodeURIComponent(location.hash.slice(1));
+      return byId.has(id) ? id : null;
+    };
+    const first = fromHash();
+    if (first) select(first, { scroll: true });
+    else paint();
+    window.addEventListener('hashchange', () => {
+      const id = fromHash();
+      if (id && id !== selected) select(id, { push: true, scroll: true });
+    });
+  }
+</script>

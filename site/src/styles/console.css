@@ -1,0 +1,1393 @@
+/* Ontology console: one window, three layers (semantic, kinetic, dynamic) and a shared
+   inspector. On the page the graph takes the full width and the inspector slides in; in full
+   screen on a wide display the inspector becomes a column; on phones it is a bottom sheet.
+   Media queries, not container queries: containment would trap the fixed inspector inside the
+   window. Nothing animates on a loop. */
+
+.ox {
+  --ox-top: 3.75rem;
+  --lw: 9.5rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.ox.is-full {
+  --ox-top: 0px;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  height: 100vh;
+  height: 100dvh;
+  border: 0;
+  border-radius: 0;
+  background: var(--bg);
+}
+
+.ox:fullscreen {
+  width: 100%;
+  height: 100%;
+}
+
+html.ox-lock {
+  overflow: hidden;
+}
+
+.ox.is-live .ox-nojs {
+  display: none;
+}
+
+.ox-nojs {
+  margin: 0;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.82rem;
+  color: var(--text-faint);
+}
+
+/* Window bar */
+
+.ox-bar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  padding: 0.6rem 0.75rem 0.6rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-raised);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.ox.is-full .ox-bar {
+  border-radius: 0;
+}
+
+.ox-title {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.ox-asof {
+  margin: 0.1rem 0 0;
+  font-size: 0.74rem;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.ox-tabs {
+  justify-self: center;
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) + 2px);
+  background: var(--bg);
+}
+
+.ox-tabs [role='tab'] {
+  display: grid;
+  gap: 0.05rem;
+  padding: 0.4rem 0.9rem 0.45rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-soft);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+
+.ox-tabs [role='tab']:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+
+.ox-tabs [aria-selected='true'] {
+  color: var(--text);
+  background: var(--surface-2);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.ox-tab-name {
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.ox-tab-hint {
+  font-size: 0.68rem;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.ox-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ox-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ox-search svg {
+  position: absolute;
+  left: 0.55rem;
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--text-faint);
+  pointer-events: none;
+}
+
+.ox-search input {
+  width: 15rem;
+  font: inherit;
+  font-size: 0.86rem;
+  padding: 0.42rem 0.6rem 0.42rem 1.9rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.ox-results {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 20;
+  width: min(24rem, 86vw);
+  margin: 0;
+  padding: 0.3rem;
+  list-style: none;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.ox-results li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.55rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.84rem;
+  cursor: pointer;
+}
+
+.ox-results li span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ox-results li small {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.ox-results li[aria-selected='true'],
+.ox-results li:hover {
+  background: var(--accent-wash);
+}
+
+.ox-results .ox-noresult {
+  display: block;
+  color: var(--text-faint);
+  cursor: default;
+}
+
+.ox-expand .i-close,
+.ox.is-full .ox-expand .i-open {
+  display: none;
+}
+
+.ox.is-full .ox-expand .i-close {
+  display: block;
+}
+
+.chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-soft);
+  font: inherit;
+  font-size: 0.74rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all var(--fast) var(--ease);
+}
+
+.chip-btn:hover {
+  color: var(--text);
+  border-color: var(--text-faint);
+}
+
+.chip-btn[aria-pressed='true'] {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-wash);
+}
+
+/* Body: panels and inspector */
+
+.ox-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 0;
+}
+
+.ox.is-full .ox-body {
+  flex: 1;
+}
+
+.ox-panels {
+  min-width: 0;
+  min-height: 0;
+}
+
+.ox.is-full .ox-panels {
+  overflow: auto;
+}
+
+.ox-sub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1.25rem;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.78rem;
+  color: var(--text-soft);
+}
+
+.ox-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ox-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ox-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+.ox-check input {
+  accent-color: var(--accent);
+  margin: 0;
+}
+
+.ox-tray {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.6rem;
+  margin-left: auto;
+  padding: 0.25rem 0.3rem 0.25rem 0.7rem;
+  border: 1px dashed color-mix(in srgb, var(--t-lead) 60%, transparent);
+  border-radius: 999px;
+}
+
+.ox-tray b {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.ox-fresh {
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  background: var(--amber-wash);
+  color: var(--amber);
+  font-family: var(--mono);
+  font-size: 0.66rem;
+}
+
+/* Semantic: lanes */
+
+.ox-canvas {
+  overflow: auto;
+  background:
+    linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0 / 24px 24px;
+}
+
+.ox-canvas[data-more] {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 3rem), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 3rem), transparent);
+}
+
+.ox-lanes {
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(10.5rem, 1fr);
+  gap: 2.25rem;
+  align-items: start;
+  min-width: min-content;
+  padding: 1rem 1.1rem 1.5rem;
+}
+
+.ox-wires {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.ox-lane {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.ox-lane[data-hidden-lane] {
+  display: none;
+}
+
+.ox-lane-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  width: 100%;
+  margin: 0 0 0.7rem;
+  padding: 0 0 0.45rem;
+  border: 0;
+  border-bottom: 1px solid var(--line-strong);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  pointer-events: none;
+}
+
+.ox-lane-name {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ox-lane-count {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-faint);
+}
+
+.ox-chev {
+  display: none;
+  width: 1rem;
+  height: 1rem;
+  margin-left: auto;
+  color: var(--text-faint);
+  transition: transform var(--fast) var(--ease);
+}
+
+.ox-note {
+  margin: -0.3rem 0 0.6rem;
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+
+.ox-group + .ox-group {
+  margin-top: 1rem;
+}
+
+.ox-group[data-off] {
+  display: none;
+}
+
+.ox-group-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.45rem;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.ox-items {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ox-items li[data-off],
+.ox-group[data-collapsed] li:not([data-shown]) {
+  display: none;
+}
+
+.ox-group[data-collapsed][data-some] .ox-items {
+  margin-top: 0.4rem;
+}
+
+.ox-node {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 0.4rem;
+  width: 100%;
+  padding: 0.45rem 0.5rem 0.5rem 0.6rem;
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--c, var(--line-strong));
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: opacity var(--slow) var(--ease), background var(--fast) var(--ease), border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+}
+
+.ox-node:hover {
+  background: var(--surface-hover);
+}
+
+.ox-node[data-machine] {
+  border-style: dashed;
+  border-left-style: solid;
+}
+
+.ox-node-label {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.ox-node-meta {
+  grid-column: 1;
+  margin-top: 0.15rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  color: var(--text-faint);
+}
+
+.ox-deg {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  min-width: 1.3rem;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  text-align: right;
+  color: var(--text-faint);
+}
+
+.ox-node[data-tone='missed'] .ox-node-meta,
+.ox-node[data-tone='withdrawn'] .ox-node-meta {
+  color: var(--red);
+}
+
+.ox-node[data-tone='open'] .ox-node-meta,
+.ox-node[data-tone='draft'] .ox-node-meta,
+.ox-node[data-tone='announced'] .ox-node-meta {
+  color: var(--amber);
+}
+
+.ox-node[data-tone='met'] .ox-node-meta,
+.ox-node[data-tone='in-force'] .ox-node-meta,
+.ox-node[data-tone='signed'] .ox-node-meta {
+  color: var(--green);
+}
+
+.ox-node[data-state='focus'] {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.ox-node[data-state='one'] {
+  border-color: color-mix(in srgb, var(--c) 70%, transparent);
+  background: var(--surface-2);
+}
+
+.ox-node[data-state='two'] {
+  opacity: 0.75;
+}
+
+.ox-node[data-state='off'] {
+  opacity: 0.25;
+}
+
+.ox-stack {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem 0.7rem;
+  padding: 0.6rem 0.65rem;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-raised);
+  font-size: 0.76rem;
+  color: var(--text-faint);
+}
+
+.ox-stack b {
+  display: block;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.ox-stack .chip-btn {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+.ox-stack-cards {
+  position: relative;
+  width: 1.5rem;
+  height: 1.8rem;
+}
+
+.ox-stack-cards i {
+  position: absolute;
+  width: 1.1rem;
+  height: 1.4rem;
+  border: 1px solid var(--t-document);
+  border-radius: 2px;
+  background: var(--surface);
+}
+
+.ox-stack-cards i:nth-child(1) {
+  left: 0;
+  top: 0;
+  opacity: 0.45;
+}
+
+.ox-stack-cards i:nth-child(2) {
+  left: 0.2rem;
+  top: 0.2rem;
+  opacity: 0.7;
+}
+
+.ox-stack-cards i:nth-child(3) {
+  left: 0.4rem;
+  top: 0.4rem;
+}
+
+.ox-wire {
+  fill: none;
+  stroke: var(--text-faint);
+  stroke-width: 1;
+  transition: opacity var(--fast) var(--ease);
+}
+
+.ox-wire.onto-b-curated {
+  stroke: var(--accent);
+}
+
+.ox-wire.onto-b-machine {
+  stroke: var(--amber);
+  stroke-dasharray: 4 3;
+}
+
+.ox-wire.is-base {
+  opacity: 0.32;
+}
+
+.ox-wire.is-near {
+  opacity: 0.35;
+}
+
+.ox-wire.is-on {
+  opacity: 1;
+  stroke-width: 1.6;
+}
+
+.ox-wire.is-on.onto-b-data {
+  stroke: var(--text-soft);
+}
+
+/* Kinetic: time axis and event log */
+
+.ox-time {
+  position: relative;
+  margin: 0.75rem 1.25rem 0.5rem calc(var(--lw) + 1.25rem);
+  padding-bottom: 0.25rem;
+}
+
+.ox-axis {
+  position: relative;
+  height: 1.6rem;
+}
+
+.ox-axis span {
+  position: absolute;
+  bottom: 0.3rem;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.ox-axis span::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 0.15rem);
+  height: 0.3rem;
+  border-left: 1px solid var(--line-strong);
+}
+
+.ox-axis .is-year {
+  color: var(--text-soft);
+  font-weight: 600;
+}
+
+.ox-trow {
+  position: relative;
+  height: 2.6rem;
+  border-top: 1px solid var(--line);
+}
+
+.ox-trow:last-of-type {
+  border-bottom: 1px solid var(--line);
+}
+
+.ox-trow-label {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 0.75rem);
+  width: calc(var(--lw) - 0.5rem);
+  transform: translateY(-50%);
+  font-size: 0.72rem;
+  line-height: 1.25;
+  text-align: right;
+  color: var(--text-soft);
+}
+
+.ox-track {
+  position: absolute;
+  inset: 0;
+}
+
+.ox-mark,
+.ox-key {
+  --mk: var(--text-faint);
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  padding: 0;
+  border: 2px solid var(--mk);
+  border-radius: 50%;
+  background: var(--mk);
+}
+
+.ox-mark {
+  position: absolute;
+  top: 50%;
+  margin-left: -0.35rem;
+  transform: translateY(-50%);
+  cursor: pointer;
+  transition: opacity var(--slow) var(--ease), box-shadow var(--fast) var(--ease);
+}
+
+.ox-mark[data-out] {
+  display: none;
+}
+
+.k-said {
+  --mk: var(--t-promise);
+}
+
+.k-issued {
+  --mk: var(--t-instrument);
+}
+
+.k-entry {
+  --mk: var(--t-entry);
+}
+
+.k-analysis {
+  --mk: var(--t-document);
+}
+
+.k-scan {
+  --mk: var(--t-lead);
+  background: transparent;
+}
+
+.k-deadline,
+.k-outcome {
+  border-radius: 1px;
+}
+
+.ox-mark.k-deadline,
+.ox-mark.k-outcome {
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.ox-key.k-deadline,
+.ox-key.k-outcome {
+  transform: rotate(45deg) scale(0.85);
+}
+
+.t-missed.k-deadline,
+.t-missed.k-outcome {
+  --mk: var(--red);
+}
+
+.t-open.k-deadline {
+  --mk: var(--amber);
+  background: var(--surface);
+}
+
+.t-met.k-deadline,
+.t-met.k-outcome {
+  --mk: var(--green);
+}
+
+.ox-mark.is-span,
+.ox-key.is-span {
+  height: 0.55rem;
+  min-width: 4px;
+  margin-left: 0;
+  border-width: 1px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--mk) 35%, transparent);
+}
+
+.ox-key.k-span {
+  width: 1rem;
+  height: 0.5rem;
+  border-width: 1px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--text-faint) 35%, transparent);
+}
+
+.ox-mark:hover,
+.ox-mark[data-state='focus'] {
+  box-shadow: 0 0 0 3px var(--surface), 0 0 0 4.5px var(--accent);
+}
+
+.ox-mark[data-state='off'] {
+  opacity: 0.18;
+}
+
+.ox-today {
+  position: absolute;
+  top: 1.6rem;
+  bottom: 0;
+  width: 0;
+  border-left: 1px dashed var(--accent);
+  pointer-events: none;
+}
+
+.ox-today span {
+  position: absolute;
+  top: -1.55rem;
+  left: 0;
+  transform: translateX(-50%);
+  padding: 0 0.3rem;
+  background: var(--surface);
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.ox-today[data-out] {
+  display: none;
+}
+
+.ox-tip {
+  position: absolute;
+  z-index: 5;
+  max-width: 18rem;
+  padding: 0.35rem 0.55rem;
+  transform: translate(-50%, calc(-100% - 8px));
+  border-radius: var(--radius-sm);
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.74rem;
+  line-height: 1.35;
+  pointer-events: none;
+}
+
+.ox-log-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 1rem;
+  padding: 1.1rem 1.25rem 0.5rem;
+  border-top: 1px solid var(--line);
+  margin-top: 0.75rem;
+}
+
+.ox-log-head h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.ox-log-head p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-faint);
+}
+
+.ox-log {
+  max-height: 24rem;
+  overflow: auto;
+  margin: 0;
+  padding: 0 1.25rem 1.25rem;
+  list-style: none;
+}
+
+.ox.is-full .ox-log {
+  max-height: none;
+}
+
+.ox-log li {
+  display: grid;
+  grid-template-columns: 8.5rem 13rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: baseline;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.84rem;
+}
+
+.ox-log time {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+
+.ox-log-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.76rem;
+  color: var(--text-soft);
+}
+
+.ox-log-kind .ox-key {
+  flex: none;
+  width: 0.6rem;
+  height: 0.6rem;
+}
+
+.ox-log-obj {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+}
+
+button.ox-log-obj {
+  cursor: pointer;
+}
+
+button.ox-log-obj:hover {
+  color: var(--accent);
+}
+
+/* Dynamic: signals */
+
+.ox-dyn-intro {
+  max-width: var(--measure);
+  margin: 0;
+  padding: 1rem 1.25rem 0;
+  font-size: 0.86rem;
+  color: var(--text-soft);
+}
+
+.ox-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: 0.75rem;
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.ox-card {
+  --tone: var(--line-strong);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.85rem 0.95rem 1rem;
+  border: 1px solid var(--line);
+  border-top: 2px solid var(--tone);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+}
+
+.ox-card.t-missed {
+  --tone: var(--red);
+}
+
+.ox-card.t-open {
+  --tone: var(--amber);
+}
+
+.ox-card.t-machine {
+  --tone: var(--t-lead);
+}
+
+.ox-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.ox-card h3 {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.ox-card .figure {
+  font-size: 1.6rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--tone);
+}
+
+.ox-card.t-neutral .figure {
+  color: var(--text);
+}
+
+.ox-card[data-empty] {
+  opacity: 0.7;
+}
+
+.ox-why {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--text-faint);
+}
+
+.ox-nothing {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-faint);
+}
+
+.ox-list {
+  display: grid;
+  gap: 0.3rem;
+  max-height: 17rem;
+  overflow: auto;
+  margin: 0.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ox-list button {
+  display: grid;
+  gap: 0.15rem;
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--fast) var(--ease), background var(--fast) var(--ease);
+}
+
+.ox-list button:hover {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+}
+
+.ox-list-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.84rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.ox-list-meta {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--text-faint);
+}
+
+p.ox-list-meta {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.ox-meter {
+  display: block;
+  height: 3px;
+  margin-top: 0.2rem;
+  border-radius: 2px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.ox-meter i {
+  display: block;
+  height: 100%;
+  background: var(--hatch);
+}
+
+/* Inspector: a panel over the right of the window body, below the window bar, so the bar's
+   own controls stay usable. Its contents stick to the screen while the lanes scroll. */
+
+.ox-body {
+  position: relative;
+  overflow-x: clip;
+}
+
+.ox-inspector {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  width: min(23rem, 92%);
+  border-left: 1px solid var(--line);
+  background: var(--bg-raised);
+  box-shadow: -16px 0 40px -18px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  transform: translateX(1.5rem);
+  visibility: hidden;
+  transition: opacity 220ms var(--ease), transform 220ms var(--ease), visibility 220ms;
+}
+
+.ox-inspector[data-open] {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+}
+
+.ox-insp-inner {
+  position: sticky;
+  top: var(--ox-top);
+  max-height: calc(100vh - var(--ox-top));
+  max-height: calc(100dvh - var(--ox-top));
+  overflow: auto;
+}
+
+.ox.is-full .ox-insp-inner {
+  position: static;
+  height: 100%;
+  max-height: none;
+}
+
+.ox-insp-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-raised);
+}
+
+.ox-insp-close {
+  margin-left: auto;
+}
+
+.ox-insp-body {
+  padding: 1rem 1.1rem 1.25rem;
+}
+
+/* The graph accepts the panel on top of it. The timeline and the signals make room instead,
+   so the most recent events are never hidden under it. */
+
+@media (min-width: 60rem) {
+  .ox[data-insp] .ox-panel[data-panel='kinetic'],
+  .ox[data-insp] .ox-panel[data-panel='dynamic'] {
+    margin-right: min(23rem, 92%);
+  }
+}
+
+/* Full screen on a wide display: the inspector is a fixed column beside the graph. */
+
+@media (min-width: 84rem) {
+  .ox.is-full .ox-body {
+    grid-template-columns: minmax(0, 1fr) 22rem;
+  }
+
+  .ox.is-full[data-insp] .ox-panel {
+    margin-right: 0;
+  }
+
+  .ox.is-full .ox-inspector {
+    position: relative;
+    width: auto;
+    box-shadow: none;
+    opacity: 1;
+    transform: none;
+    visibility: visible;
+  }
+}
+
+@media (max-width: 60rem) {
+  .ox-tab-hint {
+    display: none;
+  }
+
+  .ox-search input {
+    width: 11rem;
+  }
+
+  .ox {
+    --lw: 7.5rem;
+  }
+}
+
+/* Narrow windows (phones): stacked lanes, a bottom sheet, the event log instead of the axis. */
+
+@media (max-width: 56rem) {
+  .ox-bar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .ox-tabs {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: stretch;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .ox-tabs [role='tab'] {
+    text-align: center;
+  }
+}
+
+@media (max-width: 40rem) {
+  .ox-bar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 0.6rem 0.6rem 0.6rem 0.85rem;
+  }
+
+  .ox-tabs {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: stretch;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .ox-tabs [role='tab'] {
+    text-align: center;
+    padding: 0.5rem 0.3rem;
+  }
+
+  .ox-tools {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  .ox-search {
+    flex: 1;
+  }
+
+  .ox-search input {
+    width: 100%;
+  }
+
+  .ox-head {
+    grid-row: 1;
+  }
+
+  .ox-expand {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+  }
+
+  .ox-tray {
+    margin-left: 0;
+    border-radius: var(--radius);
+  }
+
+  .ox-lanes {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    min-width: 0;
+    padding: 0.25rem 0.75rem 1rem;
+  }
+
+  .ox-wires {
+    display: none;
+  }
+
+  .ox-lane {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .ox-lane-head {
+    pointer-events: auto;
+    align-items: center;
+    margin: 0;
+    padding: 0.85rem 0.15rem;
+    border-bottom: 0;
+    cursor: pointer;
+  }
+
+  .ox-chev {
+    display: block;
+  }
+
+  .ox-lane[data-shut] .ox-chev {
+    transform: rotate(-90deg);
+  }
+
+  .ox-lane[data-shut] .ox-lane-body {
+    display: none;
+  }
+
+  .ox-lane-body {
+    padding-bottom: 0.9rem;
+  }
+
+  .ox-node-label {
+    font-size: 0.86rem;
+  }
+
+  .ox-inspector,
+  .ox.is-full .ox-inspector {
+    position: fixed;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 110;
+    width: auto;
+    border-left: 0;
+    border-top: 1px solid var(--line-strong);
+    border-radius: 14px 14px 0 0;
+    box-shadow: 0 -18px 40px -16px rgba(0, 0, 0, 0.6);
+    transform: translateY(100%);
+  }
+
+  .ox-inspector[data-open],
+  .ox.is-full .ox-inspector[data-open] {
+    transform: none;
+  }
+
+  .ox-insp-inner,
+  .ox.is-full .ox-insp-inner {
+    position: static;
+    height: auto;
+    max-height: 78vh;
+    max-height: 78dvh;
+  }
+
+  .ox-insp-bar::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0.3rem;
+    width: 2.5rem;
+    height: 3px;
+    margin-left: -1.25rem;
+    border-radius: 2px;
+    background: var(--line-strong);
+  }
+
+  .ox-time {
+    display: none;
+  }
+
+  .ox-log {
+    max-height: none;
+    padding: 0 0.85rem 1rem;
+  }
+
+  .ox-log li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.2rem;
+  }
+
+  .ox-log-head {
+    padding: 1rem 0.85rem 0.5rem;
+    margin-top: 0;
+    border-top: 0;
+  }
+
+  .ox-sub,
+  .ox-dyn-intro {
+    padding-left: 0.85rem;
+    padding-right: 0.85rem;
+  }
+
+  .ox-cards {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0.85rem;
+  }
+}
+
+.onto-props .is-long {
+  grid-column: 1 / -1;
+}
+
+.onto-props dt.is-long {
+  margin-top: 0.35rem;
+}
+
+.onto-props dd.is-long {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-soft);
+}

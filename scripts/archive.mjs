@@ -1,7 +1,8 @@
 // npm run archive
 //
 // Evidence preservation. For every source url in data/deadlines.yml, data/instruments.yml, the
-// entries and the analysis sources (data/analysis/*.sources.yml), it records a preserved copy in
+// entries, the analysis sources (data/analysis/*.sources.yml) and the frontier incident reference
+// (data/frontier-incidents.yml), it records a preserved copy in
 // the Internet Archive:
 //   1. ask the Wayback Machine availability API whether a snapshot already exists;
 //   2. if not, request one through the public Save Page Now endpoint, politely rate limited;
@@ -94,6 +95,7 @@ export function archiveFiles({ DATA, ENTRIES, entryFiles }) {
   return [
     { file: path.join(DATA, 'deadlines.yml'), kind: 'list' },
     { file: path.join(DATA, 'instruments.yml'), kind: 'list' },
+    ...(fs.existsSync(path.join(DATA, 'frontier-incidents.yml')) ? [{ file: path.join(DATA, 'frontier-incidents.yml'), kind: 'nested' }] : []),
     ...entryFiles().map((f) => ({ file: path.join(ENTRIES, f), kind: 'entry' })),
     ...(fs.existsSync(analysis) ? fs.readdirSync(analysis).filter((f) => f.endsWith('.sources.yml')).sort() : []).map((f) => ({
       file: path.join(analysis, f),

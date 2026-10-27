@@ -10,6 +10,8 @@ import { paperIds, loadPaper, loadSources, wordCount } from '../../../scripts/an
 // @ts-ignore: plain JavaScript module shared with the validator and the share cards.
 import { computePromise, promiseKey } from '../../../scripts/promises.mjs';
 import { getDeadlines, type Deadline, type Outcome } from './data';
+// @ts-ignore: plain JavaScript module shared with the validator.
+import { loadIncidents, resolveTokens } from '../../../scripts/frontier.mjs';
 import type { Lang } from './i18n';
 
 const ROOT = path.resolve(process.cwd(), '..');
@@ -212,7 +214,8 @@ export function getPaper(id: string, lang: Lang, enHref = ''): Paper {
   const meta = doc.meta as PaperMeta;
   const sources = (loadSources(meta.sources, ROOT) as PaperSource[]).map((s) => ({ ...s, accessed: String(s.accessed) }));
 
-  const body = doc.body.replace(/<!--[\s\S]*?-->/g, '');
+  // Numbers such as day counts come from data/frontier-incidents.yml, computed by scripts/frontier.mjs.
+  const body = resolveTokens(doc.body.replace(/<!--[\s\S]*?-->/g, ''), loadIncidents(ROOT));
   const { html: raw } = markdownToHtml(body);
   const counts = new Map<number, number>();
   const toc: TocItem[] = [];
@@ -272,4 +275,22 @@ export function getChangelog(): ChangeLine[] {
 
 export function changesTagged(tag: string): ChangeLine[] {
   return getChangelog().filter((c) => c.tags.includes(tag));
+}
+
+/**
+ * One h2 section of a paper as HTML, without its heading and without citation links (they point
+ * at the paper's own reference list). Used to show the same text on another page.
+ */
+export function paperSection(id: string, lang: Lang, headingId: string): string {
+  const paper = getPaper(id, lang, `/en/analysis/${id}/`);
+  const html = paper.segments.map((s) => (s.kind === 'html' ? s.html : '')).join('');
+  const start = html.indexOf(`<h2 id="${headingId}">`);
+  if (start < 0) throw new Error(`${id}.${lang}: no section "${headingId}"`);
+  const bodyStart = html.indexOf('</h2>', start) + 5;
+  const next = html.indexOf('<h2 ', bodyStart);
+  return html
+    .slice(bodyStart, next < 0 ? undefined : next)
+    .replace(/\s*<sup class="cite">[\s\S]*?<\/sup>/g, '')
+    .replace(/<p class="draft-note">[\s\S]*?<\/p>/g, '')
+    .trim();
 }

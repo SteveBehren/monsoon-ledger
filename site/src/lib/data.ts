@@ -8,6 +8,8 @@ import yaml from 'js-yaml';
 import { computePromise, summarise, oldestMissed, todayWIB, promiseKey, splitWho } from '../../../scripts/promises.mjs';
 // @ts-ignore: plain JavaScript module shared with the validator and the quote checker.
 import { collectQuotes, summary as quoteSummary } from '../../../scripts/quotes.mjs';
+// @ts-ignore: plain JavaScript module shared with the validator.
+import { loadIncidents } from '../../../scripts/frontier.mjs';
 
 const DATA = path.resolve(process.cwd(), '..', 'data');
 
@@ -355,4 +357,37 @@ export function getQuoteCheck(): { found: number; total: number; checked_at: str
 /** A lens value, with the v2 fields read as unclear when an entry does not have them yet. */
 export function lensOf(entry: Entry, field: LensField): YesNo | Enforcement | Recipient {
   return (entry.safety_lens[field] ?? 'unclear') as YesNo | Enforcement | Recipient;
+}
+
+// Frontier incident reference: context for the ledger, never counted in it.
+export interface FrontierIncident {
+  id: string;
+  name_en: string;
+  name_id: string;
+  developer: string;
+  kind: 'misuse' | 'misaligned_agent_action';
+  activity_start: string | null;
+  activity_end: string | null;
+  developer_aware: string | null;
+  first_public_disclosure: string | null;
+  first_seen_by: 'developer' | 'third_party' | 'outside_researcher' | 'unknown';
+  notified_authority: string | null;
+  notified_at: string | null;
+  notice_channel_en: string;
+  notice_channel_id: string;
+  affected_countries: string[] | null;
+  summary_en: string;
+  summary_id: string;
+  sources: Source[];
+  evidence: Evidence;
+  last_checked: string;
+  /** Computed by scripts/frontier.mjs. */
+  days_access_to_notice: number | null;
+  days_awareness_to_notice: number | null;
+  days_notice_to_public: number | null;
+}
+
+/** Every incident with its computed day counts, newest first by public disclosure. */
+export function getIncidents(): FrontierIncident[] {
+  return tidy(loadIncidents(path.resolve(process.cwd(), '..')) as FrontierIncident[]);
 }

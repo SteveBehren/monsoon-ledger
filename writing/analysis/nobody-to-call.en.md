@@ -11,6 +11,13 @@ version: "1.0"
 sources: data/analysis/nobody-to-call.sources.yml
 docx: analysis/Nobody_to_Call_Monsoon_Ledger_Analysis_01.docx
 summary: When frontier AI agents act on systems in other countries, the notice has to land somewhere; this paper documents the 2026 incidents, the reporting rules, and Indonesia's missing receiving end.
+# Numbers typed in the Word document and the unpublished drafts. The validator checks that they
+# still equal the computed values in data/frontier-incidents.yml. The web text uses tokens.
+stated_numbers:
+  - token: frontier:openai-medicare-portal-2026:days_access_to_notice
+    value: 84
+  - token: frontier:openai-medicare-portal-2026:days_awareness_to_notice
+    value: 30
 # Instruments the text names. The ontology links the paper to these and to its sources, nothing else.
 discusses:
   instruments:
@@ -25,7 +32,7 @@ discusses:
 ## Key findings
 
 1. **Frontier AI incidents now land on other people's systems.** In 2026, misaligned OpenAI agents acted on third-party systems during training and evaluation. By 26 September 2026 OpenAI had notified more than 100 organisations, and it says some of the affected websites are run by governments and public agencies [1].
-2. **Notices arrive late and through improvised channels.** An OpenAI agent accessed an Australian Medicare statistics portal on 18 June 2026. The government learned of it from an email to a public disclosures mailbox sent on 10 September, 84 days later [2].
+2. **Notices arrive late and through improvised channels.** An OpenAI agent accessed an Australian Medicare statistics portal on 18 June 2026. The government learned of it from an email to a public disclosures mailbox sent on 10 September, {{frontier:openai-medicare-portal-2026:days_access_to_notice}} days later [2].
 3. **Today's frontier rules send reports to the developer's home regulator, not to the country whose systems were touched.** That holds for the EU AI Act's duty on general-purpose models, California's SB 53 and New York's RAISE Act [3, 50, 52, 4, 5].
 4. **Indonesia has chosen an ambitious design on paper.** In June 2026 its digital ministry turned down a US industry request to limit incident reporting to high-risk AI and kept reporting for all incidents [6]. The regulation that contains this choice is unsigned. Officials have set five dated finish lines since January 2025, and four have passed [7].
 5. **The receiving body that Indonesian law already names does not exist.** The 2022 data protection law requires breach notices within 3 x 24 hours to a _lembaga_ (supervisory institution). The law set no date for forming it, though organisations had until 17 October 2024 to comply, and it has still not been formed [8, 9, 10, 55].
@@ -93,7 +100,7 @@ The Australian case is the clearest illustration of the receiving-end problem. D
 
 _Source: ABC News Australia, 24 September 2026 [2]._
 
-Albanese put the problem in one sentence: <q data-src="2">The notification was an email sent just to the public mailbox</q> [2]. Australia is a country with a capable national cyber agency and an AI Safety Institute, and both were brought into the response once the notice had been found [2]. Even so, the notice took 84 days from the access and 30 days from the developer's awareness to reach the government, and when it arrived it went to a channel not designed for it.
+Albanese put the problem in one sentence: <q data-src="2">The notification was an email sent just to the public mailbox</q> [2]. Australia is a country with a capable national cyber agency and an AI Safety Institute, and both were brought into the response once the notice had been found [2]. Even so, the notice took {{frontier:openai-medicare-portal-2026:days_access_to_notice}} days from the access and {{frontier:openai-medicare-portal-2026:days_awareness_to_notice}} days from the developer's awareness to reach the government, and when it arrived it went to a channel not designed for it.
 
 
 ### 2.4 A pattern, not three anecdotes
@@ -106,7 +113,7 @@ Across these cases, five features repeat.
 
 - **The harm lands at third parties.** Platforms, wikis and government portals, often outside the developer's country.
 - **Someone else often sees it first.** Hugging Face's systems and outside researchers detected activity before public acknowledgement by the developer [11, 54, 48].
-- **Lags run from weeks to months.** The Medicare notice took 84 days from the access; the developer's historical review may surface events from months earlier [2, 1].
+- **Lags run from weeks to months.** The Medicare notice took {{frontier:openai-medicare-portal-2026:days_access_to_notice}} days from the access; the developer's historical review may surface events from months earlier [2, 1].
 - **Channels are improvised.** A public disclosures mailbox, a security inbox, a press inquiry.
 - **Categories do not fit.** Misaligned behaviour without a breach or measurable harm sits outside existing reporting clocks [22].
 
@@ -232,7 +239,7 @@ To make the gap concrete, Table 4 runs the Australian sequence through Indonesia
 
 | Step | Australia, 2026 (documented) | Indonesia, October 2026 (assessment) |
 |---|---|---|
-| Developer finds its agent accessed a government portal | Email to a public disclosures mailbox, 84 days after the access [2] | No designated AI incident intake point. The draft ethics rule asks ministries for incident channels but is unsigned [12]. |
+| Developer finds its agent accessed a government portal | Email to a public disclosures mailbox, {{frontier:openai-medicare-portal-2026:days_access_to_notice}} days after the access [2] | No designated AI incident intake point. The draft ethics rule asks ministries for incident channels but is unsigned [12]. |
 | Escalation to the cyber authority | Services Australia reports to the national cyber centre four days after seeing the email [2] | BSSN exists and could receive it. Its division of duties with the digital ministry is still under debate in the cybersecurity bill [46]. |
 | Personal data may be involved | No personal data found, per the government and OpenAI [2] | The portal operator must notify the lembaga within 3 x 24 hours. The lembaga does not exist; sanctions under GR 33/2026 apply from 16 January 2027 [8, 42]. |
 | Connecting it with other incidents | The government says its AI Safety Institute will work on the response [2] | No body has a mandate to connect AI incident reports across sectors. Indonesia was not a founding member of the international network of AI safety institutes [28]. |

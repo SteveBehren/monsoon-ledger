@@ -13,6 +13,7 @@ import { deriveDeadline, promiseKey, todayWIB } from './promises.mjs';
 import { paperIds, loadPaper, loadSources, checkPaper, checkSources, extractQuotes, ontologyPapers } from './analysis.mjs';
 import { collectQuotes, compareWithChecks, STATUSES as QUOTE_STATUSES } from './quotes.mjs';
 import { checkLens } from './lens.mjs';
+import { computeAll, checkIncidents, resolveTokens } from './frontier.mjs';
 
 const Ajv2020 = siteRequire('ajv/dist/2020').default;
 const ajv = new Ajv2020({ allErrors: true, strict: true });
@@ -246,6 +247,20 @@ function projectChecks() {
     }
   }
 
+  // Frontier incident reference: schema, date order, and no typed day counts.
+  const incidentsFile = path.join(DATA, 'frontier-incidents.yml');
+  const incidentRows = load(incidentsFile) ?? [];
+  const validateIncidents = ajv.compile(JSON.parse(fs.readFileSync(path.join(DATA, 'frontier-incidents.schema.json'), 'utf8')));
+  for (const problem of schemaErrors(validateIncidents, incidentRows)) fail(incidentsFile, problem);
+  for (const problem of checkIncidents(incidentRows)) fail(incidentsFile, problem);
+  (Array.isArray(incidentRows) ? incidentRows : []).forEach((r) => {
+    for (const k of ['activity_start', 'activity_end', 'developer_aware', 'first_public_disclosure', 'notified_at', 'last_checked']) {
+      if (r?.[k] && !isRealDate(r[k])) fail(incidentsFile, `${r.id}: ${k} "${r[k]}" is not a real date`);
+    }
+    (r?.sources ?? []).forEach((src, j) => checkArchive(incidentsFile, `${r.id} source ${j + 1}`, src));
+  });
+  const incidents = computeAll(incidentRows);
+
   // Analysis papers: front matter, numbered sources, citations and the quote rules.
   // A source quoted in an entry may be quoted in a paper only with the same words.
   const papers = KIT ? [] : paperIds();
@@ -264,6 +279,11 @@ function projectChecks() {
     (Array.isArray(sources) ? sources : []).forEach((src, i) => checkArchive(sourcesFile, `source ${i + 1}`, src));
     const texts = [['en', en], ['id', loadPaper(id, 'id')]].filter(([, doc]) => doc);
     for (const [lang, doc] of texts) {
+      try {
+        resolveTokens(doc.body, incidents);
+      } catch (err) {
+        fail(doc.file, err.message);
+      }
       const { problems, cited } = checkPaper(doc, Array.isArray(sources) ? sources : [], { lang, id, promiseUrls });
       for (const problem of problems) fail(doc.file, problem);
       if (lang === 'en') {
@@ -275,6 +295,15 @@ function projectChecks() {
         if (q.kind !== 'statute' && entryQuote && entryQuote.text.trim().toLowerCase() !== q.text.trim().toLowerCase()) {
           fail(doc.file, `source ${q.src} is already quoted in ${entryQuote.where} with other words, use at most one quote per source`);
         }
+      }
+    }
+    // Numbers typed where tokens cannot reach (the Word document, the drafts) must still match.
+    for (const { token, value } of en.meta.stated_numbers ?? []) {
+      try {
+        const now = Number(resolveTokens(`{{${token}}}`, incidents));
+        if (now !== value) fail(en.file, `stated number ${token} is ${value} in the Word document and drafts, but the data now gives ${now}`);
+      } catch (err) {
+        fail(en.file, err.message);
       }
     }
     for (const e of en.meta.discusses?.entries ?? []) if (!entryIds.has(e)) fail(en.file, `discusses entry "${e}", which does not exist`);
@@ -363,12 +392,16 @@ function projectChecks() {
   const graph = buildOntology({ entries: loadedEntries, instruments, deadlines, ontology, leads: radarLeads, references, papers: ontologyPapers(), today: TODAY });
   for (const problem of graph.problems) fail(ontologyFile, problem);
 
-  return `${files.length} entries, ${papers.length} analysis paper(s), ${radarLeads.length} radar leads, ontology ${graph.nodes.length} objects and ${graph.links.length} links, ${buildLog.length} build log rows`;
+  return `${files.length} entries, ${papers.length} analysis paper(s), ${incidents.length} frontier incidents, ${radarLeads.length} radar leads, ontology ${graph.nodes.length} objects and ${graph.links.length} links, ${buildLog.length} build log rows`;
 }
 const projectSummary = KIT ? null : projectChecks();
 
 // No em dashes or en dashes anywhere in the project text.
 const BANNED = new RegExp(`[${String.fromCharCode(0x2013)}${String.fromCharCode(0x2014)}]`);
+// The same dashes written as HTML entities, which render as dashes on the page.
+const BANNED_ENTITY = new RegExp(['&', '[nm]dash;|&#82', '1[23];|&#x201', '[34];'].join(''), 'i');
+// Scanner fixtures copy real feeds, dash entities included, to test that the scanner removes them.
+const ENTITY_EXEMPT = path.join(ROOT, 'scripts', 'scan', 'fixtures');
 const SKIP_DIRS = new Set(['.git', 'node_modules', 'dist', '.astro', '.vercel']);
 const SKIP_FILES = new Set(['package-lock.json']);
 const TEXT_EXT = /\.(ya?ml|json|md|mjs|js|ts|astro|css|html|xml|txt|svg|cff)$|^\.gitkeep$|^LICENSE$|^CODEOWNERS$/;
@@ -384,7 +417,7 @@ function scan(dir) {
     fs.readFileSync(file, 'utf8')
       .split('\n')
       .forEach((line, i) => {
-        if (BANNED.test(line)) fail(file, `line ${i + 1} contains an em dash or en dash, use a comma or a full stop`);
+        if (BANNED.test(line) || (!file.startsWith(ENTITY_EXEMPT) && BANNED_ENTITY.test(line))) fail(file, `line ${i + 1} contains an em dash or en dash, use a comma or a full stop`);
       });
   }
 }

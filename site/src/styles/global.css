@@ -3151,3 +3151,87 @@ dl.defs dd {
 .lens-v2 tbody th {
   min-width: 15rem;
 }
+
+/* Frontier incident reference */
+.incident-timeline {
+  display: grid;
+  gap: 1rem;
+  margin: 1rem 0 2.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.incident-timeline > li {
+  padding: 1rem 1.2rem;
+}
+
+.incident-timeline h3 {
+  margin: 0 0 0.25rem;
+  scroll-margin-top: 5rem;
+}
+
+.it-events {
+  margin: 0.75rem 0;
+  padding: 0 0 0 1rem;
+  border-left: 2px solid var(--line-strong);
+  list-style: none;
+  font-size: 0.88rem;
+}
+
+.it-events li {
+  position: relative;
+  margin-bottom: 0.4rem;
+}
+
+.it-events li::before {
+  content: '';
+  position: absolute;
+  left: -1.33rem;
+  top: 0.45em;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.it-events time {
+  font-family: var(--mono);
+  color: var(--text-soft);
+  margin-right: 0.4rem;
+}
+
+.incident-table .hint {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+
+.incident-table td.num {
+  text-align: right;
+  font-family: var(--mono);
+}
+
+.incident-table .blank {
+  color: var(--text-faint);
+  font-size: 0.78rem;
+}
+
+.incident-sources {
+  margin: 0.3rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.incident-table tbody th {
+  min-width: 13rem;
+}
+
+.incident-table td:nth-child(7),
+.incident-table td:last-child {
+  min-width: 15rem;
+}
+
+.incident-table thead th {
+  min-width: 6.5rem;
+}
+

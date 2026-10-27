@@ -1,0 +1,177 @@
+---
+// Frontier incident reference: public reports of frontier AI models or agents acting on, or used
+// against, systems outside the developer's control. Context for the ledger, never counted in it.
+// Day counts come from scripts/frontier.mjs. The limits are Section 7 of Analysis 01, shown as is.
+import Base from '../../layouts/Base.astro';
+import Evidence from '../../components/Evidence.astro';
+import { getIncidents, type FrontierIncident } from '../../lib/data';
+import { paperSection } from '../../lib/analysis';
+import { ui, href, pick, fmtDate, LANGS, type Lang } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const t = ui[lang];
+const incidents = getIncidents();
+const asOf = incidents.reduce((max, i) => (i.last_checked > max ? i.last_checked : max), '');
+const limits = paperSection('nobody-to-call', lang, lang === 'en' ? '7-where-this-argument-stops' : '7-batas-argumen-ini');
+
+const copy =
+  lang === 'en'
+    ? {
+        title: 'Frontier incident reference',
+        lede: 'Public reports of frontier AI models or agents acting on, or being used against, systems outside the developer\'s control. It is context for the ledger and for Analysis 01, and it is never counted in the ledger\'s figures.',
+        note: 'These are public reports. Investigations are ongoing and details can change. This page does not claim any Indonesian system was affected.',
+        asOf: (d: string) => `Sources last checked on ${fmtDate(lang, d)}.`,
+        timeline: 'Timeline',
+        table: 'All incidents, newest first',
+        caption: 'Frontier incidents, newest first by first public disclosure. Day counts are computed from the dates. Not given means no source gives the date.',
+        head: ['Incident', 'Developer', 'Kind', 'First seen by', 'Activity', 'Developer aware', 'Notice to an authority', 'Made public', 'Days from access to notice', 'Days from awareness to notice', 'Days from notice to public', 'Evidence and sources'],
+        kind: { misuse: 'Misuse', misaligned_agent_action: 'Misaligned agent action' },
+        seen: { developer: 'The developer', third_party: 'The affected party', outside_researcher: 'Outside researchers', unknown: 'Unknown' },
+        events: { start: 'Activity starts', end: 'Activity ends', aware: 'Developer aware', notice: 'Notice reaches', public: 'Made public' },
+        none: 'No source gives this date.',
+        blank: 'not given',
+        noAuthority: 'No authority named in the sources read.',
+        archived: 'archived',
+        countries: 'Countries named',
+        method: 'How this list is built',
+        methodLink: 'Method, frontier incident reference',
+        limits: 'Where the argument stops',
+        limitsNote: 'Section 7 of Analysis 01, shown as published. Citations are in the paper.',
+        paper: 'Read Analysis 01',
+      }
+    : {
+        title: 'Rujukan insiden AI garda depan',
+        lede: 'Laporan publik tentang model atau agen AI garda depan yang bertindak di, atau dipakai untuk menyerang, sistem di luar kendali pengembangnya. Ini konteks untuk catatan janji dan untuk Analisis 01, dan tidak pernah dihitung dalam angka catatan janji.',
+        note: 'Ini laporan publik. Penyelidikan masih berjalan dan rinciannya bisa berubah. Halaman ini tidak mengklaim ada sistem di Indonesia yang terdampak.',
+        asOf: (d: string) => `Sumber terakhir diperiksa pada ${fmtDate(lang, d)}.`,
+        timeline: 'Linimasa',
+        table: 'Semua insiden, terbaru di atas',
+        caption: 'Insiden AI garda depan, diurutkan dari pengungkapan publik terbaru. Jumlah hari dihitung dari tanggalnya. Tidak disebut berarti tidak ada sumber yang menyebut tanggalnya.',
+        head: ['Insiden', 'Pengembang', 'Jenis', 'Pertama dilihat oleh', 'Aktivitas', 'Pengembang tahu', 'Pemberitahuan ke otoritas', 'Diumumkan', 'Hari dari akses sampai pemberitahuan', 'Hari dari tahu sampai pemberitahuan', 'Hari dari pemberitahuan sampai diumumkan', 'Bukti dan sumber'],
+        kind: { misuse: 'Penyalahgunaan', misaligned_agent_action: 'Tindakan agen yang tidak selaras' },
+        seen: { developer: 'Pengembang', third_party: 'Pihak yang terdampak', outside_researcher: 'Peneliti luar', unknown: 'Tidak diketahui' },
+        events: { start: 'Aktivitas dimulai', end: 'Aktivitas berakhir', aware: 'Pengembang tahu', notice: 'Pemberitahuan sampai ke', public: 'Diumumkan' },
+        none: 'Tidak ada sumber yang menyebut tanggal ini.',
+        blank: 'tidak disebut',
+        noAuthority: 'Tidak ada otoritas yang disebut dalam sumber yang dibaca.',
+        archived: 'arsip',
+        countries: 'Negara yang disebut',
+        method: 'Cara daftar ini disusun',
+        methodLink: 'Metode, rujukan insiden AI garda depan',
+        limits: 'Batas argumen ini',
+        limitsNote: 'Bagian 7 Analisis 01, ditampilkan seperti diterbitkan (terjemahan draf). Rujukannya ada di makalah.',
+        paper: 'Baca Analisis 01',
+      };
+
+const d = (iso: string | null) => (iso ? fmtDate(lang, iso) : '');
+const days = (n: number | null) => (n === null ? '' : String(n));
+type Event = { label: string; date: string };
+function events(i: FrontierIncident): Event[] {
+  const out: Event[] = [];
+  if (i.activity_start) out.push({ label: copy.events.start, date: i.activity_start });
+  if (i.activity_end && i.activity_end !== i.activity_start) out.push({ label: copy.events.end, date: i.activity_end });
+  if (i.developer_aware) out.push({ label: copy.events.aware, date: i.developer_aware });
+  if (i.notified_at) out.push({ label: `${copy.events.notice} ${i.notified_authority}`, date: i.notified_at });
+  if (i.first_public_disclosure) out.push({ label: copy.events.public, date: i.first_public_disclosure });
+  return out.sort((a, b) => a.date.localeCompare(b.date));
+}
+---
+<Base lang={lang} path="incidents/" title={copy.title} description={copy.lede}>
+  <header class="page-head">
+    <p class="kicker">{copy.title}</p>
+    <h1>{copy.title}</h1>
+    <p class="lede">{copy.lede}</p>
+  </header>
+
+  <aside class="status-box" aria-labelledby="incident-note-h">
+    <h2 id="incident-note-h">{lang === 'en' ? 'Read this first' : 'Baca ini dulu'}</h2>
+    <p>{copy.note}</p>
+    <p>{copy.asOf(asOf)}</p>
+  </aside>
+
+  <section aria-labelledby="timeline-h">
+    <h2 id="timeline-h">{copy.timeline}</h2>
+    <ol class="incident-timeline">
+      {
+        incidents.map((i) => (
+          <li class="panel">
+            <h3 id={i.id}>{pick(lang, i.name_en, i.name_id)}</h3>
+            <p class="hint">
+              {i.developer} · {copy.kind[i.kind]} · {copy.head[3]}: {copy.seen[i.first_seen_by]}
+            </p>
+            <ol class="it-events">
+              {events(i).map((e) => (
+                <li>
+                  <time datetime={e.date}>{fmtDate(lang, e.date)}</time> <span>{e.label}</span>
+                </li>
+              ))}
+            </ol>
+            <p>{pick(lang, i.summary_en, i.summary_id)}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section aria-labelledby="table-h">
+    <h2 id="table-h">{copy.table}</h2>
+    <div class="table-scroll" role="region" aria-labelledby="incident-caption" tabindex="0">
+      <table class="incident-table">
+        <caption id="incident-caption">{copy.caption}</caption>
+        <thead>
+          <tr>{copy.head.map((h) => <th scope="col">{h}</th>)}</tr>
+        </thead>
+        <tbody>
+          {
+            incidents.map((i) => (
+              <tr>
+                <th scope="row"><a href={`#${i.id}`}>{pick(lang, i.name_en, i.name_id)}</a></th>
+                <td>{i.developer}</td>
+                <td>{copy.kind[i.kind]}</td>
+                <td>{copy.seen[i.first_seen_by]}</td>
+                <td class="nowrap">
+                  {i.activity_start ? <time datetime={i.activity_start}>{d(i.activity_start)}</time> : <span class="blank" title={copy.none}>{copy.blank}</span>}
+                  {i.activity_end && i.activity_end !== i.activity_start && <> {lang === 'en' ? 'to' : 'sampai'} <time datetime={i.activity_end}>{d(i.activity_end)}</time></>}
+                </td>
+                <td class="nowrap">{i.developer_aware ? <time datetime={i.developer_aware}>{d(i.developer_aware)}</time> : <span class="blank" title={copy.none}>{copy.blank}</span>}</td>
+                <td>
+                  {i.notified_authority ? <strong>{i.notified_authority}</strong> : <span>{copy.noAuthority}</span>}
+                  {i.notified_at && <>, <time datetime={i.notified_at}>{d(i.notified_at)}</time></>}
+                  <span class="hint">{pick(lang, i.notice_channel_en, i.notice_channel_id)}</span>
+                </td>
+                <td class="nowrap">{i.first_public_disclosure ? <time datetime={i.first_public_disclosure}>{d(i.first_public_disclosure)}</time> : <span class="blank" title={copy.none}>{copy.blank}</span>}</td>
+                <td class="num">{days(i.days_access_to_notice) || <span class="blank" title={copy.none}>{copy.blank}</span>}</td>
+                <td class="num">{days(i.days_awareness_to_notice) || <span class="blank" title={copy.none}>{copy.blank}</span>}</td>
+                <td class="num">{days(i.days_notice_to_public) || <span class="blank" title={copy.none}>{copy.blank}</span>}</td>
+                <td>
+                  <Evidence level={i.evidence} lang={lang} />
+                  <ul class="incident-sources">
+                    {i.sources.map((s) => (
+                      <li>
+                        <a href={s.url} hreflang={s.language}>{s.outlet}</a>
+                        {s.archive_url && <> (<a href={s.archive_url}>{copy.archived}</a>)</>}
+                      </li>
+                    ))}
+                  </ul>
+                  {i.affected_countries && <span class="hint">{copy.countries}: {i.affected_countries.join(', ')}</span>}
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="label-note"><a href={href(lang, 'method/#frontier-incidents')}>{copy.methodLink}</a></p>
+  </section>
+
+  <section class="doc-body" aria-labelledby="limits-h">
+    <h2 id="limits-h">{copy.limits}</h2>
+    <p class="label-note">{copy.limitsNote}</p>
+    <Fragment set:html={limits} />
+    <p><a href={href(lang, 'analysis/nobody-to-call/')}>{copy.paper}</a></p>
+  </section>
+</Base>

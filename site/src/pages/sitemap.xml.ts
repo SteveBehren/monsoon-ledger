@@ -19,6 +19,7 @@ export const GET: APIRoute = () => {
       return { path: `analysis/${id}/`, lastmod };
     }),
     { path: 'safety/' },
+    { path: 'incidents/' },
     { path: 'ontology/' },
     { path: 'radar/' },
     { path: 'method/' },

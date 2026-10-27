@@ -200,16 +200,22 @@ site/                  Astro static site, no client framework
       {
         lang === 'en' ? (
           <ul>
-            <li><strong>Entry</strong> (<a href={file('data/schema.json')}>schema</a>): id, date, instrument, status, evidence level, titles and summaries in both languages, the four Safety lens codes, last checked date, EU comparison, the author's take, and at least one source with title, outlet, language and URL. An optional quote must be under 15 words.</li>
+            <li><strong>Entry</strong> (<a href={file('data/schema.json')}>schema</a>): id, date, instrument, status, evidence level, titles and summaries in both languages, the seven Safety lens codes with a basis sentence in both languages and the day they were checked, last checked date, EU comparison, the author's take (optional, written only by the author), and at least one source with title, outlet, language and URL. An optional quote must be under 15 words.</li>
             <li><strong>Instrument</strong>: id, names, type, status, legal force, a source, and dossier fields: issuer, legal form, key points, EU counterpart, references, and whether the author has read it in full.</li>
             <li><strong>Promise</strong> (<a href={href(lang, 'method/standard/')}>format</a>, <a href={file('docs/standard/v0.1/promise.schema.json')}>schema</a>): date said, country, who said it and their role, the claim type, for dated promises a deadline rule, deadline and precision, the wording behind the deadline, the promise and what happened since in both languages, an optional outcome date with its source, the evidence level, and the source with its archived copy. There is no outcome field: the outcome is computed.</li>
+            <li><strong>Analysis paper</strong> (<a href={file('scripts/analysis.mjs')}>rules</a>): Markdown with front matter (title, author, published and facts-as-of days, version, sources file, summary), numbered sources with access dates and archived copies, and marked quotes. Bahasa Indonesia texts may be partial draft translations.</li>
+            <li><strong>Frontier incident</strong> (<a href={file('data/frontier-incidents.schema.json')}>schema</a>): developer, kind, the activity, awareness, notice and disclosure days as sources give them, who saw it first, the authority notified and the channel, countries, summaries in both languages and sources. Day counts are computed by <a href={file('scripts/frontier.mjs')}>scripts/frontier.mjs</a>.</li>
+            <li><strong>Reading item</strong> (<a href={file('data/reading.schema.json')}>schema</a>): title, authors, year, kind, url, status (planned, reading, read), and for items read a finish date and the author's notes in both languages.</li>
             <li><strong>Lead</strong>: id (a hash of the normalised URL), date found, date published, headline, URL, outlet, country, language, source id, score, matched terms, an optional instrument hint, an optional Claude triage, and a review status: new, reviewed, promoted or dismissed.</li>
           </ul>
         ) : (
           <ul>
-            <li><strong>Catatan</strong> (<a href={file('data/schema.json')}>skema</a>): id, tanggal, instrumen, status, tingkat bukti, judul dan ringkasan dalam dua bahasa, empat kode Lensa keselamatan, tanggal terakhir dicek, perbandingan Uni Eropa, pendapat penulis, dan paling sedikit satu sumber dengan judul, media, bahasa, dan URL. Kutipan opsional harus kurang dari 15 kata.</li>
+            <li><strong>Catatan</strong> (<a href={file('data/schema.json')}>skema</a>): id, tanggal, instrumen, status, tingkat bukti, judul dan ringkasan dalam dua bahasa, tujuh kode Lensa keselamatan beserta kalimat dasarnya dalam dua bahasa dan tanggal diperiksanya, tanggal terakhir dicek, perbandingan Uni Eropa, pendapat penulis (opsional, hanya ditulis penulis), dan paling sedikit satu sumber dengan judul, media, bahasa, dan URL. Kutipan opsional harus kurang dari 15 kata.</li>
             <li><strong>Instrumen</strong>: id, nama, jenis, status, kekuatan hukum, sumber, dan isian berkas: penerbit, bentuk hukum, pokok isi, padanan Uni Eropa, rujukan, dan apakah penulis sudah membacanya lengkap.</li>
             <li><strong>Janji</strong> (<a href={href(lang, 'method/standard/')}>format</a>, <a href={file('docs/standard/v0.1/promise.schema.json')}>skema</a>): tanggal diucapkan, negara, siapa yang mengucapkan dan jabatannya, jenis klaim, untuk janji bertenggat aturan tenggat, tenggat, dan ketepatannya, kalimat yang mendasari tenggat, janji dan apa yang terjadi sesudahnya dalam dua bahasa, tanggal hasil opsional beserta sumbernya, tingkat bukti, serta sumber beserta salinan arsipnya. Tidak ada kolom hasil: hasilnya dihitung.</li>
+            <li><strong>Makalah analisis</strong> (<a href={file('scripts/analysis.mjs')}>aturan</a>): Markdown dengan front matter (judul, penulis, tanggal terbit dan tanggal fakta, versi, berkas sumber, ringkasan), sumber bernomor dengan tanggal akses dan salinan arsip, serta kutipan yang ditandai. Teks bahasa Indonesia boleh berupa terjemahan draf sebagian.</li>
+            <li><strong>Insiden AI garda depan</strong> (<a href={file('data/frontier-incidents.schema.json')}>skema</a>): pengembang, jenis, tanggal aktivitas, saat diketahui, pemberitahuan, dan pengumuman sesuai sumber, siapa yang pertama melihat, otoritas yang diberi tahu dan jalurnya, negara, ringkasan dalam dua bahasa, dan sumber. Jumlah hari dihitung oleh <a href={file('scripts/frontier.mjs')}>scripts/frontier.mjs</a>.</li>
+            <li><strong>Bacaan</strong> (<a href={file('data/reading.schema.json')}>skema</a>): judul, penulis, tahun, jenis, url, status (direncanakan, sedang dibaca, sudah dibaca), dan untuk yang sudah dibaca, tanggal selesai serta catatan penulis dalam dua bahasa.</li>
             <li><strong>Petunjuk</strong>: id (hash dari URL yang dinormalkan), tanggal ditemukan, tanggal terbit, judul, URL, media, negara, bahasa, id sumber, skor, kata yang cocok, petunjuk instrumen opsional, triase Claude opsional, dan status tinjauan: baru, sudah ditinjau, dijadikan catatan, atau diabaikan.</li>
           </ul>
         )
@@ -277,7 +283,7 @@ site/                  Astro static site, no client framework
       {
         lang === 'en' ? (
           <ul>
-            <li><strong>What.</strong> <a href={file('scripts/archive.mjs')}>scripts/archive.mjs</a> (<code>npm run archive</code>) gives every source url in the promises, the instruments and the entries a preserved copy in the Internet Archive.</li>
+            <li><strong>What.</strong> <a href={file('scripts/archive.mjs')}>scripts/archive.mjs</a> (<code>npm run archive</code>) gives every source url in the promises, the instruments, the entries, the analysis sources and the frontier incident reference a preserved copy in the Internet Archive.</li>
             <li><strong>How.</strong> It asks the Wayback Machine availability API for an existing snapshot first. If there is none, it requests one through Save Page Now, at most eight per run with a twelve second pause between requests.</li>
             <li><strong>Where it writes.</strong> Only <code>archive_url</code> and <code>archived_at</code>, beside each source, by editing lines so comments and folded text stay exactly as they were. It never changes any other field.</li>
             <li><strong>When.</strong> After every scheduled scan. It may fail without stopping the scan or the build; failures are logged in the workflow, and the validator warns about every source still without a copy.</li>
@@ -285,7 +291,7 @@ site/                  Astro static site, no client framework
           </ul>
         ) : (
           <ul>
-            <li><strong>Apa.</strong> <a href={file('scripts/archive.mjs')}>scripts/archive.mjs</a> (<code>npm run archive</code>) menyimpan salinan setiap url sumber janji, instrumen, dan catatan di Internet Archive.</li>
+            <li><strong>Apa.</strong> <a href={file('scripts/archive.mjs')}>scripts/archive.mjs</a> (<code>npm run archive</code>) menyimpan salinan setiap url sumber janji, instrumen, catatan, makalah analisis, dan rujukan insiden AI garda depan di Internet Archive.</li>
             <li><strong>Caranya.</strong> Skrip ini lebih dulu menanyakan salinan yang sudah ada ke API ketersediaan Wayback Machine. Jika tidak ada, skrip meminta salinan baru lewat Save Page Now, paling banyak delapan per pemindaian dengan jeda dua belas detik di antaranya.</li>
             <li><strong>Apa yang ditulis.</strong> Hanya <code>archive_url</code> dan <code>archived_at</code>, di samping setiap sumber, dengan menyunting baris sehingga komentar dan teks lipat tetap persis seperti semula. Kolom lain tidak pernah diubah.</li>
             <li><strong>Kapan.</strong> Setelah setiap pemindaian terjadwal. Skrip ini boleh gagal tanpa menghentikan pemindaian atau pembangunan; kegagalannya tercatat di alur kerja, dan validator memberi peringatan untuk setiap sumber yang belum punya salinan.</li>
@@ -320,7 +326,12 @@ site/                  Astro static site, no client framework
         lang === 'en' ? (
           <p>
             Every push, by the author or by the scanner, passes four gates in <a href={file('.github/workflows/ci.yml')}>CI</a>: the tests (scanner,
-            promises, ontology and archive), the validator, the JSON Schemas and a full site build. The validator checks entries,
+            promises, ontology, archive, analysis papers, quote check, safety lens, frontier incidents, reading list and language parity),
+            the validator, the JSON Schemas and a full site build, which ends with a parity check: every page must exist in English and
+            Bahasa Indonesia unless it is marked partial. The validator also checks the analysis papers (every citation, every source,
+            https only, no duplicate urls, quote length and one quote per source), the results of the quote check, the safety lens
+            rules, the frontier incident reference and the reading list. <code>npm run links</code> checks every internal link and anchor
+            in the built site. The validator checks entries,
             instruments, promises, the watched sources and every Radar lead. Promises are checked against the published promise schema,
             and every deadline is recomputed from its rule. The worked examples in the format's documentation are checked the same way.
             Sources without an archived copy are reported as warnings, never as failures. Any em or en dash anywhere in the project is
@@ -330,7 +341,12 @@ site/                  Astro static site, no client framework
         ) : (
           <p>
             Setiap push, oleh penulis maupun pemindai, melewati empat gerbang di <a href={file('.github/workflows/ci.yml')}>CI</a>: pengujian (pemindai,
-            janji, ontologi, dan arsip), validator, JSON Schema, dan pembangunan situs penuh. Validator memeriksa catatan, instrumen, janji,
+            janji, ontologi, arsip, makalah analisis, pemeriksaan kutipan, lensa keselamatan, insiden AI garda depan, daftar bacaan, dan
+            kesetaraan bahasa), validator, JSON Schema, dan pembangunan situs penuh yang diakhiri pemeriksaan kesetaraan: setiap halaman
+            harus ada dalam bahasa Inggris dan Indonesia kecuali ditandai sebagian. Validator juga memeriksa makalah analisis (setiap
+            rujukan, setiap sumber, hanya https, tanpa url ganda, panjang kutipan, dan satu kutipan per sumber), hasil pemeriksaan kutipan,
+            aturan lensa keselamatan, rujukan insiden AI garda depan, dan daftar bacaan. <code>npm run links</code> memeriksa setiap tautan
+            dan jangkar internal di situs yang sudah dibangun. Validator memeriksa catatan, instrumen, janji,
             sumber yang dipantau, dan setiap petunjuk Radar. Janji diperiksa dengan skema janji yang diterbitkan, dan setiap tenggat
             dihitung ulang dari aturannya. Contoh di dokumentasi format diperiksa dengan cara yang sama. Sumber tanpa salinan arsip
             dilaporkan sebagai peringatan, bukan kegagalan. Tanda pisah panjang di mana pun di proyek ini ditolak. Dengan{' '}

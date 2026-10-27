@@ -52,7 +52,7 @@ When something happens to a promise, set `outcome_date` and `outcome_source_url`
 
 ## Evidence preservation
 
-- `scripts/archive.mjs` adds `archive_url` and `archived_at` beside sources in `data/deadlines.yml`, `data/instruments.yml` and the entries, and nothing else. It runs after each scheduled scan and must never block a scan or a build.
+- `scripts/archive.mjs` adds `archive_url` and `archived_at` beside sources in `data/deadlines.yml`, `data/instruments.yml`, the entries, `data/analysis/*.sources.yml` and `data/frontier-incidents.yml`, and nothing else. It runs after each scheduled scan and must never block a scan or a build.
 - Missing archives are validator warnings, not failures. Never fake or guess an archive url; only record one the archive returned.
 - Wherever a source is shown, show its archived copy next to it.
 
@@ -75,6 +75,18 @@ When something happens to a promise, set `outcome_date` and `outcome_source_url`
 - Sources and scoring live in `data/watch/sources.yml` and `data/watch/keywords.yml`. Test changes with `npm test` and `npm run scan -- --dry-run --no-claude`.
 - Claude triage runs only if the `ANTHROPIC_API_KEY` repository secret exists. Its summaries restate headlines and are labelled as machine summaries on the site.
 
+## Safety lens
+
+- Seven questions per entry: incident reporting, unacceptable uses, general-purpose models, enforcement, recipient, cross-border, frontier scope. Rules in `scripts/lens.mjs`.
+- yes: a cited source states it. no: a cited source states the opposite, or the full text has been read and it is absent. Absence in a press summary is not no. unclear: the default.
+- Every coded value needs `lens_basis_en` and `lens_basis_id` naming its source, and `lens_checked` records the day. Never write `my_take` or `pendapat_id`; leave a TODO.
+
+## Frontier incidents, reading list, quotes
+
+- `data/frontier-incidents.yml`: dates only as a source gives them, null with a TODO otherwise. Day counts are computed by `scripts/frontier.mjs`, never typed. Papers use `{{frontier:<id>:<field>}}` tokens for those numbers.
+- `data/reading.yml`: an item marked read needs `date_finished` and the author's notes in both languages. Never mark something read or write notes for the author.
+- `npm run check-quotes` writes `data/quote-check.yml`. A current quote marked `not_found` fails validation; fix or remove it. Unreachable sources are warnings.
+
 ## Analysis papers
 
 - A paper is Markdown with front matter: the full English text in `writing/analysis/<id>.en.md`, the Bahasa Indonesia text in `writing/analisis/<id>.id.md` (it may be a draft translation of some sections, marked `partial: true`). Its numbered sources are in `data/analysis/<id>.sources.yml` and are cited in the text as [n].
@@ -89,7 +101,7 @@ When something happens to a promise, set `outcome_date` and `outcome_source_url`
 - `data/instruments.yml`, `data/deadlines.yml`: shared data.
 - `data/ontology.yml`, `scripts/ontology.mjs` (tests in `scripts/ontology.test.mjs`): the ontology layer. `data/build-log.yml`: the build log.
 - `scripts/promises.mjs` (tests in `scripts/promises.test.mjs`): deadline rules and computed outcomes. `scripts/archive.mjs` (tests in `scripts/archive.test.mjs`): evidence preservation.
-- `scripts/analysis.mjs`, `site/src/lib/analysis.ts`: analysis papers, shared by the validator and the site. `CITATION.cff`, `.zenodo.json`, `docs/releasing.md`: citation and archiving (no DOI exists yet).
+- `scripts/analysis.mjs`, `scripts/analysis-render.mjs`, `site/src/lib/analysis.ts`: analysis papers, shared by the validator and the site. `scripts/quotes.mjs` and `scripts/check-quotes.mjs`: the quote check. `scripts/lens.mjs`, `scripts/frontier.mjs`, `scripts/reading.mjs`: lens, incident and reading rules. `scripts/check-parity.mjs`: language parity, run after every build. Each has a `*.test.mjs`. `CITATION.cff`, `.zenodo.json`, `docs/releasing.md`: citation and archiving (no DOI exists yet).
 - `docs/standard/`: the promise format, its schema, examples and adopters. `kit/`: a data skeleton and guide for other countries, checked with `npm run validate -- --data kit/data`.
 - `scripts/make-share-images.mjs` and `scripts/fonts/` (Inter, OFL): every preview card and icon. The fonts are for images only; the site loads no fonts.
 - `data/radar.yml`, `data/scan-log.yml`, `data/watch/`: the monitoring layer. `scripts/scan.mjs` and `scripts/scan/` (tests in `scripts/scan/scan.test.mjs`, run with `npm test`).

@@ -29,20 +29,25 @@ From outside, an announced rule, a drafted rule, a signed rule and a rule in for
 | [Promise vs Reality](https://monsoonledger.vercel.app/en/ledger/) | Janji vs Kenyataan: every public promise officials have made, its computed outcome, what happened next, and a replay slider that rebuilds the ledger date by date. Each row links to its receipt. |
 | [Receipts](https://monsoonledger.vercel.app/en/promises/2025-01-13-meutya-hafid/) | One permanent page per promise: the wording in Bahasa Indonesia and English, the deadline and how it was derived, the computed outcome and day count, the evidence, the source and its archived copy, citations and a share card. |
 | [Instruments](https://monsoonledger.vercel.app/en/instruments/) | An interactive map of every law, draft and guide, where each sits in Indonesia's legal hierarchy, and a dossier for each with an EU comparison and numbered references. |
+| [Analysis](https://monsoonledger.vercel.app/en/analysis/) | Longer written work. Analysis 01, [Nobody to Call](https://monsoonledger.vercel.app/en/analysis/nobody-to-call/), with numbered references, archived sources, a figure computed from the ledger, a Word download, citation formats and a [two-page brief](https://monsoonledger.vercel.app/en/analysis/nobody-to-call/brief/). Open questions and the planned Analysis 02. |
+| [Safety lens](https://monsoonledger.vercel.app/en/safety/) | Seven questions asked of every entry, the definitions behind each answer, what would change each row, and how the questions relate to threat models. |
+| [Frontier incidents](https://monsoonledger.vercel.app/en/incidents/) | A small reference list of public reports of frontier AI models or agents acting on systems outside the developer's control, with computed day counts. Context only, never counted in the ledger. |
+| [Reading](https://monsoonledger.vercel.app/en/reading/) | What the author reads for the analysis papers, with notes once an item is finished. |
+| [Corrections](https://monsoonledger.vercel.app/en/corrections/) | Every correction, newest first, read from the changelog. |
 | [Ontology](https://monsoonledger.vercel.app/en/ontology/) | The whole ledger as one graph of typed objects and named links, with a live explorer, an inspector, search, filters and a full link register. |
 | [Radar](https://monsoonledger.vercel.app/en/radar/) | Unreviewed leads found by the twice-weekly scanner, scan history, and a countdown to the next scan. |
 | [Method](https://monsoonledger.vercel.app/en/method/) | The research protocol: design, research questions, sources, coding, how promises are coded, evidence preservation, evidence levels, verification and limits. |
 | [Promise format](https://monsoonledger.vercel.app/en/method/standard/) | The open format every promise follows, with its JSON Schema, worked examples and the list of ledgers using it. |
 | [Technical system](https://monsoonledger.vercel.app/en/method/system/) | How the site is built, how data is collected and checked, how Claude is used, and the build log of every change. |
-| [Silencing by automation](https://monsoonledger.vercel.app/en/silencing/) | A working-draft legal brief on AI-run fake citizen voices against critics. |
+| [Silencing by automation](https://monsoonledger.vercel.app/en/silencing/) | A working-draft legal brief on AI-run fake citizen voices against critics. Kept at its address, but no longer linked from the home page and not indexed by search engines. |
 | [About](https://monsoonledger.vercel.app/en/about/) | Why the project exists, its limits and its author. |
 
-Every page exists in English (`/en/`) and Bahasa Indonesia (`/id/`).
+Every page exists in English (`/en/`) and Bahasa Indonesia (`/id/`). The build checks this. The Bahasa Indonesia text of Analysis 01 is a draft translation of its key sections, marked as such on the page.
 
 ## Recurring features
 
 1. **Janji vs Kenyataan (Promise vs Reality).** Every public deadline officials have given, set against what happened next, with a missed, open or met stamp.
-2. **A Safety lens on every entry.** The same four questions each time: does it require incident reporting, does it name unacceptable uses, does it address general-purpose models, and how strongly is it enforced.
+2. **A Safety lens on every entry.** The same seven questions each time: does it require incident reporting, does it name unacceptable uses, does it address general-purpose models, how strongly is it enforced, who receives incident reports and does that body exist, does it address incidents that cross borders, and does it address frontier AI. Yes means a cited source states it; no needs the full text or a source that says so; unclear is the default.
 3. **Indonesian first.** Key quotes stay in the original Indonesian with an English line under them, and Indonesian-language sources come first.
 
 ## How to read an entry
@@ -135,13 +140,31 @@ The site ships an ICO and SVG favicon, an Apple touch icon, a web manifest and 1
 
 `scripts/make-share-images.mjs` draws every card as SVG and renders it to PNG with `@resvg/resvg-js` during the site build, using the Inter font files in `scripts/fonts/` (SIL Open Font License, used for the images only, never loaded by the site). Running it directly regenerates the icons.
 
+## Analysis papers
+
+Papers are Markdown files in `writing/analysis/` (English) and `writing/analisis/` (Bahasa Indonesia), with their numbered sources in `data/analysis/<id>.sources.yml`. The site renders them at build time with no client framework. Every `[n]` links to its reference and back; every direct quote is marked so the validator can enforce the quote rules; figures and tables built from data are computed as of the paper's facts day; numbers such as day counts are read from the data with tokens, so the text cannot drift from it. Changes after publication are listed on the paper from `CHANGELOG.md` lines tagged `[analysis-01]`.
+
+`npm run check-quotes` reads every quoted source, or its archived copy, and looks for the quote's exact words. Results are in `data/quote-check.yml`, and the Method page shows how many were found and when.
+
+To cite the project, use `CITATION.cff` (GitHub shows a "Cite this repository" button) or the "Cite this" box on each paper. There is no DOI yet; `docs/releasing.md` explains how to get one through Zenodo.
+
+Unpublished drafts, such as cross-posts, summaries and outlines, stay in `writing/` and are never linked from the site.
+
+## Frontier incident reference and reading list
+
+`data/frontier-incidents.yml` lists public reports of frontier AI models or agents acting on, or used against, systems outside the developer's control. Dates appear only as sources give them, and the day counts (access to notice, awareness to notice, notice to public) are computed by `scripts/frontier.mjs`. It is context for the ledger and for Analysis 01, never part of the ledger's counts, and it is not complete.
+
+`data/reading.yml` is the reading list behind the analysis papers. An item marked read needs a finish date and the author's notes in both languages.
+
 ## Quality gates
 
 Every push and pull request runs, in this order:
 
-1. `npm test`: the scanner tests on synthetic fixtures, and the tests for deadline derivation and outcome computation (leap years, month ends, the deadline day itself, conditional and status claims, the time zone), the archive script with the network mocked, and the ontology.
+1. `npm test`: the scanner tests on synthetic fixtures, and the tests for deadline derivation and outcome computation (leap years, month ends, the deadline day itself, conditional and status claims, the time zone), the archive script with the network mocked, the ontology, the analysis papers and their renderer, the quote check against fixture pages, the safety lens rules, the frontier incident counts, the reading list and the language parity check.
 2. `npm run validate`: the entry schema and the published promise schema, plus the rules a schema cannot express. These cover ids and file names, instruments that exist, quote rules, every deadline recomputed from its rule, the format's worked examples, the radar and scan log, ontology links and their sources, the build log, and a ban on em and en dashes anywhere in the project. Sources without an archived copy are reported as warnings, never failures.
-3. `npm run build`: the site build, which runs the validator again first and fails if it fails.
+3. `npm run build`: the site build, which runs the validator again first, then builds, then runs the parity check (`npm run parity`): every page must exist in both languages unless marked partial, and every `_en` field in the data needs its `_id` twin.
+
+The validator also covers the analysis papers (citations, sources, quotes, front matter), the quote check results, the safety lens rules, the frontier incident reference and the reading list. `npm run links` checks every internal link and anchor in the built site, then reports external sources that stopped responding.
 
 `npm run validate -- --data <folder>` runs the same validator on a promise ledger's data folder only, such as the kit.
 
@@ -178,11 +201,13 @@ Useful commands:
 
 ```sh
 npm run dev                               # local preview
-npm test                                  # scanner, promise, archive and ontology tests
+npm test                                  # every unit test, no network
 npm run validate -- --data kit/data       # check a promise ledger folder only
 npm run scan -- --dry-run --no-claude     # live scan, writes nothing
 npm run archive -- --dry-run              # check archive coverage, writes nothing
-npm run links                             # reports sources that stopped responding (informational)
+npm run check-quotes                      # checks each quote against its source, writes data/quote-check.yml
+npm run parity                            # English and Bahasa Indonesia parity, after a build
+npm run links                             # internal links in site/dist, then external sources (informational)
 node scripts/make-share-images.mjs        # regenerate the site icons
 ```
 
@@ -197,6 +222,10 @@ data/
   instruments.yml     laws, drafts and guidance, with dossier fields
   deadlines.yml       the Janji vs Kenyataan ledger, newest first, in the promise format
   ontology.yml        institutions and curated, sourced links
+  analysis/           numbered sources for each analysis paper
+  frontier-incidents.yml (+ .schema.json)  the frontier incident reference
+  reading.yml (+ .schema.json)             the reading list
+  quote-check.yml     results of npm run check-quotes
   build-log.yml       every change asked for, newest first
   radar.yml           unreviewed leads written by the scanner
   scan-log.yml        one row per scan
@@ -208,23 +237,32 @@ scripts/
   promises.mjs        deadline rules and computed outcomes, shared by everything
   archive.mjs         preserved copies of sources in the Internet Archive
   ontology.mjs        the fusion layer shared by the validator and the site
+  analysis.mjs, analysis-render.mjs  analysis papers: rules, and the HTML steps the site uses
+  quotes.mjs, check-quotes.mjs       the quote check
+  lens.mjs            the safety lens rules
+  frontier.mjs        computed incident day counts and paper tokens
+  reading.mjs         reading list rules
+  check-parity.mjs    English and Bahasa Indonesia parity
   scan.mjs, scan/     the monitoring layer and its tests
   new-entry.mjs       creates a dated entry from a template
-  check-links.mjs     reports dead source links
+  check-links.mjs     internal links in the built site, and dead source links
   make-share-images.mjs  link preview cards and icons, with fonts/ (OFL)
-  *.test.mjs          tests for promises, archive and ontology
+  *.test.mjs          unit tests, run with npm test
 site/                 the Astro static site (pages, components, styles, public assets)
-writing/              longer analysis (analysis/ in English, analisis/ in Bahasa Indonesia)
+writing/              analysis papers (analysis/ in English, analisis/ in Bahasa Indonesia) and unpublished drafts
+docs/releasing.md     how to archive a release on Zenodo and get a DOI
+CITATION.cff, .zenodo.json  citation metadata
 .github/workflows/    ci.yml (tests, validation, build) and scan.yml (the scheduled scan)
+.github/ISSUE_TEMPLATE/  forms for corrections, sources and promises
 ```
 
 ## Corrections
 
-Anyone can [open an issue](https://github.com/SteveBehren/monsoon-ledger/issues) with a source. Errors are fixed in the open and logged with a date in [CHANGELOG.md](CHANGELOG.md).
+Anyone can [report a correction](https://github.com/SteveBehren/monsoon-ledger/issues/new?template=correction.yml) with a source. Errors are fixed in the open, logged with a date in [CHANGELOG.md](CHANGELOG.md), and listed on the [Corrections](https://monsoonledger.vercel.app/en/corrections/) page. See [CONTRIBUTING.md](CONTRIBUTING.md) for sources and promises, [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), and [SECURITY.md](SECURITY.md) for security problems.
 
 ## How AI is used here
 
-I research the sources, write and edit every entry and every My take myself, and set every evidence level. Claude Code, Anthropic's coding agent, writes the code and configuration and drafts text and translations for me to review. It also checks URLs and legal citations before they are used, and runs the tests, the validator and the build before every push. The rules it works under are in [CLAUDE.md](CLAUDE.md): never invent facts, quotes, dates or URLs, leave a marked TODO instead, never rewrite the author's words, and pass the validator. Every source is linked so you can check it yourself.
+I research the sources, write and edit every entry and every My take myself, and set every evidence level. <!-- TODO author: confirm this paragraph. In October 2026 Claude Code drafted two entries from published texts (Circular Letter 9/2023 and the ASEAN guide), the safety lens bases and the draft Bahasa Indonesia translation of Analysis 01 for your review, and wrote no My take. --> Claude Code, Anthropic's coding agent, writes the code and configuration and drafts text and translations for me to review. It also checks URLs and legal citations before they are used, and runs the tests, the validator and the build before every push. The rules it works under are in [CLAUDE.md](CLAUDE.md): never invent facts, quotes, dates or URLs, leave a marked TODO instead, never rewrite the author's words, and pass the validator. Every source is linked so you can check it yourself.
 
 ## Licence
 

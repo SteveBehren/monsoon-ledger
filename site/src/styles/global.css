@@ -426,11 +426,14 @@ main:focus {
   display: none;
 }
 
-/* The full menu bar needs about 76rem with seven items. Below that the menu button takes over. */
-@media (max-width: 76rem) {
+/* The full menu bar needs about 84rem with eight items. Below that the menu button takes over. */
+@media (max-width: 90rem) {
   .brand-sub {
     display: none;
   }
+}
+
+@media (max-width: 84rem) {
 
   .site-nav--wide {
     display: none;

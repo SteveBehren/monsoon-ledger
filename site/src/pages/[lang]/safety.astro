@@ -43,6 +43,7 @@ const copy =
         validator: 'The validator rejects a coded value without a basis sentence, and a "no" taken from a press report.',
         drafts: `The draft texts of the AI roadmap and AI ethics regulations were not published as of ${fmtDate(lang, DRAFTS_CHECKED)}: neither appeared on the ministry's official list of draft regulations. Lens values for those drafts come from officials' statements.`,
         threat: 'How the lens maps to threat models',
+        threatCaption: 'Threat models, first signals and the lens questions that matter most',
         threatLede: 'This mapping uses only the claims of Analysis 01. It shows which questions matter for which kind of risk, not how likely any risk is.',
         threatHead: ['Threat model, as in Analysis 01', 'Where the first signal tends to appear', 'Lens questions that matter most'],
         threatRows: [
@@ -78,6 +79,7 @@ const copy =
         validator: 'Validator menolak nilai yang dikodekan tanpa kalimat dasar, dan nilai tidak yang diambil dari berita.',
         drafts: `Naskah rancangan Perpres peta jalan AI dan Perpres etika AI belum dipublikasikan per ${fmtDate(lang, DRAFTS_CHECKED)}: keduanya tidak ada dalam daftar resmi rancangan peraturan kementerian. Nilai lensa untuk rancangan itu berasal dari pernyataan pejabat.`,
         threat: 'Hubungan lensa dengan model ancaman',
+        threatCaption: 'Model ancaman, sinyal pertama, dan pertanyaan lensa yang paling penting',
         threatLede: 'Pemetaan ini hanya memakai klaim dalam Analisis 01. Pemetaan ini menunjukkan pertanyaan mana yang penting untuk jenis risiko apa, bukan seberapa besar kemungkinan risikonya.',
         threatHead: ['Model ancaman, seperti dalam Analisis 01', 'Tempat sinyal pertama biasanya muncul', 'Pertanyaan lensa yang paling penting'],
         threatRows: [
@@ -175,7 +177,7 @@ function wouldChange(e: Entry): string[] {
     <p>{copy.threatLede}</p>
     <div class="table-scroll" role="region" aria-labelledby="threat-caption" tabindex="0">
       <table>
-        <caption id="threat-caption">{copy.threat}</caption>
+        <caption id="threat-caption">{copy.threatCaption}</caption>
         <thead>
           <tr>{copy.threatHead.map((h) => <th scope="col">{h}</th>)}</tr>
         </thead>

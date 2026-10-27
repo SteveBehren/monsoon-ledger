@@ -13,6 +13,7 @@
     "archive": "node scripts/archive.mjs",
     "links": "node scripts/check-links.mjs",
     "check-quotes": "node scripts/check-quotes.mjs",
+    "parity": "node scripts/check-parity.mjs --routes",
     "dev": "npm --prefix site run dev",
     "build": "npm --prefix site run build"
   },

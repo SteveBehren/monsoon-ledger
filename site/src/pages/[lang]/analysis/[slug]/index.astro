@@ -125,6 +125,7 @@ const issueUrl = `${SITE.issues}/new?template=correction.yml&title=${encodeURICo
 ---
 <Base lang={lang} path={`analysis/${slug}/`} title={meta.title} description={meta.summary} ogType="article" ogImage={`/og/${lang}/analysis-${slug}.png`} nav="analysis">
   <Fragment slot="head">
+    {meta.partial && <meta name="ml:partial" content="true" />}
     <meta name="citation_title" content={`${meta.title}: ${meta.subtitle}`} />
     <meta name="citation_author" content="Tanjung, Stephen Behren" />
     <meta name="citation_publication_date" content={String(meta.published).replace(/-/g, '/')} />
@@ -163,7 +164,7 @@ const issueUrl = `${SITE.issues}/new?template=correction.yml&title=${encodeURICo
     </header>
 
     <div class="paper-grid">
-      <aside class="paper-side">
+      <div class="paper-side">
         <nav class="paper-toc paper-toc--wide" aria-label={copy.toc}>
           <p class="label">{copy.toc}</p>
           <ol>
@@ -176,7 +177,7 @@ const issueUrl = `${SITE.issues}/new?template=correction.yml&title=${encodeURICo
           <p>{copy.factsNote}</p>
           <p><a href={href(lang, 'ledger/')}>{copy.ledger}</a></p>
         </section>
-      </aside>
+      </div>
 
       <div class="paper-body doc-body">
         <details class="paper-toc paper-toc--narrow">

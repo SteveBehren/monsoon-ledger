@@ -11,6 +11,7 @@ import { ROOT, DATA, ENTRIES, siteRequire, readYaml, entryFiles, isRealDate } fr
 import { buildOntology } from './ontology.mjs';
 import { deriveDeadline, promiseKey, todayWIB } from './promises.mjs';
 import { paperIds, loadPaper, loadSources, checkPaper, checkSources, extractQuotes, ontologyPapers } from './analysis.mjs';
+import { collectQuotes, compareWithChecks, STATUSES as QUOTE_STATUSES } from './quotes.mjs';
 
 const Ajv2020 = siteRequire('ajv/dist/2020').default;
 const ajv = new Ajv2020({ allErrors: true, strict: true });
@@ -274,6 +275,19 @@ function projectChecks() {
     for (const i of en.meta.discusses?.instruments ?? []) if (!instrumentIds.has(i)) fail(en.file, `discusses instrument "${i}", which does not exist`);
     if (en.meta.docx && !fs.existsSync(path.join(ROOT, 'site', 'public', en.meta.docx))) fail(en.file, `docx "${en.meta.docx}" is not in site/public`);
   }
+
+  // Quote check (npm run check-quotes): a quote that is in the content now and was not found in
+  // its source fails. A quote not yet checked, or whose source could not be read, is a warning.
+  const quoteCheckFile = path.join(DATA, 'quote-check.yml');
+  const quoteRows = fs.existsSync(quoteCheckFile) ? load(quoteCheckFile) ?? [] : [];
+  (Array.isArray(quoteRows) ? quoteRows : []).forEach((r, i) => {
+    if (!QUOTE_STATUSES.includes(r?.status)) fail(quoteCheckFile, `row ${i + 1}: status must be ${QUOTE_STATUSES.join(', ')}`);
+    if (!isRealDate(r?.checked_at)) fail(quoteCheckFile, `row ${i + 1}: checked_at must be a real date`);
+  });
+  const currentQuotes = collectQuotes({ root: ROOT, entries: loadedEntries.map((e) => ({ file: `data/entries/${e.id}.yml`, data: e })) });
+  const { notFound, unchecked } = compareWithChecks(currentQuotes, quoteRows);
+  for (const q of notFound) fail(path.join(ROOT, [q.where].flat()[0]), `quote "${q.text.slice(0, 50)}" was not found in its source (${q.url}). Fix or remove it, then run npm run check-quotes`);
+  for (const q of unchecked) warn(path.join(ROOT, [q.where].flat()[0]), `quote "${q.text.slice(0, 50)}" is not yet checked against its source (npm run check-quotes)`);
 
   // Build log: one row per change the author asked for, newest first.
   const buildLogFile = path.join(DATA, 'build-log.yml');

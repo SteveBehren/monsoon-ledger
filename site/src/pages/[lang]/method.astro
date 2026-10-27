@@ -6,7 +6,7 @@ import References from '../../components/References.astro';
 import MethodTabs from '../../components/MethodTabs.astro';
 import PageRail from '../../components/PageRail.astro';
 import RailEvidence from '../../components/RailEvidence.astro';
-import { getDeadlines, getPromises, outcomeCounts, TODAY } from '../../lib/data';
+import { getDeadlines, getPromises, outcomeCounts, getQuoteCheck, TODAY } from '../../lib/data';
 import { ui, href, fmtDate, SITE, LANGS, type Lang } from '../../lib/i18n';
 import type { RefKey } from '../../lib/references';
 
@@ -99,6 +99,7 @@ const lede = {
 const promises = getPromises();
 const dated = promises.filter((p) => p.claim_type === 'dated').slice().reverse();
 const counts = outcomeCounts(getDeadlines());
+const quoteCheck = getQuoteCheck();
 const receipt = (key: string) => href(lang, `promises/${key}/`);
 
 const perpresEntry = href(lang, 'entries/2026-10-21-id-perpres-ai-keep-almost-arriving/');
@@ -275,7 +276,7 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             <li><strong>Attribution.</strong> Tie every statement to a named person and their role, or to a named body. An unnamed "source at the ministry" is not recorded as an official statement.</li>
             <li><strong>Temporal integrity.</strong> Keep three dates apart: when something was said, when it was published, and when the ledger last checked it. Deadlines use the date said.</li>
             <li><strong>Corroboration.</strong> Every additional independent report the author reads is added as a source. A claim that rests on one report is shown with that report's evidence level.</li>
-            <li><strong>Quotation integrity.</strong> Quotes stay in the original language, stay under 15 words, appear at most once per source, and carry an English line. The validator enforces all four rules.</li>
+            <li><strong>Quotation integrity.</strong> Quotes stay in the original language, stay under 15 words, appear at most once per source, and carry an English line. The validator enforces all four rules. Statute text on Analysis pages is the only exemption from the length rule. A separate check reads each source and looks for the quote's exact words (<code>npm run check-quotes</code>). {quoteCheck.checked_at ? <>Quotes checked on <time datetime={quoteCheck.checked_at}>{fmtDate(lang, quoteCheck.checked_at)}</time>: {quoteCheck.found} of {quoteCheck.total} found in their sources.</> : <>Quotes not yet checked.</>}</li>
             <li>
               <strong>Digital content.</strong> Posts, images and screenshots are assessed against the Berkeley Protocol on Digital
               Open Source Investigations, which looks at where content came from, its technical properties and what it shows
@@ -718,7 +719,7 @@ const pdpEntry = href(lang, 'entries/2026-07-16-id-gr-33-2026-breach-clock/');
             <li><strong>Atribusi.</strong> Kaitkan setiap pernyataan dengan orang yang disebut namanya beserta jabatannya, atau dengan lembaga yang disebut namanya. "Sumber di kementerian" tanpa nama tidak dicatat sebagai pernyataan resmi.</li>
             <li><strong>Ketepatan waktu.</strong> Bedakan tiga tanggal: kapan sesuatu diucapkan, kapan diterbitkan, dan kapan terakhir dicek. Tenggat memakai tanggal diucapkan.</li>
             <li><strong>Penguatan.</strong> Setiap laporan independen tambahan yang dibaca penulis ditambahkan sebagai sumber. Klaim yang hanya bersandar pada satu laporan ditampilkan dengan tingkat bukti laporan itu.</li>
-            <li><strong>Keutuhan kutipan.</strong> Kutipan tetap dalam bahasa aslinya, kurang dari 15 kata, paling banyak sekali per sumber, dan disertai terjemahan bahasa Inggris. Keempat aturan ini dicek otomatis oleh validator.</li>
+            <li><strong>Keutuhan kutipan.</strong> Kutipan tetap dalam bahasa aslinya, kurang dari 15 kata, paling banyak sekali per sumber, dan disertai terjemahan bahasa Inggris. Keempat aturan ini dicek otomatis oleh validator. Satu-satunya pengecualian dari batas panjang adalah teks undang-undang di halaman Analisis. Pemeriksaan terpisah membaca setiap sumber dan mencari kata-kata persis dari kutipannya (<code>npm run check-quotes</code>). {quoteCheck.checked_at ? <>Kutipan diperiksa pada <time datetime={quoteCheck.checked_at}>{fmtDate(lang, quoteCheck.checked_at)}</time>: {quoteCheck.found} dari {quoteCheck.total} ditemukan di sumbernya.</> : <>Kutipan belum diperiksa.</>}</li>
             <li>
               <strong>Konten digital.</strong> Unggahan, gambar, dan tangkapan layar dinilai dengan Berkeley Protocol on Digital Open
               Source Investigations, yang menelaah dari mana konten berasal, sifat teknisnya, dan apa yang ditunjukkannya

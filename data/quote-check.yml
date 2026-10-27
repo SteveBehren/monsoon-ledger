@@ -1,0 +1,96 @@
+# Written by npm run check-quotes (scripts/check-quotes.mjs). Do not edit by hand.
+# One row per quote and source. status: found, not_found (fails validation) or unreachable.
+# via: which copy was read, the source itself or its archived copy.
+- quote: Semua dilaporkan, karena (insiden) yang kecil-kecil pun kalau dibiarkan dia akan jadi b...
+  hash: 3261e57f370e
+  where:
+    - data/entries/2026-06-17-id-report-all-incidents.yml
+    - writing/analysis/nobody-to-call.en.md
+  url: https://www.antaranews.com/berita/5612117/kemkomdigi-jelaskan-isi-konsultasi-dengan-as-soal-rancangan-perpres-ai
+  via: archive
+  status: found
+  checked_at: "2026-10-27"
+- quote: failed to correctly raise the alert's criticality and trigger the on-call team
+  hash: 0eb2ea123681
+  where: writing/analysis/nobody-to-call.en.md
+  url: https://huggingface.co/blog/agent-intrusion-technical-timeline
+  via: source
+  status: found
+  checked_at: "2026-10-27"
+- quote: an unprecedented cyber incident
+  hash: c3f173dbfbfa
+  where: writing/analysis/nobody-to-call.en.md
+  url: https://fortune.com/2026/07/21/openai-says-ai-models-escaped-control-hacked-hugging-face/
+  via: source
+  status: found
+  checked_at: "2026-10-27"
+- quote: agents realized this activity was out of scope and unethical
+  hash: 068aeaa06bad
+  where: writing/analysis/nobody-to-call.en.md
+  url: https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/
+  via: source
+  status: found
+  checked_at: "2026-10-27"
+- quote: incident reports are not just a tick-box
+  hash: 81df13574225
+  where: writing/analysis/nobody-to-call.en.md
+  url: https://thenextweb.com/news/openai-eu-incident-report-german-wiki
+  via: source
+  status: found
+  checked_at: "2026-10-27"
+- quote: The notification was an email sent just to the public mailbox
+  hash: 4703ace8f479
+  where: writing/analysis/nobody-to-call.en.md
+  url: https://www.abc.net.au/news/2026-09-24/ai-agent-accessed-australian-government-site-pm-says/107189078
+  via: source
+  status: found
+  checked_at: "2026-10-27"
+- quote: some notifications may concern events from months ago
+  hash: 243a80b6010e
+  where: writing/analysis/nobody-to-call.en.md
+  url: https://openai.com/hugging-face-incident-and-misalignment/
+  via: source
+  status: found
+  checked_at: "2026-10-27"
+- quote: AI systems operate outside of anyone's control, with no clear path to regaining control
+  hash: 196474d3f609
+  where: writing/analysis/nobody-to-call.en.md
+  url: https://internationalaisafetyreport.org/publication/2026-report-executive-summary
+  via: source
+  status: found
+  checked_at: "2026-10-27"
+- quote: Creating a common understanding around incident reporting and incident management
+  hash: bea82336c5c3
+  where: writing/analysis/nobody-to-call.en.md
+  url: https://asean.org/wp-content/uploads/2025/01/Expanded-ASEAN-Guide-on-AI-Governance-and-Ethics-Generative-AI.pdf
+  via: source
+  status: found
+  checked_at: "2026-10-27"
+- quote: Kita kan tidak ada backup-nya
+  hash: 81ff3e7cc737
+  where: writing/analysis/nobody-to-call.en.md
+  url: https://teknologi.bisnis.com/read/20240627/101/1777675/dpr-sesali-bertahun-tahun-pdns-2-tidak-punya-data-cadangan-backup
+  via: source
+  status: found
+  checked_at: "2026-10-27"
+- quote: Dalam hal terjadi kegagalan Pelindungan Data Pribadi, Pengendali Data Pribadi wajib men...
+  hash: d42f79462322
+  where: writing/analysis/nobody-to-call.en.md
+  url: https://pasal.id/peraturan/uu/uu-no-27-tahun-2022/pasal-46
+  via: source
+  status: found
+  checked_at: "2026-10-27"
+- quote: (2) Penyelenggaraan Pelindungan Data Pribadi sebagaimana dimaksud pada ayat (1) dilaksa...
+  hash: ba0215c57098
+  where: writing/analysis/nobody-to-call.en.md
+  url: https://pasal.id/peraturan/uu/uu-no-27-tahun-2022/pasal-58
+  via: source
+  status: found
+  checked_at: "2026-10-27"
+- quote: ... persoalan terkait keterbatasan anggaran dan kesulitan menjelaskan ke keuangan dan a...
+  hash: c5bdd0335f4f
+  where: writing/analysis/nobody-to-call.en.md
+  url: https://www.cnbcindonesia.com/tech/20240628080944-37-550082/alasan-backup-pusat-data-nasional-hanya-2-akhirnya-terungkap
+  via: source
+  status: found
+  checked_at: "2026-10-27"

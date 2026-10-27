@@ -6,6 +6,8 @@ import { execSync } from 'node:child_process';
 import yaml from 'js-yaml';
 // @ts-ignore: plain JavaScript module shared with the validator and the share cards.
 import { computePromise, summarise, oldestMissed, todayWIB, promiseKey, splitWho } from '../../../scripts/promises.mjs';
+// @ts-ignore: plain JavaScript module shared with the validator and the quote checker.
+import { collectQuotes, summary as quoteSummary } from '../../../scripts/quotes.mjs';
 
 const DATA = path.resolve(process.cwd(), '..', 'data');
 
@@ -320,4 +322,19 @@ export function getScanLog(): ScanRun[] {
 
 export function getWatchSources(): WatchSource[] {
   return read<WatchSource[]>(path.join(DATA, 'watch', 'sources.yml')).map((s) => tidy(s));
+}
+
+/**
+ * The quote check (npm run check-quotes, data/quote-check.yml), counted over the quotes in the
+ * content now: how many were found in their sources, and the day of the latest check.
+ */
+export function getQuoteCheck(): { found: number; total: number; checked_at: string | null } {
+  const root = path.resolve(process.cwd(), '..');
+  const file = path.join(DATA, 'quote-check.yml');
+  const rows = fs.existsSync(file) ? read<unknown[]>(file) ?? [] : [];
+  const entries = fs
+    .readdirSync(path.join(DATA, 'entries'))
+    .filter((f) => f.endsWith('.yml'))
+    .map((f) => ({ file: `data/entries/${f}`, data: read(path.join(DATA, 'entries', f)) }));
+  return quoteSummary(collectQuotes({ root, entries }), rows);
 }

@@ -22,7 +22,6 @@ export const GET: APIRoute = () => {
     { path: 'radar/' },
     { path: 'method/' },
     { path: 'method/system/' },
-    { path: 'silencing/' },
     { path: 'about/' },
     { path: 'method/standard/' },
     ...entries.map((e) => ({ path: `entries/${e.id}/`, lastmod: e.last_checked })),

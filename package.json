@@ -12,6 +12,7 @@
     "scan": "node scripts/scan.mjs",
     "archive": "node scripts/archive.mjs",
     "links": "node scripts/check-links.mjs",
+    "check-quotes": "node scripts/check-quotes.mjs",
     "dev": "npm --prefix site run dev",
     "build": "npm --prefix site run build"
   },

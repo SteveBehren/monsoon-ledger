@@ -16,7 +16,8 @@
 - date_said: 2026-10-21
   country: ID
   who: Irma Handayani, Komdigi
-  # TODO: add role_en and role_id once the role is confirmed in this row's source.
+  role_en: Head of the AI Roadmap, Ethics, Governance and Oversight Regulation Team, Komdigi
+  role_id: Ketua Tim Regulasi Peta Jalan, Etika, Tata Kelola, dan Pengawasan Kecerdasan Artifisial Kemkomdigi
   claim_type: conditional
   deadline_basis_en: The task force is to start once the President signs the regulations. No date is given, so this promise has no deadline and cannot be missed.
   deadline_basis_id: Gugus tugas mulai bekerja setelah Presiden menandatangani aturannya. Tidak ada tanggal, jadi janji ini tidak punya tenggat dan tidak bisa terlewat.
@@ -55,8 +56,8 @@
   deadline_rule: end 2026
   deadline: 2026-12-31
   deadline_precision: year
-  deadline_basis_en: Called a priority to sign in 2026, so the last day of 2026. The headline speaks of early this year; the later reading is used so that a miss can always be defended.
-  deadline_basis_id: Disebut prioritas untuk ditandatangani pada 2026, jadi hari terakhir 2026. Judul beritanya menyebut awal tahun ini; tafsir yang paling akhir dipakai supaya setiap status terlewat selalu bisa dipertanggungjawabkan.
+  deadline_basis_en: The article reports both that the regulation would be signed early this year and that signing is a priority in 2026. The later reading, the last day of 2026, is used so that a miss can always be defended.
+  deadline_basis_id: Beritanya memuat dua hal, bahwa aturan itu akan ditandatangani di awal tahun ini dan bahwa penandatanganannya menjadi prioritas pada 2026. Tafsir yang paling akhir, hari terakhir 2026, dipakai supaya setiap status terlewat selalu bisa dipertanggungjawabkan.
   promised_en: A priority to sign in 2026
   promised_id: Prioritas untuk ditandatangani pada 2026
   outcome_en: Still a draft as of 21 October 2026

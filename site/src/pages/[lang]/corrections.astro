@@ -1,0 +1,62 @@
+---
+// Corrections: every CHANGELOG.md line tagged [correction], newest first. Nothing is written
+// here by hand, so the page and the changelog cannot disagree.
+import Base from '../../layouts/Base.astro';
+import { changesTagged } from '../../lib/analysis';
+import { fmtDate, SITE, LANGS, type Lang } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const corrections = changesTagged('correction').sort((a, b) => b.date.localeCompare(a.date));
+const copy =
+  lang === 'en'
+    ? {
+        title: 'Corrections',
+        lede: 'Every correction to the ledger, the entries and the analysis papers, newest first, with its date. A correction is any change to a fact that was published wrongly.',
+        count: (n: number) => `${n} ${n === 1 ? 'correction' : 'corrections'} so far.`,
+        none: 'No corrections yet.',
+        report: 'Report a correction',
+        changelog: 'Full changelog',
+        inEnglish: '',
+      }
+    : {
+        title: 'Koreksi',
+        lede: 'Setiap koreksi pada catatan janji, catatan, dan makalah analisis, dari yang terbaru, beserta tanggalnya. Koreksi adalah setiap perubahan atas fakta yang pernah diterbitkan dengan keliru.',
+        count: (n: number) => `${n} koreksi sejauh ini.`,
+        none: 'Belum ada koreksi.',
+        report: 'Laporkan koreksi',
+        changelog: 'Catatan perubahan lengkap',
+        inEnglish: 'Isi koreksi ditulis dalam bahasa Inggris, seperti di catatan perubahan.',
+      };
+---
+<Base lang={lang} path="corrections/" title={copy.title} description={copy.lede}>
+  <header class="page-head">
+    <p class="kicker">{copy.title}</p>
+    <h1>{copy.title}</h1>
+    <p class="lede">{copy.lede}</p>
+    <p class="label-note">{copy.count(corrections.length)} {copy.inEnglish}</p>
+  </header>
+
+  <section class="doc-body" aria-label={copy.title}>
+    {
+      corrections.length ? (
+        <ol class="corrections-list">
+          {corrections.map((c) => (
+            <li>
+              <time datetime={c.date}>{fmtDate(lang, c.date)}</time>
+              <p lang="en">{c.text}</p>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p>{copy.none}</p>
+      )
+    }
+    <p>
+      <a href={`${SITE.issues}/new?template=correction.yml`}>{copy.report}</a> · <a href={SITE.changelog}>{copy.changelog}</a>
+    </p>
+  </section>
+</Base>

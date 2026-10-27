@@ -1,0 +1,48 @@
+name: Promise suggestion
+description: An official said, on the record, that an AI rule or body would be ready by a date or after an event.
+title: "Promise: "
+labels: [promise]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Promises are recorded in the Open Promise Ledger format (docs/standard/v0.1). The deadline is derived from the words in the source, using the latest plausible reading.
+        Please quote the words as the source gives them. Bahasa Indonesia is welcome.
+  - type: input
+    id: who
+    attributes:
+      label: Who said it
+      description: Name, and role as the source states it.
+    validations:
+      required: true
+  - type: input
+    id: date_said
+    attributes:
+      label: Date it was said
+      placeholder: YYYY-MM-DD
+    validations:
+      required: true
+  - type: textarea
+    id: words
+    attributes:
+      label: The words, as the source gives them
+      description: In the original language. Under 15 words if it is a direct quote.
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source link
+    validations:
+      required: true
+  - type: dropdown
+    id: claim_type
+    attributes:
+      label: What kind of promise is it?
+      options:
+        - A dated promise (a deadline that can pass)
+        - A conditional promise (it depends on an event)
+        - A status claim (it reports progress, with no deadline)
+        - Not sure
+    validations:
+      required: true

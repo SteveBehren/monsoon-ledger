@@ -294,3 +294,12 @@ export function paperSection(id: string, lang: Lang, headingId: string): string 
     .replace(/<p class="draft-note">[\s\S]*?<\/p>/g, '')
     .trim();
 }
+
+// Only Analysis 01 has a brief so far: its sections and its timeline incident are named here.
+export const BRIEFS: Record<string, { findings: Record<Lang, string>; recommendations: Record<Lang, string>; incident: string }> = {
+  'nobody-to-call': {
+    findings: { en: 'key-findings', id: 'temuan-utama' },
+    recommendations: { en: '8-recommendations', id: '8-rekomendasi' },
+    incident: 'openai-medicare-portal-2026',
+  },
+};

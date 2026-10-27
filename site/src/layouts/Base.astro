@@ -30,6 +30,14 @@ const enUrl = new URL(href('en', path), SITE.url).href;
 const idUrl = new URL(href('id', path), SITE.url).href;
 
 // The brand links home, so Home is not repeated in the navigation.
+// Research pages sit in the footer, not the main navigation.
+const research = [
+  { key: 'safety', path: 'safety/' },
+  { key: 'incidents', path: 'incidents/' },
+  { key: 'reading', path: 'reading/' },
+  { key: 'corrections', path: 'corrections/' },
+] as const;
+
 const links = [
   { key: 'entries', path: 'entries/' },
   { key: 'ledger', path: 'ledger/' },
@@ -181,6 +189,12 @@ const links = [
             <h2>{t.footerExplore}</h2>
             <ul>
               {links.map((l) => <li><a href={href(lang, l.path)}>{t.nav[l.key]}</a></li>)}
+            </ul>
+          </div>
+          <div>
+            <h2>{t.footerResearch}</h2>
+            <ul>
+              {research.map((l) => <li><a href={href(lang, l.path)}>{t.footerPages[l.key]}</a></li>)}
             </ul>
           </div>
           <div>

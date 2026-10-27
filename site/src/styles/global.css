@@ -492,7 +492,7 @@ main:focus {
 
 .footer-grid {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
   gap: 2rem;
 }
 
@@ -539,6 +539,12 @@ main:focus {
   font-family: var(--mono);
   font-size: 0.72rem;
   color: var(--text-faint);
+}
+
+@media (max-width: 60rem) {
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 @media (max-width: 44rem) {
@@ -3281,4 +3287,30 @@ dl.defs dd {
 .reading-status--reading {
   border-color: var(--accent);
   color: var(--accent);
+}
+
+/* Corrections */
+.corrections-list {
+  margin: 0 0 2rem;
+  padding: 0;
+  list-style: none;
+}
+
+.corrections-list li {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.corrections-list time {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--accent);
+}
+
+.corrections-list p {
+  margin: 0.35rem 0 0;
+}
+
+.page-head .label-note {
+  margin-top: 0.9rem;
 }

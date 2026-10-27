@@ -1,0 +1,43 @@
+name: Source suggestion
+description: A law, regulation, official statement or report the ledger should read.
+title: "Source: "
+labels: [source]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The ledger covers how Indonesia governs AI, and data protection where it shapes AI governance.
+        Bahasa Indonesia is welcome.
+  - type: input
+    id: url
+    attributes:
+      label: Link
+    validations:
+      required: true
+  - type: input
+    id: title
+    attributes:
+      label: Title, as the source gives it
+    validations:
+      required: true
+  - type: input
+    id: date
+    attributes:
+      label: Date of the source
+      placeholder: YYYY-MM-DD
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of source
+      options:
+        - The published legal text itself
+        - An official statement on the record
+        - A press report or secondary analysis
+        - Research or a report
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it matters
+      description: Which entry, instrument or question it bears on.

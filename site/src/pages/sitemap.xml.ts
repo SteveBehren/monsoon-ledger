@@ -21,6 +21,7 @@ export const GET: APIRoute = () => {
     { path: 'safety/' },
     { path: 'incidents/' },
     { path: 'reading/' },
+    { path: 'corrections/' },
     { path: 'ontology/' },
     { path: 'radar/' },
     { path: 'method/' },

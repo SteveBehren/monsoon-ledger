@@ -1,0 +1,104 @@
+---
+// A two-page brief of an analysis paper, for printing: key findings, the Medicare timeline and
+// the recommendations by audience. Everything comes from the paper's own text and from
+// data/frontier-incidents.yml. Nothing here says anything the paper does not.
+import Base from '../../../../layouts/Base.astro';
+import '../../../../styles/analysis.css';
+import { getPaperIds, getPaperMeta, hasPaper, paperSection, BRIEFS } from '../../../../lib/analysis';
+import { getIncidents } from '../../../../lib/data';
+import { href, fmtDate, LANGS, type Lang } from '../../../../lib/i18n';
+
+
+export function getStaticPaths() {
+  return getPaperIds()
+    .filter((slug) => BRIEFS[slug])
+    .flatMap((slug) => LANGS.filter((lang) => hasPaper(slug, lang)).map((lang) => ({ params: { lang, slug } })));
+}
+
+const lang = Astro.params.lang as Lang;
+const slug = Astro.params.slug!;
+const spec = BRIEFS[slug];
+const meta = getPaperMeta(slug, lang)!;
+const number = String(meta.number).padStart(2, '0');
+const findings = paperSection(slug, lang, spec.findings[lang]);
+
+// Recommendations: the first three audiences of the section, each with its bold lead sentences.
+const recHtml = paperSection(slug, lang, spec.recommendations[lang]);
+const audiences = [...recHtml.matchAll(/<h3 id="[^"]*">([\s\S]*?)<\/h3>([\s\S]*?)(?=<h3 |$)/g)].slice(0, 3).map((m) => ({
+  title: m[1].replace(/<[^>]+>/g, ''),
+  points: [...m[2].matchAll(/<li><strong>([\s\S]*?)<\/strong>/g)].map((p) => p[1].replace(/<[^>]+>/g, '')),
+}));
+
+const incident = getIncidents().find((i) => i.id === spec.incident)!;
+const copy =
+  lang === 'en'
+    ? {
+        kicker: `Analysis ${number} · Brief`,
+        lede: 'A two-page brief of the paper. Every point here is in the full text, with its sources.',
+        findings: 'Key findings',
+        timeline: 'The Medicare sequence',
+        events: { start: 'An OpenAI agent accesses the Medicare statistics portal', aware: 'OpenAI becomes aware of the access', notice: 'OpenAI emails a public disclosures mailbox at', public: 'The Prime Minister makes the incident public' },
+        days: (a: number, b: number) => `${a} days from the access to the notice, ${b} days from the developer's awareness to the notice.`,
+        recs: 'Recommendations by audience',
+        asOf: `Facts as of ${fmtDate(lang, String(meta.facts_as_of))}. Version ${meta.version}.`,
+        full: 'Read the full paper, with sources',
+        print: 'Print this brief',
+        source: 'Timeline from the frontier incident reference, which the paper cites as ABC News Australia, 24 September 2026.',
+      }
+    : {
+        kicker: `Analisis ${number} · Ringkasan`,
+        lede: 'Ringkasan dua halaman dari makalah ini. Setiap poin di sini ada dalam teks lengkapnya, beserta sumbernya. Terjemahan draf, menunggu tinjauan penulis.',
+        findings: 'Temuan utama',
+        timeline: 'Urutan kasus Medicare',
+        events: { start: 'Agen OpenAI mengakses portal statistik Medicare', aware: 'OpenAI mengetahui akses itu', notice: 'OpenAI mengirim surel ke kotak surat pengungkapan publik milik', public: 'Perdana Menteri mengumumkan insiden ini' },
+        days: (a: number, b: number) => `${a} hari dari akses sampai pemberitahuan, ${b} hari dari saat pengembang tahu sampai pemberitahuan.`,
+        recs: 'Rekomendasi per pihak',
+        asOf: `Fakta per ${fmtDate(lang, String(meta.facts_as_of))}. Versi ${meta.version}.`,
+        full: 'Baca makalah lengkap beserta sumbernya',
+        print: 'Cetak ringkasan ini',
+        source: 'Linimasa dari rujukan insiden AI garda depan, yang dalam makalah bersumber dari ABC News Australia, 24 September 2026.',
+      };
+const timeline = [
+  { date: incident.activity_start, text: copy.events.start },
+  { date: incident.developer_aware, text: copy.events.aware },
+  { date: incident.notified_at, text: `${copy.events.notice} ${incident.notified_authority}` },
+  { date: incident.first_public_disclosure, text: copy.events.public },
+].filter((e): e is { date: string; text: string } => Boolean(e.date));
+---
+<Base lang={lang} path={`analysis/${slug}/brief/`} title={`${meta.title}: ${lang === 'en' ? 'brief' : 'ringkasan'}`} description={copy.lede} nav="analysis">
+  <article class="paper-brief">
+    <section class="brief-screen" aria-labelledby="brief-h">
+      <header class="page-head brief-head">
+        <p class="kicker"><a href={href(lang, `analysis/${slug}/`)}>{copy.kicker}</a></p>
+        <h1 id="brief-h">{meta.title}</h1>
+        <p class="lede">{meta.subtitle}</p>
+        <p class="label-note">{copy.asOf} {copy.lede}</p>
+      </header>
+      <h2>{copy.findings}</h2>
+      <div class="doc-body brief-findings" set:html={findings} />
+    </section>
+
+    <section class="brief-screen" aria-labelledby="timeline-h">
+      <h2 id="timeline-h">{copy.timeline}</h2>
+      <ol class="it-events brief-timeline">
+        {timeline.map((e) => <li><time datetime={e.date}>{fmtDate(lang, e.date)}</time> <span>{e.text}</span></li>)}
+      </ol>
+      {incident.days_access_to_notice !== null && incident.days_awareness_to_notice !== null && <p><strong>{copy.days(incident.days_access_to_notice, incident.days_awareness_to_notice)}</strong></p>}
+      <p class="label-note">{copy.source}</p>
+
+      <h2>{copy.recs}</h2>
+      <div class="brief-recs">
+        {
+          audiences.map((a) => (
+            <div class="panel">
+              <h3>{a.title}</h3>
+              <ul>{a.points.map((p) => <li>{p}</li>)}</ul>
+            </div>
+          ))
+        }
+      </div>
+      <p class="label-note">{copy.asOf}</p>
+      <p class="brief-links"><a href={href(lang, `analysis/${slug}/`)}>{copy.full}</a></p>
+    </section>
+  </article>
+</Base>

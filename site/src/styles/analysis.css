@@ -388,3 +388,61 @@
     break-after: avoid;
   }
 }
+
+/* Two-page brief */
+.brief-findings ol {
+  padding-left: 1.3rem;
+}
+
+.brief-timeline {
+  margin: 1rem 0;
+}
+
+.brief-recs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.brief-recs .panel {
+  padding: 0.9rem 1rem;
+}
+
+.brief-recs h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.brief-recs ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.9rem;
+}
+
+.brief-recs li {
+  margin-bottom: 0.4rem;
+}
+
+@media print {
+  .brief-screen {
+    break-after: page;
+  }
+
+  .brief-screen:last-child {
+    break-after: auto;
+  }
+
+  .brief-head {
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .brief-recs {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .brief-links {
+    display: none;
+  }
+}

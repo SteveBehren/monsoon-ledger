@@ -1,7 +1,110 @@
 # Written by npm run scan. Leads are unreviewed: they are not entries and not verified.
 # To review one, set status to reviewed, promoted or dismissed. Promote by writing an entry.
-updated: "2026-10-26T01:08:59Z"
+updated: "2026-10-29T02:26:42Z"
 leads:
+  - id: de8190b8c9
+    found: "2026-10-29"
+    published: "2026-10-26"
+    title: UNESA Dorong Pembelajaran Sejarah Beretika di Era Kecerdasan Artifisial, Perkuat Komitmen terhadap SDG 4 dan SDG 9
+    url: https://news.google.com/rss/articles/CBMi2wFBVV95cUxPbERkNGpRc0FpRmZoOWRRZURXX1BaMlJ4TEVCTnFqeUs1VnQxMmdxSExTd2pNOU92UXhpS3hyQ0ZuckdiMVNtNlI5c2p0UmU2djNiemh1dVQ3YTFGV0k1ZGN2M2J2V0l3OTM4dXVJbmZaekIwSXlUeDhIUHpzYmQ4d25VVTdOLU8zUmpCcjd4ZnlySGxLZFFWdm81R0V1VV8tVnpCTHN5QThETFJ0ckt6SkdHb0JjR09Hc0JQVWZRdGM1akpXVTFEcWJsZDBKTUE1SkVCY3V6UThQeTA?oc=5
+    outlet: optika.id
+    country: ID
+    language: id
+    source: gn-id-ai-regulation
+    score: 5
+    terms:
+      - kecerdasan artifisial
+      - etika
+    status: new
+  - id: 4521736cbd
+    found: "2026-10-29"
+    published: "2026-10-28"
+    title: Kementerian Komunikasi dan Digital Minta Platform Digital Transparansi Penggunaan Kecerdasan Artifisial AI - Lintas Papua
+    url: https://news.google.com/rss/articles/CBMi6wFBVV95cUxOMU1nbHo4UklxdDFaYnlfMWExZkhWWlNiV2tLSjV4S1R6X1ZreUtyVFdnU2FzV09SRHA0cTZucVR1amY3a1REenFpNlJSYU5QSmhENFFmMUhLMEVuWGd1VkxiUFR5em9kQWhlc2ZxeS1HTDBla0djUW0zQnhuSHRuSFZLTGx2MHozX0I0cloxbmZKV0RDeUV4c2hsU2FoSnMxSW43b0dBSjFaU1RlN05qQW8yaW9iVHhwZWU0ZUFERHBUQmlwbHlKc18tZ3JyTkx5T3BWV09jaTFKRndZQUxxRWhEX3JaX1BxMWxF0gHwAUFVX3lxTE5WcHlkOHZ6TjR1QlByR0dQUmc2VXR6T1k3ZjRJNFd4MHlTY3d5ZERTRGtMLWVEVWY5V3pqRUZ4cGZnUy01QThmTVBPWTgybjRQN0h6eXppMUZwNDhTdjJvckRGYkdIU0h4MFRIY0x6eWYyNnByX19meUpHak9GSmhUQWIyU0cySDlSdWxRX1YtLXZKVTdwMXVLSElkMXgtbURFTVlKVFJpakpBS0pfOXpHU0RLSFE1WTZqODV4eTFfN3hFU1JMSE5vV0NUd3dMc3hNeGZkbnk3WElxQlJzZGM3UXlnbXoxVVZab0Q0TEhLNA?oc=5
+    outlet: Lintas Papua
+    country: ID
+    language: id
+    source: gn-id-buzzer-ai
+    score: 4
+    terms:
+      - kecerdasan artifisial
+      - AI
+    status: new
+  - id: 8993840d4f
+    found: "2026-10-29"
+    published: "2026-10-24"
+    title: AI Governance Bill to require safety measures for child-focused chatbots, apps
+    url: https://news.google.com/rss/articles/CBMivgFBVV95cUxPYXVxTzk2ZWx0TTl3Zk52NUF4T2N6Nl94OFY2WTVOR0lfYU9oazNGUG1DMndEUExQWWRFbzN6cnp1MHJWVUxMRjFkSUZpVUNvcnFLWlNaa0ZQdHB1VUhBRm13MUhzM2lpcjczMmtiTVJ5SV8tV3pEc1A2blUxSS1uZnBtVVhrNmRBUXA1TU5qZkJ2SjA4dkpNQUhNRF9meHVTSTlsSFFseFlVYjNXSDR3b3dGazhleW9WcTFpU19B0gHDAUFVX3lxTFA5TFhmb2d5NVN6NkFuYlBCU2NERnRTVDBXT2RmVGg0dFBxZlJDMDYzeV9ZUlprR2ZJSTRhX1hKcktoVFI1S1hva181OUFKUTZmXzhtcFhPOWNYNkl6NVBkSm5ZRVhJd18wU3BrcC1sMVdmLWg4aEVSa1Rla2MtNklZc3lGYmV1cjRrd3A5YUduS2w0bjJ1NngtUExxTnlxQzZvMGtvWG1LUmJvUE1ESUJQa1ZzYlVfUk9NWldkTXNZR3YyZw?oc=5
+    outlet: NST Online
+    country: MY
+    language: en
+    source: gn-my-ai
+    score: 4
+    terms:
+      - AI
+      - bill
+      - governance
+    status: new
+  - id: b1b4b9315c
+    found: "2026-10-29"
+    published: "2026-10-29"
+    title: Parliament To Examine AI Curriculum, Governance Bill And BRICS Ties
+    url: https://news.google.com/rss/articles/CBMisAFBVV95cUxNdVF5akRoX3ROU0VjM2YyNkloWHNBcGxlVlVpdmh0WEs2N1kxU0N3RTJRRGZ3cVlJMkprRVYySk9kcUIxVGFXeV9zQnBvRm9qTm03cmEwY0dPUXBtRWU5V001enFld3ExR1pkVTZObS1wWDBxOF9jYlZaeUpDVmZULUFIUlctMm9DZkZRSlc2NFRRMld5NWVXZUZJRUdlVUZ0WWpJRUNLVXFITFpIdWFJbg?oc=5
+    outlet: BusinessToday Malaysia
+    country: MY
+    language: en
+    source: gn-my-ai
+    score: 4
+    terms:
+      - AI
+      - bill
+      - governance
+    status: new
+  - id: cc1fdccb65
+    found: "2026-10-29"
+    published: "2026-10-28"
+    title: AI Governance Bill being drafted to strengthen safety, accountability, says Gobind
+    url: https://news.google.com/rss/articles/CBMiU0FVX3lxTE9USmxFMHlXR0Rta29lSFZVQVVuT2c2WUp3QzNJREx5dV90bVhwZjJyS3hDTzNzei1ad0VCaFVmcWhaUFNPTi1BekVyLXc5Y1gxbzhj?oc=5
+    outlet: The Edge Malaysia
+    country: MY
+    language: en
+    source: gn-my-ai
+    score: 4
+    terms:
+      - AI
+      - bill
+      - governance
+    status: new
+  - id: cf2e16dd0b
+    found: "2026-10-29"
+    published: "2026-10-28"
+    title: China-ASEAN Roundtable on AI Governance Held Successfully at the Global Governance Forum 2026 in Xiong'an
+    url: https://news.google.com/rss/articles/CBMihwFBVV95cUxQRzZPRFE2UlNkM2d4RjREQWJfMmVxQUNjSWZhcEFoWjVWbUFfYTIzMGhtdUp6SlF2OTRVOWJ5RjFlaVg4TnM1bTBMdHI2RXNGNEVqUUctYVdWeDF6anZham9OczRFbmVxeWg0dlkxQ0phRDZtU084S2NWWUtLOHgteXdqbUs2dGc?oc=5
+    outlet: 中国国际问题研究院
+    country: ASEAN
+    language: en
+    source: gn-en-indonesia-ai
+    score: 4
+    terms:
+      - AI
+      - governance
+      - ASEAN
+    status: new
+  - id: fd260faa7c
+    found: "2026-10-29"
+    published: "2026-10-26"
+    title: Anwar says AI Governance Bill to complement cybersecurity, data laws
+    url: https://news.google.com/rss/articles/CBMitgFBVV95cUxNcDhYV0Z5LUxnTm5LUENIUnhjUExYX1E3M1NqY2VLY196VGJ4OHlwc1VVZVQzUFBTdmxRcmxBYnM3N0NWeE9IdjVCUGxJSjJhUENEaHB5WS0teUhib2hXcUFKSE5Va2dtY3NfeHNUVjVBWTQ0R0syZ09DcWJzZmlWZFZpTW1jcy00YTJIUXdVVnFqUER6VUdvYW9aNDAtODVpVnk1SlVtR0ZiR211OUJJZXZxazlvZ9IBuwFBVV95cUxPQ1B5WklsSVZiV1FtbTFFN3BxVzh2a1BqOVU0Ukg1cWxoWDYzbHdmcC1oaUVrZU52UFFScW8zeUszT3VZMHVhbWZ6dUFKVWNJZl9raVNnZ3V5VmVnUlBYM3dUVVVSdjJrZ2lLaldWNjNlWGxHWkNIdDF1S2xSQkNiNnNRNmxUV05OVDNMNzd6bVFGZXFCeVpaeUJWRURSS0FPQVFiYmZkTGROclNwRTM2WmwzNTN0QkE1d2pN?oc=5
+    outlet: NST Online
+    country: MY
+    language: en
+    source: gn-my-ai
+    score: 4
+    terms:
+      - AI
+      - bill
+      - governance
+    status: new
   - id: "24396821e3"
     found: "2026-10-26"
     published: "2026-10-20"
